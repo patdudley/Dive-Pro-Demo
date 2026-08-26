@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Preview site only. Production remains https://diveprosd.com

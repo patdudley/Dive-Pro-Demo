@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DiveProSD | La Jolla Dive Visibility Forecast</title>
+    <meta name="description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#13baee">
+    <link rel="canonical" href="https://patdudley.github.io/Dive-Pro-Demo/">
+    <link rel="icon" href="favicon.ico?v=fish-icon-4" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=fish-icon-4">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png?v=fish-icon-4">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=fish-icon-4">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=fish-icon-4">
+    <meta property="og:site_name" content="DiveProSD">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DiveProSD | La Jolla Dive Visibility Forecast">
+    <meta property="og:description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <meta property="og:url" content="https://patdudley.github.io/Dive-Pro-Demo/">
+    <meta property="og:image" content="https://patdudley.github.io/Dive-Pro-Demo/divepro-social-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DiveProSD | La Jolla Dive Visibility Forecast">
+    <meta name="twitter:description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <meta name="twitter:image" content="https://patdudley.github.io/Dive-Pro-Demo/divepro-social-card.png">
+    <meta name="twitter:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DiveProSD",
+        "url": "https://patdudley.github.io/Dive-Pro-Demo/",
+        "description": "Phone preview of the DiveProSD homepage. Not production.",
+        "inLanguage": "en-US",
+        "publisher": {
+          "@type": "Organization",
+          "name": "DiveProSD",
+          "url": "https://diveprosd.com/"
+        },
+        "potentialAction": {
+          "@type": "ViewAction",
+          "target": "https://patdudley.github.io/Dive-Pro-Demo/"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
+    <link rel="stylesheet" href="styles.css?v=mobile-preview-swell-20260826">
+    <link rel="stylesheet" href="ui-polish.css?v=beta-ui-12">
+  </head>
+  <body>
+    <main class="shell">
+      <p class="preview-banner">Mobile preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
+      <div class="stale-banner" id="staleBanner" hidden></div>
+      <section class="hero-camera">
+        <header class="topbar">
+          <img class="brand-logo" src="divepro-logo.png?v=brand-logo-2" alt="DivePro">
+        </header>
+
+        <figure class="camera-frame is-camera-unavailable" id="cameraFrame">
+          <img id="cameraImage" alt="" hidden>
+          <p class="camera-unavailable-message" id="cameraUnavailableMessage">Camera unavailable · no verified recent image</p>
+          <span class="camera-observed-badge" id="cameraObservedBadge" hidden>Today</span>
+          <a class="camera-live-link" href="https://coollab.ucsd.edu/pierviz/" target="_blank" rel="noopener noreferrer" aria-label="Open the live Scripps Pier camera on UCSD Coollab in a new tab">Scripps Pier cam <span aria-hidden="true">&nearr;</span></a>
+        </figure>
+
+        <div class="hero-content">
+          <section class="forecast-panel">
+            <div class="forecast-meta">
+              <span id="location">La Jolla / Scripps Pier</span>
+            </div>
+            <div class="forecast-main">
+              <strong id="grade">--</strong>
+              <div class="primary-stat">
+                <span>Estimated visibility</span>
+                <strong id="visibility">-- ft</strong>
+              </div>
+            </div>
+            <div class="score-row">
+              <div class="score-track" aria-hidden="true"><div id="scoreFill"></div></div>
+            </div>
+            <div class="wave-weight">
+              <span>Wave weight</span>
+              <strong id="waveWeight">Loading</strong>
+            </div>
+            <div class="best-window">
+              <span>Best window</span>
+              <strong id="bestWindow">Loading</strong>
+            </div>
+          </section>
+
+          <section class="daily-report-card">
+            <article class="report-copy">
+              <h2>Daily Dive Report</h2>
+              <p id="dailyReport"></p>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <section class="model-card wave-card swell-card">
+        <div class="section-heading">
+          <h2>Swell</h2>
+          <span id="swellSource">Open-Meteo / NDBC</span>
+        </div>
+        <div class="wave-summary">
+          <div class="wave-surf-panel swell-panel">
+            <div class="wave-components" id="waveComponents"></div>
+            <figure class="swell-rose-wrap" aria-label="Swell compass rose">
+              <div id="swellRose" class="swell-rose"></div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="model-card">
+        <h2>Weather</h2>
+        <div class="feature-rows" id="featureRows"></div>
+      </section>
+
+      <section class="chart-grid chart-grid-single">
+        <article>
+          <h2>Tide Height</h2>
+          <div class="tide-meta" hidden>
+            <span id="tidePhase"></span>
+            <span id="tideNextEvent"></span>
+          </div>
+          <div class="chart" id="tideChart"></div>
+        </article>
+      </section>
+
+      <section class="chart-grid chart-grid-single static-wind-card">
+        <article>
+          <h2>Wind Speed</h2>
+          <div class="chart bars" id="windChart"></div>
+        </article>
+      </section>
+
+      <section class="model-card region-map-card">
+        <div class="section-heading">
+          <h2>Region Map</h2>
+          <span>La Jolla, San Diego</span>
+        </div>
+        <div class="map-frame spot-map-frame">
+          <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive La Jolla dive region map"></div>
+          <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
+            <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
+            <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
+          </div>
+          <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
+            <span>Wind MPH</span>
+            <div class="wind-legend-gradient"></div>
+            <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
+          </div>
+          <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
+            <span>Depth</span>
+            <div class="depth-legend-gradient"></div>
+            <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ten-day-card">
+        <div class="section-heading">
+          <h2>10 Day Forecast</h2>
+          <span id="forecastSource">Model predictions</span>
+        </div>
+        <div class="forecast-strip" id="forecastStrip" aria-label="10 day visibility forecast"></div>
+      </section>
+
+      <section class="model-card">
+        <h2>Grade Guide</h2>
+        <div class="grade-guide" id="gradeGuide"></div>
+      </section>
+    </main>
+    <script src="analytics-config.js?v=analytics-2"></script>
+    <script src="analytics.js?v=analytics-2"></script>
+    <script type="module" src="app.js?v=mobile-preview-swell-20260826"></script>
+    <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
+    <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
+    <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
+    <script src="map-config.js?v=map-1"></script>
+    <script src="spot-map.js?v=wind-time-label-20260718"></script>
+  </body>
+</html>
