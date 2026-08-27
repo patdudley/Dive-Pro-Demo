@@ -563,6 +563,12 @@ function yFromValue(value, min, max, top, height) {
   return top + (1 - ((value - min) / Math.max(0.1, max - min))) * height;
 }
 
+function chartXLabelAnchor(index, total) {
+  if (index <= 0) return "start";
+  if (index >= total - 1) return "end";
+  return "middle";
+}
+
 function renderTideChart(data) {
   const chart = document.getElementById("tideChart");
   if (!chart) return;
@@ -575,32 +581,27 @@ function renderTideChart(data) {
   const yTicks = chartTicks(Math.min(...values), Math.max(...values), 5);
   const min = yTicks[0];
   const max = yTicks[yTicks.length - 1];
-  const left = 58;
+  const left = 0;
   const top = 18;
-  const width = 638;
+  const width = 720;
   const height = 176;
   const coords = points.map((point, index) => {
     const x = xFromIndex(index, points.length, left, width);
     const y = yFromValue(point.height_ft, min, max, top, height);
     return `${x.toFixed(2)},${y.toFixed(2)}`;
   }).join(" ");
-  const xTicks = points.filter((_, index) => index % 4 === 0 || index === points.length - 1);
+  const xTicks = points
+    .map((point, index) => ({ point, index }))
+    .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
   chart.innerHTML = `
-    <svg viewBox="0 0 720 250" role="img" aria-label="Hourly tide height chart">
+    <svg viewBox="0 0 720 250" preserveAspectRatio="none" role="img" aria-label="Hourly tide height chart">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
-        return `
-          <line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>
-          <text x="${left - 10}" y="${y + 4}" class="chart-y-label" text-anchor="end">${tick.toFixed(1)} ft</text>
-        `;
+        return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
       }).join("")}
-      ${xTicks.map((point, index) => {
-        const pointIndex = points.indexOf(point);
-        const x = xFromIndex(pointIndex, points.length, left, width);
-        return `
-          <line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${index % 2 ? "is-soft" : ""}"></line>
-          <text x="${x}" y="224" class="chart-x-label" text-anchor="middle">${hourLabel(point.time)}</text>
-        `;
+      ${xTicks.map(({ index }, tickIndex) => {
+        const x = xFromIndex(index, points.length, left, width);
+        return `<line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${tickIndex % 2 ? "is-soft" : ""}"></line>`;
       }).join("")}
       <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
       <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
@@ -609,6 +610,14 @@ function renderTideChart(data) {
         const x = xFromIndex(index, points.length, left, width);
         const y = yFromValue(point.height_ft, min, max, top, height);
         return `<circle cx="${x}" cy="${y}" r="3.5" class="tide-point"><title>${hourLabel(point.time)}: ${point.height_ft.toFixed(2)} ft</title></circle>`;
+      }).join("")}
+      ${yTicks.map((tick) => {
+        const y = yFromValue(tick, min, max, top, height);
+        return `<text x="8" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(1)} ft</text>`;
+      }).join("")}
+      ${xTicks.map(({ point, index }) => {
+        const x = xFromIndex(index, points.length, left, width);
+        return `<text x="${x}" y="224" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
@@ -626,38 +635,42 @@ function renderWindChart(data) {
   const yTicks = chartTicks(0, Math.max(...values), 5);
   const min = 0;
   const max = yTicks[yTicks.length - 1];
-  const left = 58;
+  const left = 0;
   const top = 18;
-  const width = 638;
+  const width = 720;
   const height = 176;
-  const gap = 5;
-  const bandWidth = width / points.length;
-  const barWidth = Math.max(8, bandWidth - gap);
-  const xTicks = points.filter((_, index) => index % 4 === 0 || index === points.length - 1);
+  const gap = 4;
+  const barWidth = points.length > 1
+    ? (width - gap * (points.length - 1)) / points.length
+    : width;
+  const xTicks = points
+    .map((point, index) => ({ point, index }))
+    .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
   chart.innerHTML = `
-    <svg viewBox="0 0 720 250" role="img" aria-label="Hourly wind speed chart">
+    <svg viewBox="0 0 720 250" preserveAspectRatio="none" role="img" aria-label="Hourly wind speed chart">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
-        return `
-          <line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>
-          <text x="${left - 10}" y="${y + 4}" class="chart-y-label" text-anchor="end">${tick.toFixed(0)} mph</text>
-        `;
+        return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
       }).join("")}
-      ${xTicks.map((point, index) => {
-        const pointIndex = points.indexOf(point);
-        const x = xFromIndex(pointIndex, points.length, left, width);
-        return `
-          <line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${index % 2 ? "is-soft" : ""}"></line>
-          <text x="${x}" y="224" class="chart-x-label" text-anchor="middle">${hourLabel(point.time)}</text>
-        `;
+      ${xTicks.map(({ index }, tickIndex) => {
+        const x = xFromIndex(index, points.length, left, width);
+        return `<line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${tickIndex % 2 ? "is-soft" : ""}"></line>`;
       }).join("")}
       <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
       <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
       ${points.map((point, index) => {
         const speed = point.speed_mph || 0;
-        const x = left + (index * bandWidth) + (gap / 2);
+        const x = left + index * (barWidth + (points.length > 1 ? gap : 0));
         const y = yFromValue(speed, min, max, top, height);
         return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${(top + height - y).toFixed(2)}" rx="4" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
+      }).join("")}
+      ${yTicks.map((tick) => {
+        const y = yFromValue(tick, min, max, top, height);
+        return `<text x="8" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(0)} mph</text>`;
+      }).join("")}
+      ${xTicks.map(({ point, index }) => {
+        const x = xFromIndex(index, points.length, left, width);
+        return `<text x="${x}" y="224" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
