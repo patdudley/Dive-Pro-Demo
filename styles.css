@@ -55,6 +55,50 @@ body {
   font-weight: 900;
 }
 
+.site-chrome {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 12px;
+  padding: 2px 2px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-wordmark {
+  color: var(--navy);
+  font-size: 0.98rem;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.site-nav {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.site-nav a {
+  color: var(--navy);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--dark-cyan);
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.site-nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .home-shell {
   min-height: 100vh;
 }
@@ -3691,6 +3735,77 @@ ul {
   outline: none;
 }
 
+.blog-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blog-index-heading {
+  margin: 8px 0 22px;
+  color: var(--navy);
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.blog-index-heading::before {
+  content: none;
+}
+
+.blog-index-item {
+  margin: 0;
+  padding: 0 0 8px;
+}
+
+.blog-index-item h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+.blog-index-item h2::before {
+  content: none;
+}
+
+.blog-index-item h2 a {
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.blog-index-item h2 a:hover,
+.blog-index-item h2 a:focus-visible {
+  color: var(--dark-cyan);
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.blog-index-item .post-dek {
+  margin: 0 0 10px;
+}
+
+.blog-index-item .post-byline,
+.post-byline {
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.blog-index-item .post-byline {
+  margin-bottom: 0;
+}
+
+.post-page a {
+  color: var(--dark-cyan);
+}
+
+.post-page a:hover,
+.post-page a:focus-visible {
+  color: var(--accent);
+}
+
 .post-page h1 {
   max-width: 780px;
   margin: 14px 0 20px;
@@ -3710,7 +3825,7 @@ ul {
   line-height: 1.45;
 }
 
-.post-page p:not(.post-dek) {
+.post-page p:not(.post-dek):not(.post-byline) {
   max-width: 690px;
   margin: 0 0 22px;
   color: rgba(10, 37, 64, 0.76);
@@ -3735,6 +3850,19 @@ ul {
   .home-nav a {
     min-height: 30px;
     padding: 0;
+    font-size: 0.74rem;
+  }
+
+  .site-chrome {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .site-nav {
+    gap: 14px;
+  }
+
+  .site-nav a {
     font-size: 0.74rem;
   }
 
