@@ -3037,15 +3037,20 @@ h2::before {
 }
 
 .forecast-strip {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(92px, 1fr));
+  display: flex;
   gap: 8px;
+  min-width: 0;
   overflow-x: auto;
-  padding-bottom: 4px;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
 }
 
 .forecast-day {
+  flex: 1 0 92px;
   min-width: 92px;
+  max-width: 140px;
   min-height: 132px;
   border: 1px solid rgba(19, 186, 238, 0.22);
   border-radius: 8px;

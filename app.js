@@ -160,10 +160,11 @@ function dayLabel(date) {
 }
 
 function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
-  const currentAndFuture = forecasts.filter((forecast) => (
-    forecast && (!forecast.date || forecast.date >= today)
-  ));
-  return currentAndFuture.length ? currentAndFuture : forecasts.slice(-1);
+  const valid = forecasts.filter((forecast) => forecast && forecast.date);
+  const upcoming = valid.filter((forecast) => forecast.date >= today);
+  if (upcoming.length >= 10) return upcoming.slice(0, 10);
+  if (valid.length) return valid.slice(0, 10);
+  return forecasts.slice(0, 10);
 }
 
 function initialForecastForToday(forecasts, fallbackForecast, today = localTodayInLaJolla()) {
