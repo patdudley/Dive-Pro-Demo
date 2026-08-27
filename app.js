@@ -163,8 +163,10 @@ function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
   const valid = forecasts.filter((forecast) => forecast && forecast.date);
   const upcoming = valid.filter((forecast) => forecast.date >= today);
   if (upcoming.length >= 10) return upcoming.slice(0, 10);
-  if (valid.length) return valid.slice(0, 10);
-  return forecasts.slice(0, 10);
+  if (!valid.length) return forecasts.slice(0, 10);
+  const past = valid.filter((forecast) => forecast.date < today);
+  const pad = past.slice(-(10 - upcoming.length));
+  return pad.concat(upcoming).slice(0, 10);
 }
 
 function initialForecastForToday(forecasts, fallbackForecast, today = localTodayInLaJolla()) {
@@ -843,25 +845,30 @@ function initSwellMap() {
     return;
   }
   if (!maplibre) return;
-  swellMapInstance = new maplibre.Map({
-    container,
-    style: swellSatelliteStyle(),
-    center: SWELL_MAP_CENTER,
-    zoom: 10.8,
-    attributionControl: false,
-    interactive: false,
-    fadeDuration: 0,
-    minZoom: 9.5,
-    maxZoom: 16,
-  });
-  swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
-  swellMapInstance.on("load", () => {
-    container.classList.add("is-ready");
-    fitSwellCoast();
-  });
-  window.addEventListener("resize", fitSwellCoast);
-  if (typeof ResizeObserver === "function") {
-    new ResizeObserver(fitSwellCoast).observe(container);
+  try {
+    swellMapInstance = new maplibre.Map({
+      container,
+      style: swellSatelliteStyle(),
+      center: SWELL_MAP_CENTER,
+      zoom: 10.8,
+      attributionControl: false,
+      interactive: false,
+      fadeDuration: 0,
+      minZoom: 9.5,
+      maxZoom: 16,
+    });
+    swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
+    swellMapInstance.on("load", () => {
+      container.classList.add("is-ready");
+      fitSwellCoast();
+    });
+    swellMapInstance.on("error", () => {});
+    window.addEventListener("resize", fitSwellCoast);
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(fitSwellCoast).observe(container);
+    }
+  } catch {
+    swellMapInstance = null;
   }
 }
 
@@ -1435,10 +1442,18 @@ function renderForecastHistory(history, currentDate) {
   };
 }
 
-initSwellMap();
+try {
+  initSwellMap();
+} catch {
+  swellMapInstance = null;
+}
 if (!swellMapInstance) {
-  window.addEventListener("load", initSwellMap, { once: true });
-  window.setTimeout(initSwellMap, 120);
+  window.addEventListener("load", () => {
+    try { initSwellMap(); } catch { swellMapInstance = null; }
+  }, { once: true });
+  window.setTimeout(() => {
+    try { initSwellMap(); } catch { swellMapInstance = null; }
+  }, 120);
 }
 
 loadForecastData().then(({ latest, tenDay, gradeGuide, history, cameraObservation }) => {
