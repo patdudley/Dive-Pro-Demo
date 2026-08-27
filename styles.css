@@ -4836,6 +4836,10 @@ ul {
     padding: 16px 16px 14px;
   }
 
+  .post-article {
+    padding: 16px 16px 24px;
+  }
+
   .post-page {
     padding: 0;
   }
