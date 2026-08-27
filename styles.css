@@ -81,6 +81,10 @@ body {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   text-decoration: none;
 }
 
@@ -88,6 +92,8 @@ body {
   display: block;
   height: 44px;
   width: auto;
+  padding: 0;
+  background: transparent;
 }
 
 .site-wordmark {
@@ -2033,7 +2039,7 @@ h2::before {
   min-height: 250px;
   max-height: 320px;
   background-color: #123044;
-  background-image: url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-117.30,32.825,-117.23,32.88&bboxSR=4326&imageSR=3857&size=900,720&format=jpg&f=image");
+  background-image: url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-117.345,32.702,-117.205,32.908&bboxSR=4326&imageSR=3857&size=900,720&format=jpg&f=image");
   background-position: center;
   background-size: cover;
 }

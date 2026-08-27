@@ -786,9 +786,28 @@ function swellRows(features) {
   return rows;
 }
 
-const SWELL_MAP_CENTER = [-117.268, 32.855];
-const SWELL_MAP_ZOOM = 13.7;
+// Fit Blacks Beach (north) through Sunset Cliffs (south), ocean to the west.
+// La Jolla sits on this stretch; the bounds are the full San Diego coast span.
+const SWELL_MAP_BOUNDS = [
+  [-117.345, 32.702],
+  [-117.205, 32.908],
+];
+const SWELL_MAP_CENTER = [
+  (SWELL_MAP_BOUNDS[0][0] + SWELL_MAP_BOUNDS[1][0]) / 2,
+  (SWELL_MAP_BOUNDS[0][1] + SWELL_MAP_BOUNDS[1][1]) / 2,
+];
 let swellMapInstance = null;
+
+function fitSwellCoast() {
+  if (!swellMapInstance) return;
+  swellMapInstance.resize();
+  if (!swellMapInstance.loaded()) return;
+  swellMapInstance.fitBounds(SWELL_MAP_BOUNDS, {
+    padding: 8,
+    duration: 0,
+    essential: true,
+  });
+}
 
 function swellSatelliteStyle() {
   return {
@@ -819,7 +838,7 @@ function initSwellMap() {
   const maplibre = window.maplibregl || globalThis.maplibregl;
   if (!container) return;
   if (swellMapInstance) {
-    swellMapInstance.resize();
+    fitSwellCoast();
     return;
   }
   if (!maplibre) return;
@@ -827,21 +846,21 @@ function initSwellMap() {
     container,
     style: swellSatelliteStyle(),
     center: SWELL_MAP_CENTER,
-    zoom: SWELL_MAP_ZOOM,
+    zoom: 10.8,
     attributionControl: false,
     interactive: false,
     fadeDuration: 0,
-    minZoom: 11,
+    minZoom: 9.5,
     maxZoom: 16,
   });
   swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
   swellMapInstance.on("load", () => {
     container.classList.add("is-ready");
-    swellMapInstance.resize();
+    fitSwellCoast();
   });
-  window.addEventListener("resize", () => swellMapInstance?.resize());
+  window.addEventListener("resize", fitSwellCoast);
   if (typeof ResizeObserver === "function") {
-    new ResizeObserver(() => swellMapInstance?.resize()).observe(container);
+    new ResizeObserver(fitSwellCoast).observe(container);
   }
 }
 
@@ -854,13 +873,18 @@ function renderSwellCompassRose(rows) {
   const arrows = rows
     .filter((row) => Number.isFinite(Number(row.directionDeg)))
     .map((row) => {
-      const deg = Number(row.directionDeg);
-      // Meteorological FROM direction: arrow travels from the rim toward center.
-      const rad = ((deg - 90) * Math.PI) / 180;
-      const x1 = cx + Math.cos(rad) * radius;
-      const y1 = cy + Math.sin(rad) * radius;
-      const x2 = cx - Math.cos(rad) * 10;
-      const y2 = cy - Math.sin(rad) * 10;
+      const fromDeg = Number(row.directionDeg);
+      // Swell direction is meteorological: degrees the swell is COMING FROM,
+      // clockwise from north. Tail sits on that bearing; the head travels
+      // toward coming-from + 180 (through the rose hub / toward the coast).
+      // SVG y is down, so 0° (north) is (0, -1) after the -90° shift.
+      const rad = ((fromDeg - 90) * Math.PI) / 180;
+      const fromX = Math.cos(rad);
+      const fromY = Math.sin(rad);
+      const x1 = cx + fromX * radius;
+      const y1 = cy + fromY * radius;
+      const x2 = cx - fromX * 10;
+      const y2 = cy - fromY * 10;
       return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${row.color}" stroke-width="5" stroke-linecap="round" marker-end="url(#swell-arrow-${row.label.toLowerCase()})"></line>`;
     })
     .join("");
