@@ -822,7 +822,10 @@ function initSwellMap() {
     maxZoom: 16,
   });
   swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
-  swellMapInstance.on("load", () => swellMapInstance.resize());
+  swellMapInstance.on("load", () => {
+    container.classList.add("is-ready");
+    swellMapInstance.resize();
+  });
   window.addEventListener("resize", () => swellMapInstance?.resize());
   if (typeof ResizeObserver === "function") {
     new ResizeObserver(() => swellMapInstance?.resize()).observe(container);
