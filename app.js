@@ -733,8 +733,13 @@ function swellDirectionColor(index) {
   return index === 0 ? "#13baee" : "#ee13ba";
 }
 
+function meaningfulSwellHeight(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0.25 ? number : null;
+}
+
 function swellRows(features) {
-  return [
+  const rows = [
     {
       label: "Primary",
       height: features.swell_wave_height_max_ft,
@@ -743,15 +748,85 @@ function swellRows(features) {
       directionDeg: features.swell_wave_direction_deg,
       color: swellDirectionColor(0),
     },
-    {
+  ];
+  const secondaryHeight = meaningfulSwellHeight(features.secondary_swell_height_ft);
+  const windWaveHeight = meaningfulSwellHeight(features.wind_wave_height_max_ft);
+  if (secondaryHeight !== null) {
+    rows.push({
       label: "Secondary",
-      height: features.secondary_swell_height_ft ?? features.wind_wave_height_max_ft,
-      period: features.secondary_swell_period_s ?? features.wind_wave_period_max_s,
+      height: features.secondary_swell_height_ft,
+      period: features.secondary_swell_period_s,
+      directionLabel: features.secondary_swell_direction_label,
+      directionDeg: features.secondary_swell_direction_deg,
+      color: swellDirectionColor(1),
+    });
+  } else if (windWaveHeight !== null) {
+    rows.push({
+      label: "Secondary",
+      height: features.wind_wave_height_max_ft,
+      period: features.wind_wave_period_max_s,
       directionLabel: features.secondary_swell_direction_label,
       directionDeg: features.secondary_swell_direction_deg ?? features.wind_direction_deg,
       color: swellDirectionColor(1),
+    });
+  }
+  return rows;
+}
+
+const SWELL_MAP_CENTER = [-117.268, 32.855];
+const SWELL_MAP_ZOOM = 13.7;
+let swellMapInstance = null;
+
+function swellSatelliteStyle() {
+  return {
+    version: 8,
+    sources: {
+      "esri-world-imagery": {
+        type: "raster",
+        tiles: [
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        ],
+        tileSize: 256,
+        attribution: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics",
+        maxzoom: 19,
+      },
     },
-  ];
+    layers: [
+      {
+        id: "esri-world-imagery",
+        type: "raster",
+        source: "esri-world-imagery",
+      },
+    ],
+  };
+}
+
+function initSwellMap() {
+  const container = document.getElementById("swellMap");
+  const maplibre = window.maplibregl || globalThis.maplibregl;
+  if (!container) return;
+  if (swellMapInstance) {
+    swellMapInstance.resize();
+    return;
+  }
+  if (!maplibre) return;
+  swellMapInstance = new maplibre.Map({
+    container,
+    style: swellSatelliteStyle(),
+    center: SWELL_MAP_CENTER,
+    zoom: SWELL_MAP_ZOOM,
+    attributionControl: false,
+    interactive: false,
+    fadeDuration: 0,
+    minZoom: 11,
+    maxZoom: 16,
+  });
+  swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
+  swellMapInstance.on("load", () => swellMapInstance.resize());
+  window.addEventListener("resize", () => swellMapInstance?.resize());
+  if (typeof ResizeObserver === "function") {
+    new ResizeObserver(() => swellMapInstance?.resize()).observe(container);
+  }
 }
 
 function renderSwellCompassRose(rows) {
@@ -801,30 +876,19 @@ function renderWaveComponents(data) {
   const rows = swellRows(features);
   setText("swellSource", swellSourceLabel(data));
   container.innerHTML = `
-    <div class="wave-component-grid" role="table" aria-label="Swell components">
-      <span></span>
-      <span>Height</span>
-      <span>Period</span>
-      <span>Dir</span>
+    <div class="swell-overlay-list" role="list" aria-label="Swell components">
       ${rows.map((row) => `
-        <strong>${row.label}</strong>
-        <em>${formatWaveFeet(row.height)}</em>
-        <em>${formatPeriod(row.period)}</em>
-        <em class="swell-dir" style="color:${row.color}">${formatDirection(row.directionLabel, row.directionDeg)}</em>
-      `).join("")}
-    </div>
-    <div class="wave-component-cards" aria-label="Swell components">
-      ${rows.map((row) => `
-        <article class="wave-component-card">
+        <div class="swell-overlay-row" role="listitem">
           <span>${row.label}</span>
           <strong>${formatWaveFeet(row.height)}</strong>
           <em>${formatPeriod(row.period)}</em>
           <b class="swell-dir" style="color:${row.color}">${formatDirection(row.directionLabel, row.directionDeg)}</b>
-        </article>
+        </div>
       `).join("")}
     </div>
   `;
   renderSwellCompassRose(rows);
+  initSwellMap();
 }
 
 function formatUserTime(value) {
@@ -1328,6 +1392,12 @@ function renderForecastHistory(history, currentDate) {
     });
     button.textContent = isExpanded ? `See ${entries.length - visibleCount} More` : "Show Less";
   };
+}
+
+initSwellMap();
+if (!swellMapInstance) {
+  window.addEventListener("load", initSwellMap, { once: true });
+  window.setTimeout(initSwellMap, 120);
 }
 
 loadForecastData().then(({ latest, tenDay, gradeGuide, history, cameraObservation }) => {

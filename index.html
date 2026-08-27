@@ -34,7 +34,7 @@
         "@type": "WebSite",
         "name": "DiveProSD",
         "url": "https://patdudley.github.io/Dive-Pro-Demo/",
-        "description": "Phone preview of the DiveProSD homepage. Not production.",
+        "description": "Preview of the DiveProSD homepage. Not production.",
         "inLanguage": "en-US",
         "publisher": {
           "@type": "Organization",
@@ -48,25 +48,25 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=mobile-preview-blog-20260827">
-    <link rel="stylesheet" href="ui-polish.css?v=beta-ui-12">
+    <link rel="stylesheet" href="styles.css?v=swell-map-pub-20260827">
+    <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
   </head>
   <body>
-    <main class="shell">
-      <p class="preview-banner">Mobile preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
-      <header class="site-chrome">
-        <a class="site-wordmark" href="./">Dive Pro</a>
+    <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
+    <header class="site-chrome">
+      <div class="site-chrome-bar">
+        <a class="site-logo" href="./">
+          <img src="divepro-logo.png?v=brand-logo-2" alt="Dive Pro">
+        </a>
         <nav class="site-nav" aria-label="Site">
           <a href="./" aria-current="page">Home</a>
           <a href="blog/">Blog</a>
         </nav>
-      </header>
+      </div>
+    </header>
+    <main class="shell">
       <div class="stale-banner" id="staleBanner" hidden></div>
       <section class="hero-camera">
-        <header class="topbar">
-          <img class="brand-logo" src="divepro-logo.png?v=brand-logo-2" alt="DivePro">
-        </header>
-
         <figure class="camera-frame is-camera-unavailable" id="cameraFrame">
           <img id="cameraImage" alt="" hidden>
           <p class="camera-unavailable-message" id="cameraUnavailableMessage">Camera unavailable · no verified recent image</p>
@@ -113,9 +113,11 @@
           <h2>Swell</h2>
           <span id="swellSource">Open-Meteo / NDBC</span>
         </div>
-        <div class="wave-summary">
-          <div class="wave-surf-panel swell-panel">
-            <div class="wave-components" id="waveComponents"></div>
+        <div class="swell-stage">
+          <div class="wave-components" id="waveComponents"></div>
+          <div class="swell-map-panel">
+            <div id="swellMap" class="swell-map" role="img" aria-label="La Jolla coastline map"></div>
+            <div class="swell-map-scrim" aria-hidden="true"></div>
             <figure class="swell-rose-wrap" aria-label="Swell compass rose">
               <div id="swellRose" class="swell-rose"></div>
             </figure>
@@ -185,7 +187,7 @@
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script type="module" src="app.js?v=mobile-preview-swell-20260826"></script>
+    <script type="module" src="app.js?v=swell-map-pub-20260827"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
