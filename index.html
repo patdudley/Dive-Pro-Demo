@@ -48,7 +48,7 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=ten-day-20260827c">
+    <link rel="stylesheet" href="styles.css?v=ca-spots-20260828">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
   </head>
   <body>
@@ -76,7 +76,14 @@
         <div class="hero-content">
           <section class="forecast-panel">
             <div class="forecast-meta">
-              <span id="location">La Jolla / Scripps Pier</span>
+              <label class="spot-picker">
+                <span class="spot-picker-kicker">California location</span>
+                <select id="spotPicker" aria-label="California dive location">
+                  <option value="la-jolla">La Jolla / Scripps</option>
+                  <option value="catalina-wrigley">Catalina Wrigley</option>
+                  <option value="anacapa-ocean">Anacapa</option>
+                </select>
+              </label>
             </div>
             <div class="forecast-main">
               <strong id="grade">--</strong>
@@ -150,7 +157,7 @@
       <section class="model-card region-map-card">
         <div class="section-heading">
           <h2>Region Map</h2>
-          <span>La Jolla, San Diego</span>
+          <span id="regionMapLabel">La Jolla, San Diego</span>
         </div>
         <div class="map-frame spot-map-frame">
           <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive La Jolla dive region map"></div>
@@ -186,11 +193,19 @@
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script type="module" src="app.js?v=ten-day-20260827c"></script>
+    <script src="spots-config.js?v=ca-spots-20260828"></script>
+    <script>
+      (function applySpotFromQuery() {
+        const requested = new URLSearchParams(window.location.search).get("spot") || "la-jolla";
+        const spot = window.spotFromSlug ? window.spotFromSlug(requested) : null;
+        document.body.dataset.spot = spot?.slug || "la-jolla";
+      })();
+    </script>
+    <script type="module" src="app.js?v=ca-spots-20260828"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=wind-time-label-20260718"></script>
+    <script src="spot-map.js?v=ca-spots-20260828"></script>
   </body>
 </html>

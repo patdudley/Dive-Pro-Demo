@@ -25,6 +25,161 @@ async function fetchJson(path) {
   return response.json();
 }
 
+function californiaSpots() {
+  if (typeof window.californiaSpots === "function") return window.californiaSpots();
+  return (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
+}
+
+function currentSpot() {
+  const slug = document.body.dataset.spot || new URLSearchParams(window.location.search).get("spot") || "la-jolla";
+  if (typeof window.spotFromSlug === "function") return window.spotFromSlug(slug);
+  return californiaSpots().find((spot) => spot.slug === slug) || californiaSpots()[0] || {
+    slug: "la-jolla",
+    name: "Scripps Beach",
+    location: "La Jolla / Scripps Pier",
+    hasModelForecast: true,
+  };
+}
+
+function spotHref(slug) {
+  return slug === "la-jolla" ? "./" : `./?spot=${encodeURIComponent(slug)}`;
+}
+
+function metersToFeet(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number * 3.28084 : null;
+}
+
+function celsiusToFahrenheit(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? (number * 9) / 5 + 32 : null;
+}
+
+function maxFinite(values) {
+  const numbers = values.map(Number).filter((value) => Number.isFinite(value));
+  return numbers.length ? Math.max(...numbers) : null;
+}
+
+function hourKey(iso) {
+  const match = String(iso || "").match(/T(\d{2})/);
+  return match ? `${match[1]}:00` : "";
+}
+
+function unavailableSpotForecast(spot, features = {}, { conditionsLoaded = false } = {}) {
+  const conditionsCopy = conditionsLoaded
+    ? " Swell, wind, and weather below are live Open-Meteo conditions, not a Dive Pro visibility forecast."
+    : " Live marine conditions were also unavailable just now.";
+  return {
+    date: localTodayInLaJolla(),
+    location: spot.location,
+    spot_slug: spot.slug,
+    is_unavailable: true,
+    grade: null,
+    estimated_visibility_range_ft: null,
+    numeric_score_0_100: 0,
+    best_window: "Unavailable",
+    swell_source: "Open-Meteo / NDBC",
+    report_text: `${spot.location} is on the California location list, but Dive Pro vis grades are unavailable here. The frozen model is trained on La Jolla only.${conditionsCopy}`,
+    features,
+  };
+}
+
+async function fetchOpenMeteoFeatures(spot) {
+  const lat = Number(spot.lat);
+  const lon = Number(spot.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,precipitation,temperature_2m&daily=temperature_2m_max,precipitation_sum&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_days=1&timezone=America/Los_Angeles`;
+
+  const [marine, weather] = await Promise.all([
+    fetchJson(marineUrl),
+    fetchJson(weatherUrl),
+  ]);
+
+  const marineHourly = marine.hourly || {};
+  const weatherHourly = weather.hourly || {};
+  const weatherDaily = weather.daily || {};
+  const waveHeights = (marineHourly.wave_height || []).map(metersToFeet);
+  const swellHeights = (marineHourly.swell_wave_height || []).map(metersToFeet);
+  const windWaveHeights = (marineHourly.wind_wave_height || []).map(metersToFeet);
+  const swellIndex = swellHeights.reduce((best, value, index) => (
+    value != null && (best < 0 || value > swellHeights[best]) ? index : best
+  ), -1);
+  const windWaveIndex = windWaveHeights.reduce((best, value, index) => (
+    value != null && (best < 0 || value > windWaveHeights[best]) ? index : best
+  ), -1);
+  const waveIndex = waveHeights.reduce((best, value, index) => (
+    value != null && (best < 0 || value > waveHeights[best]) ? index : best
+  ), -1);
+  const waterTemps = (marineHourly.sea_surface_temperature || []).map(celsiusToFahrenheit);
+  const windSpeeds = (weatherHourly.wind_speed_10m || []).map(Number);
+  const rainToday = Number(weatherDaily.precipitation_sum?.[0]);
+
+  return {
+    surf_height_max_ft: maxFinite(waveHeights),
+    wave_height_max_ft: maxFinite(waveHeights),
+    swell_wave_height_max_ft: swellIndex >= 0 ? swellHeights[swellIndex] : maxFinite(swellHeights),
+    swell_wave_period_max_s: swellIndex >= 0 ? Number(marineHourly.swell_wave_period?.[swellIndex]) : null,
+    swell_wave_direction_deg: swellIndex >= 0 ? Number(marineHourly.swell_wave_direction?.[swellIndex]) : null,
+    swell_direction_label: swellIndex >= 0 ? directionFromDegrees(marineHourly.swell_wave_direction?.[swellIndex]) : "",
+    secondary_swell_height_ft: windWaveIndex >= 0 ? windWaveHeights[windWaveIndex] : maxFinite(windWaveHeights),
+    secondary_swell_period_s: windWaveIndex >= 0 ? Number(marineHourly.wind_wave_period?.[windWaveIndex]) : null,
+    secondary_swell_direction_deg: windWaveIndex >= 0 ? Number(marineHourly.wind_wave_direction?.[windWaveIndex]) : null,
+    secondary_swell_direction_label: windWaveIndex >= 0 ? directionFromDegrees(marineHourly.wind_wave_direction?.[windWaveIndex]) : "",
+    wind_wave_height_max_ft: maxFinite(windWaveHeights),
+    wind_speed_max_mph: maxFinite(windSpeeds),
+    water_temp_estimate_f: maxFinite(waterTemps),
+    air_temp_max_f: Number(weatherDaily.temperature_2m_max?.[0]),
+    rain_24h_in: Number.isFinite(rainToday) ? rainToday : 0,
+    rain_target_day_forecast_in: Number.isFinite(rainToday) ? rainToday : 0,
+    rain_prior_3day_in: null,
+    swell_source: "Open-Meteo",
+    wind_chart: (weatherHourly.time || []).map((time, index) => ({
+      time: hourKey(time),
+      speed_mph: Number(weatherHourly.wind_speed_10m?.[index]),
+    })).filter((point) => point.time && Number.isFinite(point.speed_mph)),
+    wave_index: waveIndex,
+  };
+}
+
+function initSpotPicker(activeSpot) {
+  const picker = document.getElementById("spotPicker");
+  if (!picker) return;
+  const spots = californiaSpots();
+  picker.replaceChildren(...spots.map((spot) => {
+    const option = document.createElement("option");
+    option.value = spot.slug;
+    option.textContent = spot.pickerLabel || spot.location || `${spot.city} / ${spot.name}`;
+    return option;
+  }));
+  picker.value = activeSpot.slug;
+  picker.addEventListener("change", () => {
+    const next = spotHref(picker.value);
+    if (`${window.location.pathname}${window.location.search}` === next || (picker.value === "la-jolla" && !window.location.search)) {
+      return;
+    }
+    window.location.assign(next);
+  });
+}
+
+function updateSpotChrome(spot) {
+  document.body.dataset.spot = spot.slug;
+  const regionLabel = document.getElementById("regionMapLabel");
+  if (regionLabel) regionLabel.textContent = spot.regionLabel || spot.location;
+  const swellMap = document.getElementById("swellMap");
+  if (swellMap) swellMap.setAttribute("aria-label", `${spot.menuName || spot.name} coastline map`);
+  const liveLink = document.querySelector(".camera-live-link");
+  if (liveLink && spot.cameraUrl) {
+    liveLink.href = spot.cameraUrl;
+    liveLink.setAttribute("aria-label", `Open the ${spot.cameraLabel || "live camera"} in a new tab`);
+    liveLink.innerHTML = `${spot.cameraLabel || "Live cam"} <span aria-hidden="true">&nearr;</span>`;
+  }
+  document.title = spot.hasModelForecast
+    ? "DiveProSD | La Jolla Dive Visibility Forecast"
+    : `DiveProSD | ${spot.menuName || spot.name} location preview`;
+}
+
 function fallbackForecast() {
   const computed = forecastFromFeatures(fallback.features);
   return {
@@ -104,6 +259,24 @@ async function loadCameraObservation() {
 }
 
 async function loadForecastData() {
+  const spot = currentSpot();
+  updateSpotChrome(spot);
+  initSpotPicker(spot);
+
+  if (!spot.hasModelForecast) {
+    let features = {};
+    let conditionsLoaded = false;
+    try {
+      features = await fetchOpenMeteoFeatures(spot) || {};
+      conditionsLoaded = Boolean(features.swell_wave_height_max_ft || features.wind_speed_max_mph);
+    } catch {
+      features = {};
+      conditionsLoaded = false;
+    }
+    const latest = unavailableSpotForecast(spot, features, { conditionsLoaded });
+    return { latest, tenDay: [], gradeGuide: [], history: [], cameraObservation: null };
+  }
+
   const cameraObservation = await loadCameraObservation();
   if (window.staticSpotReport) {
     return {
@@ -434,6 +607,7 @@ function defaultReport(data) {
 let scrippsCameraObservation = null;
 
 function cameraObservationDisplay(data) {
+  if (currentSpot().slug !== "la-jolla") return data;
   const observation = scrippsCameraObservation;
   const grade = String(observation?.grade || "").trim().toUpperCase();
   const range = observation?.visibility_range_ft;
@@ -493,6 +667,30 @@ function renderCamera(data) {
 
   const badge = document.getElementById("cameraObservedBadge");
   const unavailableMessage = document.getElementById("cameraUnavailableMessage");
+  const spot = currentSpot();
+
+  if (!spot.hasModelForecast && spot.liveEmbedUrl) {
+    frame.classList.remove("is-camera-unavailable");
+    image.hidden = true;
+    image.removeAttribute("src");
+    image.alt = "";
+    if (unavailableMessage) unavailableMessage.hidden = true;
+    if (badge) {
+      badge.textContent = "Live cam · not a vis grade";
+      badge.classList.remove("is-reference");
+      badge.hidden = false;
+    }
+    const embed = document.createElement("iframe");
+    embed.src = spot.liveEmbedUrl;
+    embed.title = spot.cameraLabel || `${spot.name} live camera`;
+    embed.allow = "autoplay; encrypted-media; picture-in-picture";
+    embed.setAttribute("allowfullscreen", "");
+    embed.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.appendChild(embed);
+    frame.hidden = false;
+    return;
+  }
+
   const observation = scrippsCameraObservation;
   const showObservation = Boolean(observation);
   if (showObservation) {
@@ -789,23 +987,31 @@ function swellRows(features) {
   return rows;
 }
 
-// Fit Blacks Beach (north) through Sunset Cliffs (south), ocean to the west.
-// La Jolla sits on this stretch; the bounds are the full San Diego coast span.
-const SWELL_MAP_BOUNDS = [
-  [-117.345, 32.702],
-  [-117.205, 32.908],
-];
-const SWELL_MAP_CENTER = [
-  (SWELL_MAP_BOUNDS[0][0] + SWELL_MAP_BOUNDS[1][0]) / 2,
-  (SWELL_MAP_BOUNDS[0][1] + SWELL_MAP_BOUNDS[1][1]) / 2,
-];
+// Fit the selected California spot. La Jolla uses the San Diego coast span
+// from Blacks Beach (north) through Sunset Cliffs (south).
+function swellMapBoundsForSpot(spot = currentSpot()) {
+  if (Array.isArray(spot?.swellBounds) && spot.swellBounds.length === 2) return spot.swellBounds;
+  return [
+    [-117.345, 32.702],
+    [-117.205, 32.908],
+  ];
+}
+
+function swellMapCenterForSpot(spot = currentSpot()) {
+  const bounds = swellMapBoundsForSpot(spot);
+  return [
+    (bounds[0][0] + bounds[1][0]) / 2,
+    (bounds[0][1] + bounds[1][1]) / 2,
+  ];
+}
+
 let swellMapInstance = null;
 
 function fitSwellCoast() {
   if (!swellMapInstance) return;
   swellMapInstance.resize();
   if (!swellMapInstance.loaded()) return;
-  swellMapInstance.fitBounds(SWELL_MAP_BOUNDS, {
+  swellMapInstance.fitBounds(swellMapBoundsForSpot(), {
     padding: 8,
     duration: 0,
     essential: true,
@@ -849,7 +1055,7 @@ function initSwellMap() {
     swellMapInstance = new maplibre.Map({
       container,
       style: swellSatelliteStyle(),
-      center: SWELL_MAP_CENTER,
+      center: swellMapCenterForSpot(),
       zoom: 10.8,
       attributionControl: false,
       interactive: false,
@@ -1233,38 +1439,55 @@ function renderWeather(data) {
 
 function render(data) {
   data = cameraObservationDisplay(data);
-  const range = data.estimated_visibility_range_ft || [0, 6];
+  const unavailable = Boolean(data.is_unavailable);
+  const range = data.estimated_visibility_range_ft;
   const score = data.numeric_score_0_100 ?? 0;
-  setText("location", data.location || "La Jolla / Scripps Pier");
-  setText("grade", data.grade || "C");
-  setText("visibility", feet(range));
-  setText("bestWindow", data.best_window || "Early morning");
-  setText("waveWeight", waveWeight(data));
+  const hasRange = Array.isArray(range) && range.length >= 2;
+  const hasConditions = Boolean(data.features && (data.features.swell_wave_height_max_ft || data.features.wind_speed_max_mph || data.features.wind_chart));
+  setText("grade", unavailable ? "—" : (data.grade || "C"));
+  setText("visibility", unavailable || !hasRange ? "Unavailable" : feet(range));
+  setText("bestWindow", unavailable ? "Unavailable" : (data.best_window || "Early morning"));
+  setText("waveWeight", unavailable && !hasConditions ? "Unavailable" : waveWeight(data));
   setText(
     "forecastSource",
-    data.is_camera_observation
-      ? `Observed at ${cameraSlotLabel(data.camera_observation_slot)} · forecast context from model`
-      : data.is_projected
-        ? `Projected from ${shortDate(data.projected_from || data.date)}`
-        : "Model prediction from parsed conditions",
+    unavailable
+      ? "Vis grade unavailable · La Jolla-trained model"
+      : data.is_camera_observation
+        ? `Observed at ${cameraSlotLabel(data.camera_observation_slot)} · forecast context from model`
+        : data.is_projected
+          ? `Projected from ${shortDate(data.projected_from || data.date)}`
+          : "Model prediction from parsed conditions",
   );
   setText("dailyReport", reportText(data));
   const panel = document.querySelector(".forecast-panel");
   const grade = document.getElementById("grade");
-  if (panel) panel.className = `forecast-panel ${data.is_unavailable ? "" : gradeClass(data.grade)}`;
-  if (grade) grade.className = data.is_unavailable ? "" : gradeClass(data.grade);
-  document.getElementById("scoreFill").style.width = `${data.is_unavailable ? 0 : score}%`;
+  if (panel) panel.className = `forecast-panel ${unavailable ? "is-unavailable" : gradeClass(data.grade)}`;
+  if (grade) grade.className = unavailable ? "is-unavailable" : gradeClass(data.grade);
+  const scoreFill = document.getElementById("scoreFill");
+  if (scoreFill) scoreFill.style.width = `${unavailable ? 0 : score}%`;
   const featureEl = document.getElementById("featureRows");
-  if (featureEl) featureEl.innerHTML = data.is_unavailable ? "" : featureRows(data.features || {});
-  if (data.is_unavailable) {
-    document.getElementById("tideChart").textContent = "Forecast data unavailable.";
-    document.getElementById("windChart").textContent = "Forecast data unavailable.";
+  if (featureEl) featureEl.innerHTML = hasConditions ? featureRows(data.features || {}) : (unavailable ? "<div><span>Conditions</span><strong>Unavailable</strong></div>" : featureRows(data.features || {}));
+  renderCamera(data);
+  if (hasConditions) {
+    renderWaveComponents(data);
+    renderTideChart(data);
+    renderWindChart(data);
+    renderWaveSwell(data);
+    renderWeather(data);
+    return;
+  }
+  if (unavailable) {
+    const tideChart = document.getElementById("tideChart");
+    const windChart = document.getElementById("windChart");
     const waveChart = document.getElementById("waveChart");
+    if (tideChart) tideChart.textContent = "Tide data unavailable.";
+    if (windChart) windChart.textContent = "Wind data unavailable.";
     if (waveChart) waveChart.textContent = "Forecast data unavailable.";
+    const waveComponents = document.getElementById("waveComponents");
+    if (waveComponents) waveComponents.textContent = "Swell data unavailable.";
     return;
   }
   renderWaveComponents(data);
-  renderCamera(data);
   renderTideChart(data);
   renderWindChart(data);
   renderWaveSwell(data);
@@ -1276,7 +1499,7 @@ function renderForecastStrip(forecasts, activeDate) {
   if (!strip) return;
 
   if (!forecasts.length) {
-    strip.textContent = "Forecast unavailable.";
+    strip.innerHTML = `<p class="forecast-unavailable-copy">Dive Pro vis grades are unavailable here. The frozen model is trained on La Jolla only.</p>`;
     return;
   }
   function selectForecast(forecast, source = "forecast_day_select") {
@@ -1326,10 +1549,13 @@ function renderForecastStrip(forecasts, activeDate) {
 function renderGradeGuide(gradeGuide) {
   const guide = document.getElementById("gradeGuide");
   if (!guide) return;
+  const section = guide.closest(".model-card");
   if (!gradeGuide.length) {
     guide.textContent = "Grade guidance unavailable.";
+    if (section) section.hidden = true;
     return;
   }
+  if (section) section.hidden = false;
   guide.replaceChildren(...gradeGuide.map((item) => {
     const row = document.createElement("div");
     const [min, max] = item.visibility_range_ft;

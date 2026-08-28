@@ -38,7 +38,7 @@
       center: [-117.255, 32.866],
       zoom: 12.25,
       pins: [
-        { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "index.html" },
+        { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "./" },
       ],
     },
     "catalina-wrigley": {
@@ -46,7 +46,7 @@
       center: [-118.485, 33.445],
       zoom: 10.6,
       pins: [
-        { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
+        { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "./?spot=catalina-wrigley" },
       ],
     },
     "anacapa-ocean": {
@@ -54,7 +54,7 @@
       center: [-119.37, 34.015],
       zoom: 10.35,
       pins: [
-        { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
+        { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "./?spot=anacapa-ocean" },
       ],
     },
     "lower-keys": {
