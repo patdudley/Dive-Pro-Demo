@@ -44,9 +44,9 @@ const VISIBILITY_ISLAND_ZONES = [
 ];
 const LA_JOLLA_CALIBRATION = { lng: -117.255, lat: 32.866, radiusMiles: 4.5 };
 const HOME_MAP_PINS = [
-  { label: "San Diego", detail: "Scripps Beach", lngLat: [-117.255, 32.866], href: "./" },
-  { label: "Catalina", detail: "Wrigley Reserve", lngLat: [-118.485, 33.445], href: "./?spot=catalina-wrigley" },
-  { label: "Anacapa", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "./?spot=anacapa-ocean" },
+  { label: "San Diego", detail: "Scripps Beach", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
+  { label: "Catalina", detail: "Wrigley Reserve", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
+  { label: "Anacapa", detail: "Anacapa Ocean", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
 ];
 const SPOT_GROUP_ORDER = ["California"];
 let windProbeMarker = null;
@@ -57,7 +57,8 @@ let windProbeLngLat = null;
 let heroForecasts = [];
 
 function orderedHomeSpots(spots = []) {
-  const groups = spots.reduce((acc, spot) => {
+  const californiaOnly = spots.filter((spot) => spot.regionGroup === "California");
+  const groups = californiaOnly.reduce((acc, spot) => {
     const group = spot.regionGroup || "Other";
     if (!acc.has(group)) acc.set(group, []);
     acc.get(group).push(spot);
@@ -116,7 +117,8 @@ function spotCard(spot) {
 }
 
 function groupedSpotSections(spots) {
-  const groups = spots.reduce((acc, spot) => {
+  const californiaOnly = spots.filter((spot) => spot.regionGroup === "California");
+  const groups = californiaOnly.reduce((acc, spot) => {
     const group = spot.regionGroup || "Other";
     if (!acc.has(group)) acc.set(group, []);
     acc.get(group).push(spot);
@@ -142,6 +144,7 @@ function groupedSpotSections(spots) {
 }
 
 function renderSpots() {
+  if (!spotList) return;
   const spots = orderedHomeSpots(window.outdoorSpots || []);
   spotList.innerHTML = groupedSpotSections(spots);
 }

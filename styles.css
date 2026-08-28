@@ -1575,7 +1575,7 @@ h2::before {
 .spot-picker {
   display: grid;
   gap: 4px;
-  min-width: min(100%, 280px);
+  min-width: min(100%, 320px);
 }
 
 .spot-picker-kicker {
@@ -1586,11 +1586,36 @@ h2::before {
   text-transform: uppercase;
 }
 
+.spot-picker-row {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 6px;
+}
+
+.spot-picker-nav {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(19, 186, 238, 0.35);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.spot-picker-nav:hover,
+.spot-picker-nav:focus-visible {
+  border-color: var(--primary);
+  outline: none;
+}
+
 .spot-picker select {
   appearance: none;
   -webkit-appearance: none;
   width: 100%;
-  max-width: 360px;
+  max-width: none;
   padding: 8px 34px 8px 12px;
   border: 1px solid rgba(19, 186, 238, 0.35);
   border-radius: 999px;
@@ -5022,6 +5047,7 @@ ul {
   }
 
   .spot-picker,
+  .spot-picker-row,
   .spot-picker select {
     max-width: none;
     min-width: 0;

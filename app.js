@@ -30,19 +30,35 @@ function californiaSpots() {
   return (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
 }
 
+function currentPageSlug() {
+  const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
+  if (file && file !== "index") return file;
+  return new URLSearchParams(window.location.search).get("spot") || document.body.dataset.spot || "la-jolla";
+}
+
 function currentSpot() {
-  const slug = document.body.dataset.spot || new URLSearchParams(window.location.search).get("spot") || "la-jolla";
+  const slug = currentPageSlug();
   if (typeof window.spotFromSlug === "function") return window.spotFromSlug(slug);
   return californiaSpots().find((spot) => spot.slug === slug) || californiaSpots()[0] || {
     slug: "la-jolla",
     name: "Scripps Beach",
     location: "La Jolla / Scripps Pier",
+    href: "la-jolla.html",
     hasModelForecast: true,
   };
 }
 
 function spotHref(slug) {
-  return slug === "la-jolla" ? "./" : `./?spot=${encodeURIComponent(slug)}`;
+  const spot = californiaSpots().find((item) => item.slug === slug);
+  return spot?.href || (slug === "la-jolla" ? "la-jolla.html" : `${slug}.html`);
+}
+
+function isOnSpotPage(spot) {
+  const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
+  if (file === spot.slug) return true;
+  const query = new URLSearchParams(window.location.search).get("spot");
+  if (query === spot.slug) return true;
+  return (!file || file === "index") && spot.slug === "la-jolla" && !query;
 }
 
 function metersToFeet(value) {
@@ -150,16 +166,29 @@ function initSpotPicker(activeSpot) {
   picker.replaceChildren(...spots.map((spot) => {
     const option = document.createElement("option");
     option.value = spot.slug;
-    option.textContent = spot.pickerLabel || spot.location || `${spot.city} / ${spot.name}`;
+    option.textContent = spot.pickerLabel || `${spot.city} / ${spot.name}`;
     return option;
   }));
   picker.value = activeSpot.slug;
-  picker.addEventListener("change", () => {
-    const next = spotHref(picker.value);
-    if (`${window.location.pathname}${window.location.search}` === next || (picker.value === "la-jolla" && !window.location.search)) {
-      return;
-    }
-    window.location.assign(next);
+
+  function goToSlug(slug) {
+    const spot = spots.find((item) => item.slug === slug) || window.spotFromSlug?.(slug);
+    if (!spot || isOnSpotPage(spot)) return;
+    window.location.assign(spot.href || spotHref(slug));
+  }
+
+  picker.addEventListener("change", () => goToSlug(picker.value));
+
+  const prev = document.getElementById("heroPrevSpot");
+  const next = document.getElementById("heroNextSpot");
+  const indexOf = () => Math.max(0, spots.findIndex((spot) => spot.slug === picker.value));
+  prev?.addEventListener("click", () => {
+    const nextIndex = (indexOf() - 1 + spots.length) % spots.length;
+    goToSlug(spots[nextIndex].slug);
+  });
+  next?.addEventListener("click", () => {
+    const nextIndex = (indexOf() + 1) % spots.length;
+    goToSlug(spots[nextIndex].slug);
   });
 }
 
