@@ -585,7 +585,10 @@ body {
 
 .map-frame.is-map-moving .wind-gradient-canvas,
 .map-frame.is-map-moving .visibility-gradient-canvas,
-.map-frame.is-map-moving .wind-particle-canvas {
+.map-frame.is-map-moving .wind-particle-canvas,
+.spot-map-graphic.is-map-moving .wind-gradient-canvas,
+.spot-map-graphic.is-map-moving .visibility-gradient-canvas,
+.spot-map-graphic.is-map-moving .wind-particle-canvas {
   opacity: 0;
 }
 
@@ -2635,7 +2638,9 @@ section.chart-grid article,
 }
 
 .map-frame.is-map-moving .wind-gradient-canvas,
-.map-frame.is-map-moving .wind-particle-canvas {
+.map-frame.is-map-moving .wind-particle-canvas,
+.spot-map-graphic.is-map-moving .wind-gradient-canvas,
+.spot-map-graphic.is-map-moving .wind-particle-canvas {
   opacity: 0;
 }
 
@@ -6201,5 +6206,228 @@ ul {
 
   .spot-wind-timeline .spot-wind-days button:last-child {
     border-right: 1px solid rgba(125, 216, 247, 0.34);
+  }
+}
+
+/* Homepage directory: search, map, location bubbles. */
+.home-directory-shell {
+  padding-top: 16px;
+  padding-bottom: 36px;
+}
+
+.home-search {
+  margin: 0 0 16px;
+}
+
+.home-search-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.home-search input {
+  width: 100%;
+  height: 50px;
+  border: 1px solid rgba(13, 122, 140, 0.18);
+  border-radius: 12px;
+  padding: 0 16px;
+  background: #fff;
+  color: var(--navy);
+  box-shadow: 0 10px 28px rgba(19, 186, 238, 0.06);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.home-search input::placeholder {
+  color: rgba(10, 37, 64, 0.45);
+}
+
+.home-search input:focus {
+  outline: 2px solid rgba(19, 186, 238, 0.45);
+  outline-offset: 2px;
+}
+
+.home-spot-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.home-bubbles-card {
+  min-width: 0;
+}
+
+.home-bubbles {
+  display: grid;
+  gap: 12px;
+}
+
+.spot-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 88px;
+  border: 1px solid rgba(13, 122, 140, 0.18);
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #fff;
+  color: inherit;
+  box-shadow: 0 12px 38px rgba(19, 186, 238, 0.08);
+  text-decoration: none;
+}
+
+.spot-bubble:hover,
+.spot-bubble:focus-visible {
+  border-color: rgba(19, 186, 238, 0.42);
+  box-shadow: 0 16px 42px rgba(19, 186, 238, 0.13);
+  outline: none;
+}
+
+.spot-bubble-copy h2 {
+  margin: 0 0 4px;
+  color: var(--navy);
+  font-size: 1.12rem;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.spot-bubble-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.spot-bubble-grade {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  color: var(--grade-color, var(--navy));
+}
+
+.spot-bubble-grade b {
+  font-size: 1.55rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.spot-bubble-grade span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.home-search-empty {
+  margin: 8px 2px 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+@media (min-width: 980px) {
+  .home-spot-layout {
+    grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.72fr);
+    align-items: start;
+  }
+}
+
+/* Wind player sits under the map graphic instead of covering the coast. */
+.region-map-card .map-frame.spot-map-frame,
+.home-map-card .map-frame.spot-map-frame,
+.map-frame.spot-map-frame {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.spot-map-graphic {
+  position: relative;
+  height: clamp(440px, 48vw, 620px);
+  overflow: hidden;
+  border: 1px solid rgba(19, 186, 238, 0.2);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(125, 216, 247, 0.14), rgba(238, 19, 186, 0.06)),
+    #eefbff;
+}
+
+.region-map-card .spot-map-graphic,
+.home-map-card .spot-map-graphic {
+  height: clamp(480px, 46vw, 640px);
+}
+
+.spot-map-graphic .spot-region-map {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.spot-map-frame .spot-wind-legend {
+  bottom: 16px;
+}
+
+.spot-map-frame .spot-wind-timeline {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  min-height: 0;
+  margin-top: 10px;
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  gap: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+  .home-directory-shell {
+    padding-top: 12px;
+  }
+
+  .home-search input {
+    height: 46px;
+  }
+
+  .spot-bubble {
+    min-height: 80px;
+    padding: 14px 15px;
+  }
+
+  .spot-bubble-copy h2 {
+    font-size: 1.02rem;
+  }
+
+  .map-frame.spot-map-frame,
+  .spot-map-frame {
+    height: auto;
+  }
+
+  .spot-map-graphic,
+  .region-map-card .spot-map-graphic,
+  .home-map-card .spot-map-graphic {
+    height: 400px;
+  }
+
+  .spot-map-frame .spot-wind-legend {
+    bottom: 12px;
+  }
+
+  .spot-map-frame .spot-wind-timeline {
+    right: auto;
+    bottom: auto;
+    left: auto;
+    min-height: 0;
+    margin-top: 10px;
+    padding: 10px 12px 12px;
+    border-radius: 12px;
   }
 }

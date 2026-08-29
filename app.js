@@ -33,6 +33,9 @@ function californiaSpots() {
 function currentPageSlug() {
   const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
   if (file && file !== "index") return file;
+  if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
+    return "";
+  }
   return "la-jolla";
 }
 
@@ -58,6 +61,9 @@ function isOnSpotPage(spot) {
   if (file === spot.slug) return true;
   const query = new URLSearchParams(window.location.search).get("spot");
   if (query === spot.slug) return true;
+  if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
+    return false;
+  }
   return (!file || file === "index") && spot.slug === "la-jolla" && !query;
 }
 
@@ -370,7 +376,7 @@ function updateSpotChrome(spot) {
   const regionLabel = document.getElementById("regionMapLabel");
   if (regionLabel) {
     regionLabel.textContent = spot.regionGroup === "California"
-      ? "Southern California"
+      ? "California"
       : (spot.regionLabel || spot.location);
   }
   const swellMap = document.getElementById("swellMap");

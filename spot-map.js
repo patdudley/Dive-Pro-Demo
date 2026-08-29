@@ -34,12 +34,13 @@
 
   const CALIFORNIA_PIN_FALLBACK = [
     { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.243, 32.863], href: "la-jolla.html" },
+    { slug: "monterey", label: "Monterey", detail: "Monterey Bay", lngLat: [-121.8946, 36.6011], href: "monterey.html" },
     { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.492, 33.438], href: "catalina-wrigley.html" },
     { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.366, 34.010], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-121.4, 31.6],
-    [-116.2, 35.1],
+    [-123.8, 31.2],
+    [-115.4, 38.0],
   ];
 
   function californiaPinsFromSpots() {
@@ -65,17 +66,28 @@
 
   function californiaMapView() {
     return {
-      region: "Southern California",
-      center: [-118.37, 33.443],
-      zoom: 7.45,
+      region: "California",
+      center: [-119.57, 34.73],
+      zoom: 6.05,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: californiaPins(),
     };
   }
 
+  function currentMapSlug() {
+    if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
+      return "home";
+    }
+    const fromBody = document.body.dataset.spot;
+    if (fromBody) return fromBody;
+    return (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "") || "home";
+  }
+
   const DETAIL_MAPS = {
+    home: californiaMapView(),
     "la-jolla": californiaMapView(),
+    monterey: californiaMapView(),
     "catalina-wrigley": californiaMapView(),
     "anacapa-ocean": californiaMapView(),
     "lower-keys": {
@@ -570,7 +582,7 @@
 
   function createWindCanvasLayer(map, initialGrid, waterMask) {
     const mapContainer = map.getContainer();
-    const frame = mapContainer.closest(".map-frame");
+    const frame = mapContainer.closest(".spot-map-graphic") || mapContainer.closest(".map-frame");
     if (!frame) return null;
 
     let grid = initialGrid;
@@ -835,7 +847,9 @@
       </div>
       <div class="spot-wind-days" role="tablist" aria-label="Wind forecast date"></div>
     `;
-    frame.appendChild(timeline);
+    const graphic = frame.querySelector(".spot-map-graphic");
+    if (graphic) graphic.after(timeline);
+    else frame.appendChild(timeline);
     return timeline;
   }
 
@@ -1384,20 +1398,22 @@
         <span>${config.region}</span>
       </div>
       <div class="map-frame spot-map-frame">
-        <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive region map for ${config.region}"></div>
-        <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
-          <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
-          <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
-        </div>
-        <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
-          <span>Wind MPH</span>
-          <div class="wind-legend-gradient"></div>
-        <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
-        </div>
-        <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
-          <span>Depth</span>
-          <div class="depth-legend-gradient"></div>
-          <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
+        <div class="spot-map-graphic">
+          <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive region map for ${config.region}"></div>
+          <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
+            <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
+            <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
+          </div>
+          <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
+            <span>Wind MPH</span>
+            <div class="wind-legend-gradient"></div>
+            <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
+          </div>
+          <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
+            <span>Depth</span>
+            <div class="depth-legend-gradient"></div>
+            <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
+          </div>
         </div>
       </div>
     `;
@@ -1414,17 +1430,11 @@
   function regionMapFitPadding(map) {
     const container = map.getContainer();
     const height = container?.clientHeight || 440;
-    const frame = container?.closest(".spot-map-frame");
-    const timeline = frame?.querySelector(".spot-wind-timeline");
-    const timelineVisible = timeline && !timeline.classList.contains("is-hidden");
-    const timelineHeight = timelineVisible ? Math.ceil(timeline.getBoundingClientRect().height) : 0;
-    const top = 48;
-    const side = 36;
-    const bottom = timelineVisible
-      ? Math.min(timelineHeight + 16, Math.floor(height * 0.34))
-      : 40;
+    const top = 44;
+    const side = 32;
+    const bottom = 40;
     if (height - top - bottom < 140) {
-      return { top: 24, right: 28, bottom: 56, left: 28 };
+      return { top: 24, right: 24, bottom: 28, left: 24 };
     }
     return { top, right: side, bottom, left: side };
   }
@@ -1442,8 +1452,8 @@
   function fallbackCaliforniaCamera(map) {
     const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
     map.jumpTo({
-      center: [-118.37, 33.443],
-      zoom: mobile ? 7.15 : 8.05,
+      center: [-119.57, 34.73],
+      zoom: mobile ? 5.35 : 6.05,
       bearing: 0,
       pitch: 0,
     });
@@ -1457,17 +1467,17 @@
       const bounds = pinLngLatBounds(maplibre, pins);
       const camera = map.cameraForBounds(bounds, {
         padding,
-        maxZoom: 8.55,
+        maxZoom: 7.35,
       });
       if (camera && Number.isFinite(Number(camera.zoom))) {
         map.jumpTo({
           center: camera.center,
-          zoom: Math.min(Number(camera.zoom), 8.55),
+          zoom: Math.min(Number(camera.zoom), 7.35),
           bearing: 0,
           pitch: 0,
         });
       } else {
-        map.fitBounds(bounds, { padding, maxZoom: 8.55, duration: 0 });
+        map.fitBounds(bounds, { padding, maxZoom: 7.35, duration: 0 });
       }
     } catch {
       fallbackCaliforniaCamera(map);
@@ -1476,12 +1486,12 @@
   }
 
   async function initSpotMap() {
-    const slug = document.body.dataset.spot || window.location.pathname.split("/").pop().replace(".html", "");
-    const config = { ...(DETAIL_MAPS[slug] || DETAIL_MAPS["la-jolla"]) };
+    const slug = currentMapSlug();
+    const config = { ...(DETAIL_MAPS[slug] || DETAIL_MAPS.home || DETAIL_MAPS["la-jolla"]) };
     if (!config) return;
     if (config.fitPins) {
       config.pins = californiaPins();
-      config.region = "Southern California";
+      config.region = "California";
     }
 
     const mapEl = document.getElementById("spotRegionMap") || insertMapCard(config);
