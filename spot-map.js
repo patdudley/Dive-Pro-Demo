@@ -75,6 +75,19 @@
     };
   }
 
+  function localBoundsForSpot(spot) {
+    if (Array.isArray(spot?.swellBounds) && spot.swellBounds.length === 2) {
+      return spot.swellBounds;
+    }
+    const lon = Number(spot?.lon);
+    const lat = Number(spot?.lat);
+    if (!Number.isFinite(lon) || !Number.isFinite(lat)) return null;
+    return [
+      [lon - 0.12, lat - 0.1],
+      [lon + 0.12, lat + 0.1],
+    ];
+  }
+
   function localSpotMapView(slug) {
     const spotsFn = window.californiaSpots;
     const spots = typeof spotsFn === "function" ? spotsFn() : [];
@@ -82,18 +95,24 @@
     const lon = Number(spot?.lon);
     const lat = Number(spot?.lat);
     const center = Number.isFinite(lon) && Number.isFinite(lat) ? [lon, lat] : [-118.37, 33.443];
-    const swellBounds = Array.isArray(spot?.swellBounds) && spot.swellBounds.length === 2
-      ? spot.swellBounds
-      : null;
     return {
       region: spot?.regionLabel || "California",
       center,
-      zoom: 11.2,
+      zoom: 11.4,
+      minZoom: 8.8,
       fitPins: false,
-      fitLocalBounds: swellBounds,
+      fitLocalBounds: localBoundsForSpot(spot),
       maxBounds: CALIFORNIA_BOUNDS,
       pins: californiaPins(),
     };
+  }
+
+  function slugFromPathname(pathname = window.location.pathname) {
+    const parts = String(pathname || "").split("/").filter(Boolean);
+    let last = (parts.pop() || "").replace(/\.html$/i, "");
+    if (!last || last === "index") last = (parts.pop() || "").replace(/\.html$/i, "");
+    if (!last || last === "Dive-Pro-Demo") return "";
+    return last;
   }
 
   function currentMapSlug() {
@@ -101,8 +120,8 @@
       return "home";
     }
     const fromBody = document.body.dataset.spot;
-    if (fromBody) return fromBody;
-    return (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "") || "home";
+    if (fromBody && fromBody !== "home") return fromBody;
+    return slugFromPathname() || "home";
   }
 
   const DETAIL_MAPS = {
@@ -1614,16 +1633,29 @@
   function fitLocalSpotMap(map, bounds, fallbackCenter) {
     if (!map || !bounds) return false;
     map.resize();
+    const container = map.getContainer();
+    const ready = container && container.clientWidth >= 80 && container.clientHeight >= 160;
+    if (!ready) {
+      if (fallbackCenter) {
+        map.jumpTo({ center: fallbackCenter, zoom: 11.4, bearing: 0, pitch: 0 });
+        return true;
+      }
+      return false;
+    }
     try {
-      map.fitBounds(bounds, {
-        padding: { top: 48, right: 36, bottom: 40, left: 36 },
+      const maplibre = window.maplibregl || globalThis.maplibregl;
+      const fitted = maplibre?.LngLatBounds?.convert
+        ? maplibre.LngLatBounds.convert(bounds)
+        : bounds;
+      map.fitBounds(fitted, {
+        padding: { top: 28, right: 24, bottom: 28, left: 24 },
         maxZoom: 12.8,
         duration: 0,
       });
       return true;
     } catch {
       if (fallbackCenter) {
-        map.jumpTo({ center: fallbackCenter, zoom: 11.2, bearing: 0, pitch: 0 });
+        map.jumpTo({ center: fallbackCenter, zoom: 11.4, bearing: 0, pitch: 0 });
         return true;
       }
       return false;
@@ -1669,12 +1701,17 @@
   async function initSpotMap() {
     const slug = currentMapSlug();
     const localSlugs = ["la-jolla", "monterey", "catalina-wrigley", "anacapa-ocean"];
-    const config = localSlugs.includes(slug)
+    const isSpotPage = localSlugs.includes(slug);
+    const config = isSpotPage
       ? localSpotMapView(slug)
       : { ...(DETAIL_MAPS[slug] || DETAIL_MAPS.home || californiaMapView()) };
     if (!config) return;
     config.pins = californiaPins();
     if (config.fitPins) config.region = "California";
+    if (isSpotPage) {
+      config.fitPins = false;
+      if (!config.fitLocalBounds) config.fitLocalBounds = localBoundsForSpot({ lon: config.center[0], lat: config.center[1] });
+    }
 
     const mapEl = document.getElementById("spotRegionMap") || insertMapCard(config);
     const apiKey = window.MAPTILER_API_KEY;
@@ -1689,15 +1726,14 @@
 
     try {
       const style = await getDiveProMapStyle(apiKey);
-      if (config.fitPins) {
-        style.center = config.center;
-        style.zoom = config.zoom;
-      }
+      style.center = config.center;
+      style.zoom = config.zoom;
       const map = new maplibre.Map({
         container: mapEl,
         style,
         center: config.center,
         zoom: config.zoom,
+        minZoom: isSpotPage ? (config.minZoom || 8.8) : 4.6,
         attributionControl: false,
         renderWorldCopies: false,
         maxBounds: config.maxBounds || [
