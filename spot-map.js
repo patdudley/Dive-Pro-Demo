@@ -481,11 +481,12 @@
   }
 
   const CA_WIND_BBOX = {
-    west: CALIFORNIA_BOUNDS[0][0] - 0.6,
-    south: CALIFORNIA_BOUNDS[0][1] - 0.6,
-    east: CALIFORNIA_BOUNDS[1][0] + 0.6,
-    north: CALIFORNIA_BOUNDS[1][1] + 0.6,
+    west: CALIFORNIA_BOUNDS[0][0] - 1.4,
+    south: CALIFORNIA_BOUNDS[0][1] - 0.8,
+    east: CALIFORNIA_BOUNDS[1][0] + 0.8,
+    north: CALIFORNIA_BOUNDS[1][1] + 0.8,
   };
+  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v2";
   const CA_WIND_STEP = 0.7;
 
   function uvFromSpeedDir(speedMs, directionDeg) {
@@ -605,12 +606,35 @@
     return buildCaliforniaWindManifest(lats, lons, points, results, step);
   }
 
+  function readCachedWindManifest() {
+    try {
+      const raw = sessionStorage.getItem(WIND_SESSION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed?.frames?.length ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCachedWindManifest(manifest) {
+    try {
+      sessionStorage.setItem(WIND_SESSION_KEY, JSON.stringify(manifest));
+    } catch {
+      /* ignore quota */
+    }
+  }
+
   async function loadWindManifest() {
+    const cached = readCachedWindManifest();
+    if (cached) return cached;
     const steps = [CA_WIND_STEP, 1, 1.6];
     let lastError = null;
     for (const step of steps) {
       try {
-        return await loadCaliforniaWindManifest(step);
+        const manifest = await loadCaliforniaWindManifest(step);
+        writeCachedWindManifest(manifest);
+        return manifest;
       } catch (error) {
         lastError = error;
       }
@@ -700,8 +724,7 @@
 
   function interpolateWindAtLonLat(grid, lon, lat) {
     const { xNorm, yNorm } = lonLatToGridNorm(grid, lon, lat);
-    if (xNorm < 0 || xNorm > 1 || yNorm < 0 || yNorm > 1) return null;
-    return interpolateWindVector(grid, xNorm, yNorm);
+    return interpolateWindVector(grid, clamp(xNorm, 0, 1), clamp(yNorm, 0, 1));
   }
 
   function renderWindGradientImage(map, grid) {
@@ -1771,6 +1794,7 @@
           mapEl.closest(".spot-map-frame")?.querySelector(".spot-wind-legend")?.classList.add("is-hidden");
         }
         applyInitialCamera();
+        map.resize();
         map._diveProInitialFitDone = true;
         window.addEventListener("resize", () => {
           if (!userMoved) applyInitialCamera();
