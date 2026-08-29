@@ -938,13 +938,13 @@ function chartXLabelAnchor(index, total) {
 }
 
 const CHART_VIEW_WIDTH = 800;
-const CHART_VIEW_HEIGHT = 500;
+const CHART_VIEW_HEIGHT = 310;
 const CHART_PLOT_LEFT = 70;
 const CHART_PLOT_RIGHT = 12;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
 const CHART_PLOT_TOP = 16;
-const CHART_PLOT_HEIGHT = 444;
-const CHART_X_LABEL_Y = 480;
+const CHART_PLOT_HEIGHT = 224;
+const CHART_X_LABEL_Y = 292;
 const CHART_Y_LABEL_X = CHART_PLOT_LEFT - 8;
 
 function chartHour(time) {

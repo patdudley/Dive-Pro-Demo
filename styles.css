@@ -2007,7 +2007,7 @@ section.chart-grid article,
   width: 100%;
   max-width: none;
   height: auto;
-  aspect-ratio: 8 / 5;
+  aspect-ratio: 800 / 310;
   overflow: visible;
 }
 
@@ -5109,7 +5109,7 @@ ul {
 
   .chart svg {
     max-width: none;
-    aspect-ratio: 8 / 5;
+    aspect-ratio: 800 / 310;
   }
 
   .fish-row summary {
