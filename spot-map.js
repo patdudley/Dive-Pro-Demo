@@ -1421,11 +1421,12 @@
     const timelineVisible = timeline && !timeline.classList.contains("is-hidden");
     const timelineHeight = timelineVisible ? Math.ceil(timeline.getBoundingClientRect().height) : 0;
     const expectedTimeline = width <= 640 ? 186 : 168;
-    const overlay = Math.max(timelineHeight, expectedTimeline);
+    const legendClearance = width <= 640 ? 58 : 42;
+    const overlay = Math.max(timelineHeight, expectedTimeline) + legendClearance;
     const top = Math.min(52, Math.max(28, Math.floor(height * 0.08)));
     const sideMin = width <= 640 ? 56 : 48;
     const side = Math.min(Math.floor(width * 0.15), Math.max(sideMin, Math.floor(width * 0.1)));
-    const bottom = Math.min(overlay + 36, Math.floor(height * 0.44));
+    const bottom = Math.min(overlay + 12, Math.floor(height * 0.48));
     if (height - top - bottom < 96) {
       return {
         top: 20,
@@ -1450,8 +1451,8 @@
   function fallbackCaliforniaCamera(map) {
     const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
     map.jumpTo({
-      center: [-118.32, 33.52],
-      zoom: mobile ? 6.05 : 6.55,
+      center: [-118.32, 33.48],
+      zoom: mobile ? 5.95 : 6.4,
       bearing: 0,
       pitch: 0,
     });
