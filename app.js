@@ -33,7 +33,7 @@ function californiaSpots() {
 function currentPageSlug() {
   const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
   if (file && file !== "index") return file;
-  return new URLSearchParams(window.location.search).get("spot") || document.body.dataset.spot || "la-jolla";
+  return "la-jolla";
 }
 
 function currentSpot() {

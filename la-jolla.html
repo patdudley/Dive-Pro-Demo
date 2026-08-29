@@ -48,7 +48,7 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829o">
+    <link rel="stylesheet" href="styles.css?v=pages-20260829p">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
   </head>
   <body data-spot="la-jolla">
@@ -198,12 +198,12 @@
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829o"></script>
+    <script src="spots-config.js?v=pages-20260829p"></script>
     <script>
       (function applySpotFromPath() {
         const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
         const querySpot = new URLSearchParams(window.location.search).get("spot");
-        const requested = (file && file !== "index" ? file : null) || querySpot || document.body.dataset.spot || "la-jolla";
+        const requested = (file && file !== "index" ? file : null) || querySpot || "la-jolla";
         const spot = window.spotFromSlug ? window.spotFromSlug(requested) : null;
         document.body.dataset.spot = spot?.slug || "la-jolla";
         if (!file && querySpot && spot?.href && /\.html$/i.test(spot.href)) {
@@ -211,11 +211,11 @@
         }
       })();
     </script>
-    <script type="module" src="app.js?v=pages-20260829o"></script>
+    <script type="module" src="app.js?v=pages-20260829p"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829o"></script>
+    <script src="spot-map.js?v=pages-20260829p"></script>
   </body>
 </html>
