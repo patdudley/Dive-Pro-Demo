@@ -1429,8 +1429,8 @@
           config.pins.forEach((pin) => bounds.extend(pin.lngLat));
           map.resize();
           map.fitBounds(bounds, {
-            padding: 24,
-            maxZoom: 6.7,
+            padding: { top: 36, right: 36, bottom: 196, left: 36 },
+            maxZoom: 6.9,
             duration: 0,
           });
         };
