@@ -1007,15 +1007,6 @@ function areaFillPath(coords, baselineY) {
   return `${smoothLinePath(coords)} L ${last.x.toFixed(2)} ${baselineY.toFixed(2)} L ${first.x.toFixed(2)} ${baselineY.toFixed(2)} Z`;
 }
 
-function windChartColor(speed) {
-  if (speed <= 1) return "#3b7eb5";
-  if (speed <= 4) return "#4ea3b4";
-  if (speed <= 6) return "#6d82b4";
-  if (speed <= 8) return "#8d6a9c";
-  if (speed <= 10) return "#a85a8c";
-  return "#b04d7a";
-}
-
 function setTideSourceLabel(data) {
   const source = document.getElementById("tideSource");
   if (!source) return;
@@ -1100,7 +1091,7 @@ function renderWindChart(data) {
         const speed = point.speed_mph || 0;
         const x = left + index * (barWidth + (points.length > 1 ? gap : 0));
         const y = yFromValue(speed, min, max, top, height);
-        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(3, top + height - y).toFixed(2)}" rx="2" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windChartColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
+        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(3, top + height - y).toFixed(2)}" rx="2" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
       }).join("")}
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
@@ -1348,7 +1339,7 @@ function angularDistanceDeg(a, b) {
   return delta;
 }
 
-function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headSize }) {
+function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headSize, hubGap }) {
   const cx = 80;
   const cy = 80;
   const rad = ((fromDeg - 90) * Math.PI) / 180;
@@ -1356,10 +1347,11 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const fromY = Math.sin(rad);
   const offsetX = -fromY * offsetPx;
   const offsetY = fromX * offsetPx;
+  const gap = Number.isFinite(hubGap) ? hubGap : 14;
   const tailX = cx + fromX * length + offsetX;
   const tailY = cy + fromY * length + offsetY;
-  const tipX = cx - fromX * 14 + offsetX;
-  const tipY = cy - fromY * 14 + offsetY;
+  const tipX = cx - fromX * gap + offsetX;
+  const tipY = cy - fromY * gap + offsetY;
   const travelX = tipX - tailX;
   const travelY = tipY - tailY;
   const mag = Math.hypot(travelX, travelY) || 1;
@@ -1394,8 +1386,11 @@ function renderSwellCompassRose(rows) {
   const primary = directed.find((row) => String(row.label).toLowerCase() === "primary") || directed[0];
   const secondary = directed.find((row) => String(row.label).toLowerCase() === "secondary")
     || (directed.length > 1 ? directed[1] : null);
-  const close = primary && secondary
+  const pair = Boolean(primary && secondary);
+  const close = pair
     && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 15;
+  const offset = pair ? (close ? 16 : 12) : 0;
+  const hubGap = pair ? 20 : 14;
   const arrows = [];
   if (secondary) {
     arrows.push(swellArrowMarkup({
@@ -1403,8 +1398,9 @@ function renderSwellCompassRose(rows) {
       color: "#ee13ba",
       length: close ? 34 : 40,
       strokeWidth: 2.8,
-      offsetPx: close ? 16 : 0,
+      offsetPx: offset,
       headSize: 11,
+      hubGap,
     }));
   }
   if (primary) {
@@ -1413,8 +1409,9 @@ function renderSwellCompassRose(rows) {
       color: "#13baee",
       length: close ? 58 : 56,
       strokeWidth: 6.4,
-      offsetPx: close ? -16 : 0,
+      offsetPx: -offset,
       headSize: 16,
+      hubGap,
     }));
   }
   rose.innerHTML = `
