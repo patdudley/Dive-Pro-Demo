@@ -32,41 +32,52 @@
   const LA_JOLLA_CALIBRATION = { lng: -117.255, lat: 32.866, radiusMiles: 4.5 };
   const SPOT_PROBES = new WeakMap();
 
-  const CALIFORNIA_PINS = [
-    { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
-    { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
-    { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
+  const CALIFORNIA_PIN_FALLBACK = [
+    { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
+    { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
+    { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-121.1, 31.85],
-    [-115.7, 35.15],
+    [-123.2, 30.6],
+    [-114.2, 36.8],
   ];
 
+  function californiaPinsFromSpots() {
+    const spotsFn = window.californiaSpots;
+    const spots = typeof spotsFn === "function"
+      ? spotsFn()
+      : (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
+    return (spots || [])
+      .map((spot) => ({
+        slug: spot.slug,
+        label: spot.name,
+        detail: spot.city || spot.location || "",
+        lngLat: [Number(spot.lon), Number(spot.lat)],
+        href: spot.href,
+      }))
+      .filter((pin) => Number.isFinite(pin.lngLat[0]) && Number.isFinite(pin.lngLat[1]));
+  }
+
+  function californiaPins() {
+    const live = californiaPinsFromSpots();
+    return live.length >= 3 ? live : CALIFORNIA_PIN_FALLBACK;
+  }
+
+  function californiaMapView() {
+    return {
+      region: "Southern California",
+      center: [-118.32, 33.44],
+      zoom: 6.2,
+      fitPins: true,
+      maxBounds: CALIFORNIA_BOUNDS,
+      pins: californiaPins(),
+    };
+  }
+
   const DETAIL_MAPS = {
-    "la-jolla": {
-      region: "Southern California",
-      center: [-118.15, 33.2],
-      zoom: 6.2,
-      fitPins: true,
-      maxBounds: CALIFORNIA_BOUNDS,
-      pins: CALIFORNIA_PINS,
-    },
-    "catalina-wrigley": {
-      region: "Southern California",
-      center: [-118.15, 33.2],
-      zoom: 6.2,
-      fitPins: true,
-      maxBounds: CALIFORNIA_BOUNDS,
-      pins: CALIFORNIA_PINS,
-    },
-    "anacapa-ocean": {
-      region: "Southern California",
-      center: [-118.15, 33.2],
-      zoom: 6.2,
-      fitPins: true,
-      maxBounds: CALIFORNIA_BOUNDS,
-      pins: CALIFORNIA_PINS,
-    },
+    "la-jolla": californiaMapView(),
+    "catalina-wrigley": californiaMapView(),
+    "anacapa-ocean": californiaMapView(),
     "lower-keys": {
       region: "Lower Keys, Florida",
       center: [-81.43, 24.64],
@@ -1353,7 +1364,10 @@
     frame?.querySelector(".spot-wind-legend")?.classList.remove("is-hidden");
     map.__diveProSpotWindGrid = grid;
     const layer = createWindCanvasLayer(map, grid, waterMask);
-    const timelineCoordinates = config?.pins?.[0]?.lngLat || config?.center || [-117.255, 32.866];
+    const timelineCoordinates = config?.pins?.find((pin) => pin.slug === "la-jolla" || pin.href === "la-jolla.html")?.lngLat
+      || config?.pins?.find((pin) => pin.lngLat?.[0] === -117.255)?.lngLat
+      || config?.center
+      || [-117.255, 32.866];
     if (layer && frame) setupSpotWindTimeline(frame, layer, manifest, frameCache, map, timelineCoordinates);
     return layer;
   }
@@ -1392,15 +1406,96 @@
     return section.querySelector("#spotRegionMap");
   }
 
+  function pinLngLatBounds(maplibre, pins) {
+    const bounds = new maplibre.LngLatBounds();
+    pins.forEach((pin) => bounds.extend(pin.lngLat));
+    return bounds;
+  }
+
+  function regionMapFitPadding(map) {
+    const container = map.getContainer();
+    const width = container?.clientWidth || window.innerWidth || 390;
+    const height = container?.clientHeight || 440;
+    const frame = container?.closest(".spot-map-frame");
+    const timeline = frame?.querySelector(".spot-wind-timeline");
+    const timelineVisible = timeline && !timeline.classList.contains("is-hidden");
+    const timelineHeight = timelineVisible ? Math.ceil(timeline.getBoundingClientRect().height) : 0;
+    const expectedTimeline = width <= 640 ? 186 : 168;
+    const overlay = Math.max(timelineHeight, expectedTimeline);
+    const top = Math.min(48, Math.max(24, Math.floor(height * 0.08)));
+    const side = Math.min(48, Math.max(28, Math.floor(width * 0.08)));
+    const bottom = Math.min(overlay + 28, Math.floor(height * 0.42));
+    if (height - top - bottom < 96) {
+      return {
+        top: 20,
+        right: 24,
+        bottom: Math.min(96, Math.floor(height * 0.28)),
+        left: 24,
+      };
+    }
+    return { top, right: side, bottom, left: side };
+  }
+
+  function pinsAreOnScreen(map, pins) {
+    try {
+      const bounds = map.getBounds();
+      if (!bounds) return false;
+      return pins.every((pin) => bounds.contains(pin.lngLat));
+    } catch {
+      return false;
+    }
+  }
+
+  function fallbackCaliforniaCamera(map) {
+    const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
+    map.jumpTo({
+      center: [-118.32, 33.52],
+      zoom: mobile ? 6.05 : 6.55,
+      bearing: 0,
+      pitch: 0,
+    });
+  }
+
+  function fitCaliforniaRegionMap(map, pins, maplibre) {
+    if (!map || !pins?.length) return;
+    map.resize();
+    const padding = regionMapFitPadding(map);
+    try {
+      const bounds = pinLngLatBounds(maplibre, pins);
+      const camera = map.cameraForBounds(bounds, {
+        padding,
+        maxZoom: 7.15,
+      });
+      if (camera && Number.isFinite(Number(camera.zoom))) {
+        map.jumpTo({
+          center: camera.center,
+          zoom: Math.min(Number(camera.zoom), 7.15),
+          bearing: 0,
+          pitch: 0,
+        });
+      } else {
+        map.fitBounds(bounds, { padding, maxZoom: 7.15, duration: 0 });
+      }
+    } catch {
+      fallbackCaliforniaCamera(map);
+    }
+    if (!pinsAreOnScreen(map, pins)) fallbackCaliforniaCamera(map);
+  }
+
   async function initSpotMap() {
     const slug = document.body.dataset.spot || window.location.pathname.split("/").pop().replace(".html", "");
-    const config = DETAIL_MAPS[slug] || DETAIL_MAPS["la-jolla"];
+    const config = { ...(DETAIL_MAPS[slug] || DETAIL_MAPS["la-jolla"]) };
     if (!config) return;
+    if (config.fitPins) {
+      config.pins = californiaPins();
+      config.region = "Southern California";
+    }
 
     const mapEl = document.getElementById("spotRegionMap") || insertMapCard(config);
     const apiKey = window.MAPTILER_API_KEY;
     const maplibre = window.maplibregl || globalThis.maplibregl;
     if (!mapEl) return;
+    mapEl.setAttribute("aria-label", `Interactive ${config.region} dive region map`);
     if (!apiKey || !maplibre) {
       mapEl.classList.add("is-unavailable");
       mapEl.textContent = "Region map unavailable.";
@@ -1410,31 +1505,37 @@
     try {
       const style = await getDiveProMapStyle(apiKey);
       if (config.fitPins) {
-        style.center = [-118.05, 33.12];
-        style.zoom = 5.95;
+        style.center = config.center;
+        style.zoom = config.zoom;
       }
       const map = new maplibre.Map({
         container: mapEl,
         style,
-        center: config.fitPins ? [-118.05, 33.12] : config.center,
-        zoom: config.fitPins ? 5.95 : config.zoom,
+        center: config.center,
+        zoom: config.zoom,
         attributionControl: false,
+        renderWorldCopies: false,
         maxBounds: config.maxBounds || [
           [config.center[0] - 4, config.center[1] - 3],
-          [config.center[0] + 4, config.center[1] + 3],
+          [config.center[0] + 4, config.center[1] + 4],
         ],
       });
       map.addControl(new maplibre.AttributionControl({ compact: true }), "top-left");
       map.addControl(new maplibre.NavigationControl({ visualizePitch: true }), "top-right");
       map.on("load", async () => {
         addPins(map, config.pins);
+        let userMoved = false;
         const applyCaliforniaCamera = () => {
-          if (!config.fitPins) return;
-          map.resize();
-          map.jumpTo({ center: [-118.05, 33.12], zoom: 5.95 });
+          if (!config.fitPins || userMoved) return;
+          try {
+            fitCaliforniaRegionMap(map, config.pins, maplibre);
+          } catch {
+            fallbackCaliforniaCamera(map);
+          }
         };
         applyCaliforniaCamera();
         map.once("idle", applyCaliforniaCamera);
+        map.once("dragstart", () => { userMoved = true; });
         setupSpotProbe(map);
         addDepthLayer(map);
         setupMapLayerToggle(map, mapEl.closest(".spot-map-frame"));
@@ -1443,6 +1544,11 @@
         } catch (error) {
           mapEl.closest(".spot-map-frame")?.querySelector(".spot-wind-legend")?.classList.add("is-hidden");
         }
+        applyCaliforniaCamera();
+        map._diveProInitialFitDone = true;
+        window.addEventListener("resize", () => {
+          if (!userMoved) applyCaliforniaCamera();
+        });
       });
       window.__diveProSpotRegionMap = map;
     } catch (error) {
