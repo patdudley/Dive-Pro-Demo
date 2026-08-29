@@ -942,11 +942,19 @@ function chartXLabelAnchor(index, total) {
 
 const CHART_VIEW_WIDTH = 720;
 const CHART_VIEW_HEIGHT = 250;
-const CHART_PAD_X = 40;
-const CHART_PLOT_LEFT = CHART_PAD_X;
-const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PAD_X * 2;
-const CHART_PLOT_TOP = 18;
+const CHART_PLOT_LEFT = 56;
+const CHART_PLOT_RIGHT = 20;
+const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
+const CHART_PLOT_TOP = 16;
 const CHART_PLOT_HEIGHT = 176;
+
+function chartYLabelY(tick, min, max, top, height) {
+  const y = yFromValue(tick, min, max, top, height);
+  const bottom = top + height;
+  if (Math.abs(y - bottom) <= 6) return y - 8;
+  if (Math.abs(y - top) <= 6) return y + 11;
+  return y + 4;
+}
 
 function setTideSourceLabel(data) {
   const source = document.getElementById("tideSource");
@@ -1000,12 +1008,12 @@ function renderTideChart(data) {
         return `<circle cx="${x}" cy="${y}" r="3.5" class="tide-point"><title>${hourLabel(point.time)}: ${point.height_ft.toFixed(2)} ft</title></circle>`;
       }).join("")}
       ${yTicks.map((tick) => {
-        const y = yFromValue(tick, min, max, top, height);
-        return `<text x="${left + 8}" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(1)} ft</text>`;
+        const y = chartYLabelY(tick, min, max, top, height);
+        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(1)} ft</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
-        return `<text x="${x}" y="224" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
+        return `<text x="${x}" y="232" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
@@ -1053,12 +1061,12 @@ function renderWindChart(data) {
         return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${(top + height - y).toFixed(2)}" rx="4" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
       }).join("")}
       ${yTicks.map((tick) => {
-        const y = yFromValue(tick, min, max, top, height);
-        return `<text x="${left + 8}" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(0)} mph</text>`;
+        const y = chartYLabelY(tick, min, max, top, height);
+        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(0)} mph</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
-        return `<text x="${x}" y="224" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
+        return `<text x="${x}" y="232" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
@@ -1319,15 +1327,15 @@ function renderSwellCompassRose(rows) {
   const secondary = directed.find((row) => String(row.label).toLowerCase() === "secondary")
     || (directed.length > 1 ? directed[1] : null);
   const close = primary && secondary
-    && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 36;
+    && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 15;
   const arrows = [];
   if (secondary) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(secondary.directionDeg),
       color: "#ee13ba",
-      length: close ? 36 : 38,
-      strokeWidth: 3,
-      offsetPx: close ? 10 : 5,
+      length: close ? 34 : 40,
+      strokeWidth: 2.8,
+      offsetPx: close ? 16 : 0,
       headSize: 11,
     }));
   }
@@ -1335,10 +1343,10 @@ function renderSwellCompassRose(rows) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(primary.directionDeg),
       color: "#13baee",
-      length: close ? 60 : 58,
-      strokeWidth: 7.2,
-      offsetPx: close ? -8 : -4,
-      headSize: 18,
+      length: close ? 58 : 56,
+      strokeWidth: 6.4,
+      offsetPx: close ? -16 : 0,
+      headSize: 16,
     }));
   }
   rose.innerHTML = `
