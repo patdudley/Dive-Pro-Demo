@@ -1456,6 +1456,33 @@ body {
   min-height: 0;
 }
 
+.hero-camera.is-camera-free {
+  overflow: visible;
+  background: transparent;
+}
+
+.hero-camera.is-camera-free .hero-content {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0 0 8px;
+}
+
+.spot-live-cam-link {
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.spot-live-cam-link a {
+  color: var(--dark-cyan);
+  text-decoration: none;
+}
+
+.spot-live-cam-link a:hover,
+.spot-live-cam-link a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .topbar {
   position: relative;
   z-index: 2;

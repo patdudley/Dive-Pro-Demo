@@ -913,7 +913,7 @@ function renderCamera(data) {
   const unavailableMessage = document.getElementById("cameraUnavailableMessage");
   const spot = currentSpot();
 
-  if (!spot.hasModelForecast && spot.liveEmbedUrl) {
+  if (!spot.hasModelForecast && spot.liveEmbedUrl && spot.liveEmbedInPage !== false) {
     frame.classList.remove("is-camera-unavailable");
     image.hidden = true;
     image.removeAttribute("src");
