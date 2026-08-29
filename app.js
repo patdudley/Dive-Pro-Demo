@@ -1960,7 +1960,9 @@ function renderForecastStrip(forecasts, activeDate) {
   if (!strip) return;
 
   if (!forecasts.length) {
-    strip.innerHTML = `<p class="forecast-unavailable-copy">Dive Pro vis grades are unavailable here. The frozen model is trained on La Jolla only.</p>`;
+    const card = strip.closest(".ten-day-card");
+    if (card) card.hidden = true;
+    strip.replaceChildren();
     return;
   }
   function selectForecast(forecast, source = "forecast_day_select") {
