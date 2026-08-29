@@ -1969,8 +1969,17 @@ h2::before {
   padding: 16px 0 0;
 }
 
-.chart-grid article > h2 {
+.chart-grid article > h2,
+.chart-grid article > .section-heading {
   padding: 0 18px;
+}
+
+.chart-grid article > .section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .chart-grid .tide-meta {
@@ -1979,7 +1988,12 @@ h2::before {
 
 .chart {
   position: relative;
-  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  min-height: 0;
+  padding: 6px 12px 12px;
   border: 0;
   border-top: 1px solid var(--line);
   border-radius: 0;
@@ -1991,7 +2005,9 @@ h2::before {
 .chart svg {
   display: block;
   width: 100%;
-  height: 100%;
+  max-width: 760px;
+  height: auto;
+  aspect-ratio: 720 / 250;
 }
 
 .chart-axis,
@@ -2251,6 +2267,7 @@ h2::before {
   display: block;
   width: 100%;
   height: auto;
+  overflow: visible;
   filter: drop-shadow(0 2px 8px rgba(6, 20, 46, 0.45));
 }
 
@@ -3212,7 +3229,6 @@ ul {
   overflow: hidden;
 }
 
-#tideSource,
 #windSource {
   display: none !important;
 }
@@ -5075,7 +5091,11 @@ ul {
   }
 
   .chart {
-    height: 218px;
+    padding: 4px 8px 10px;
+  }
+
+  .chart svg {
+    max-width: none;
   }
 
   .fish-row summary {

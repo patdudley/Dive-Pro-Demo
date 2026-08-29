@@ -71,20 +71,40 @@ function celsiusToFahrenheit(value) {
   return Number.isFinite(number) ? (number * 9) / 5 + 32 : null;
 }
 
+function finiteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 function maxFinite(values) {
   const numbers = values.map(Number).filter((value) => Number.isFinite(value));
   return numbers.length ? Math.max(...numbers) : null;
 }
 
+function indexOfMaxFinite(values) {
+  return values.reduce((best, value, index) => (
+    Number.isFinite(value) && (best < 0 || value > values[best]) ? index : best
+  ), -1);
+}
+
+function isoDateKey(value) {
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : "";
+}
+
 function hourKey(iso) {
-  const match = String(iso || "").match(/T(\d{2})/);
+  const match = String(iso || "").match(/(?:T|\s)(\d{2}):/);
   return match ? `${match[1]}:00` : "";
+}
+
+function noaaDateStamp(date = localTodayInLaJolla()) {
+  return String(date).replaceAll("-", "");
 }
 
 function unavailableSpotForecast(spot, features = {}, { conditionsLoaded = false } = {}) {
   const conditionsCopy = conditionsLoaded
-    ? " Swell, wind, and weather below are live Open-Meteo conditions, not a Dive Pro visibility forecast."
-    : " Live marine conditions were also unavailable just now.";
+    ? " Swell, tide, and wind below are live for this location. Visibility grades stay La Jolla-model-only."
+    : " Live swell, tide, and wind were also unavailable just now.";
   return {
     date: localTodayInLaJolla(),
     location: spot.location,
@@ -95,67 +115,151 @@ function unavailableSpotForecast(spot, features = {}, { conditionsLoaded = false
     numeric_score_0_100: 0,
     best_window: "Unavailable",
     swell_source: "Open-Meteo / NDBC",
+    tide_source: features.tide_source || "",
     report_text: `${spot.location} is on the California location list, but Dive Pro vis grades are unavailable here. The frozen model is trained on La Jolla only.${conditionsCopy}`,
     features,
   };
 }
 
-async function fetchOpenMeteoFeatures(spot) {
+function liveFeaturesPresent(features = {}) {
+  return Boolean(
+    Number.isFinite(Number(features.swell_wave_height_max_ft))
+    || Number.isFinite(Number(features.wind_speed_max_mph))
+    || (Array.isArray(features.wind_chart) && features.wind_chart.length)
+    || (Array.isArray(features.tide_chart) && features.tide_chart.length)
+    || Number.isFinite(Number(features.water_temp_estimate_f)),
+  );
+}
+
+async function fetchOpenMeteoMarine(spot) {
   const lat = Number(spot.lat);
   const lon = Number(spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
-  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,precipitation,temperature_2m&daily=temperature_2m_max,precipitation_sum&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_days=1&timezone=America/Los_Angeles`;
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
+  const marine = await fetchJson(marineUrl);
+  const hourly = marine.hourly || {};
+  const waveHeights = (hourly.wave_height || []).map(metersToFeet);
+  const swellHeights = (hourly.swell_wave_height || []).map(metersToFeet);
+  const secondaryHeights = (hourly.secondary_swell_wave_height || []).map(metersToFeet);
+  const windWaveHeights = (hourly.wind_wave_height || []).map(metersToFeet);
+  const swellIndex = indexOfMaxFinite(swellHeights);
+  const secondaryIndex = indexOfMaxFinite(secondaryHeights);
+  const windWaveIndex = indexOfMaxFinite(windWaveHeights);
+  const waterTemps = (hourly.sea_surface_temperature || []).map(celsiusToFahrenheit);
 
-  const [marine, weather] = await Promise.all([
-    fetchJson(marineUrl),
-    fetchJson(weatherUrl),
-  ]);
-
-  const marineHourly = marine.hourly || {};
-  const weatherHourly = weather.hourly || {};
-  const weatherDaily = weather.daily || {};
-  const waveHeights = (marineHourly.wave_height || []).map(metersToFeet);
-  const swellHeights = (marineHourly.swell_wave_height || []).map(metersToFeet);
-  const windWaveHeights = (marineHourly.wind_wave_height || []).map(metersToFeet);
-  const swellIndex = swellHeights.reduce((best, value, index) => (
-    value != null && (best < 0 || value > swellHeights[best]) ? index : best
-  ), -1);
-  const windWaveIndex = windWaveHeights.reduce((best, value, index) => (
-    value != null && (best < 0 || value > windWaveHeights[best]) ? index : best
-  ), -1);
-  const waveIndex = waveHeights.reduce((best, value, index) => (
-    value != null && (best < 0 || value > waveHeights[best]) ? index : best
-  ), -1);
-  const waterTemps = (marineHourly.sea_surface_temperature || []).map(celsiusToFahrenheit);
-  const windSpeeds = (weatherHourly.wind_speed_10m || []).map(Number);
-  const rainToday = Number(weatherDaily.precipitation_sum?.[0]);
+  const primaryHeight = swellIndex >= 0 ? swellHeights[swellIndex] : maxFinite(swellHeights);
+  const primaryPeriod = swellIndex >= 0 ? finiteNumber(hourly.swell_wave_period?.[swellIndex]) : null;
+  const primaryDir = swellIndex >= 0 ? finiteNumber(hourly.swell_wave_direction?.[swellIndex]) : null;
+  const secondaryHeight = secondaryIndex >= 0 ? secondaryHeights[secondaryIndex] : maxFinite(secondaryHeights);
+  const secondaryPeriod = secondaryIndex >= 0 ? finiteNumber(hourly.secondary_swell_wave_period?.[secondaryIndex]) : null;
+  const secondaryDir = secondaryIndex >= 0 ? finiteNumber(hourly.secondary_swell_wave_direction?.[secondaryIndex]) : null;
+  const windWaveHeight = windWaveIndex >= 0 ? windWaveHeights[windWaveIndex] : maxFinite(windWaveHeights);
 
   return {
     surf_height_max_ft: maxFinite(waveHeights),
     wave_height_max_ft: maxFinite(waveHeights),
-    swell_wave_height_max_ft: swellIndex >= 0 ? swellHeights[swellIndex] : maxFinite(swellHeights),
-    swell_wave_period_max_s: swellIndex >= 0 ? Number(marineHourly.swell_wave_period?.[swellIndex]) : null,
-    swell_wave_direction_deg: swellIndex >= 0 ? Number(marineHourly.swell_wave_direction?.[swellIndex]) : null,
-    swell_direction_label: swellIndex >= 0 ? directionFromDegrees(marineHourly.swell_wave_direction?.[swellIndex]) : "",
-    secondary_swell_height_ft: windWaveIndex >= 0 ? windWaveHeights[windWaveIndex] : maxFinite(windWaveHeights),
-    secondary_swell_period_s: windWaveIndex >= 0 ? Number(marineHourly.wind_wave_period?.[windWaveIndex]) : null,
-    secondary_swell_direction_deg: windWaveIndex >= 0 ? Number(marineHourly.wind_wave_direction?.[windWaveIndex]) : null,
-    secondary_swell_direction_label: windWaveIndex >= 0 ? directionFromDegrees(marineHourly.wind_wave_direction?.[windWaveIndex]) : "",
-    wind_wave_height_max_ft: maxFinite(windWaveHeights),
-    wind_speed_max_mph: maxFinite(windSpeeds),
+    swell_wave_height_max_ft: primaryHeight,
+    swell_wave_period_max_s: primaryPeriod,
+    swell_wave_direction_deg: primaryDir,
+    swell_direction_label: primaryDir != null ? directionFromDegrees(primaryDir) : "",
+    secondary_swell_height_ft: secondaryHeight,
+    secondary_swell_period_s: secondaryPeriod,
+    secondary_swell_direction_deg: secondaryDir,
+    secondary_swell_direction_label: secondaryDir != null ? directionFromDegrees(secondaryDir) : "",
+    wind_wave_height_max_ft: windWaveHeight,
+    wind_wave_period_max_s: windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_period?.[windWaveIndex]) : null,
+    wind_wave_direction_deg: windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_direction?.[windWaveIndex]) : null,
+    total_swell_height_mean_ft: primaryHeight,
     water_temp_estimate_f: maxFinite(waterTemps),
-    air_temp_max_f: Number(weatherDaily.temperature_2m_max?.[0]),
-    rain_24h_in: Number.isFinite(rainToday) ? rainToday : 0,
-    rain_target_day_forecast_in: Number.isFinite(rainToday) ? rainToday : 0,
-    rain_prior_3day_in: null,
     swell_source: "Open-Meteo",
-    wind_chart: (weatherHourly.time || []).map((time, index) => ({
-      time: hourKey(time),
-      speed_mph: Number(weatherHourly.wind_speed_10m?.[index]),
-    })).filter((point) => point.time && Number.isFinite(point.speed_mph)),
-    wave_index: waveIndex,
+  };
+}
+
+async function fetchOpenMeteoWeather(spot) {
+  const lat = Number(spot.lat);
+  const lon = Number(spot.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,wind_direction_10m,precipitation,temperature_2m&daily=temperature_2m_max,precipitation_sum&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_days=1&past_days=3&timezone=America/Los_Angeles`;
+  const weather = await fetchJson(weatherUrl);
+  const hourly = weather.hourly || {};
+  const daily = weather.daily || {};
+  const today = isoDateKey((daily.time || []).at(-1)) || localTodayInLaJolla();
+  const windChart = (hourly.time || []).map((time, index) => ({
+    date: isoDateKey(time),
+    time: hourKey(time),
+    speed_mph: finiteNumber(hourly.wind_speed_10m?.[index]),
+    direction_deg: finiteNumber(hourly.wind_direction_10m?.[index]),
+  })).filter((point) => point.date === today && point.time && Number.isFinite(point.speed_mph));
+  const rainSeries = (daily.precipitation_sum || []).map(finiteNumber);
+  const rainToday = rainSeries.length ? rainSeries[rainSeries.length - 1] : null;
+  const priorRain = rainSeries.slice(0, -1).slice(-3);
+  const rainPrior = priorRain.length
+    ? priorRain.reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0)
+    : null;
+  const airTemps = (daily.temperature_2m_max || []).map(finiteNumber);
+  const todayWindDir = windChart.find((point) => Number.isFinite(point.direction_deg))?.direction_deg ?? null;
+
+  return {
+    wind_speed_max_mph: maxFinite(windChart.map((point) => point.speed_mph)),
+    wind_direction_deg: todayWindDir,
+    air_temp_max_f: airTemps.length ? airTemps[airTemps.length - 1] : null,
+    rain_24h_in: rainToday,
+    rain_target_day_forecast_in: rainToday,
+    rain_prior_3day_in: rainPrior,
+    wind_chart: windChart.map(({ time, speed_mph }) => ({ time, speed_mph })),
+  };
+}
+
+async function fetchNoaaTideChart(station) {
+  if (!station?.id) return null;
+  const today = noaaDateStamp();
+  const url = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=DiveProDemo&begin_date=${today}&end_date=${today}&datum=MLLW&station=${encodeURIComponent(station.id)}&time_zone=lst_ldt&units=english&interval=h&format=json`;
+  const data = await fetchJson(url);
+  const predictions = Array.isArray(data?.predictions) ? data.predictions : [];
+  const tideChart = predictions.map((row) => ({
+    time: hourKey(String(row.t || "").replace(" ", "T")),
+    height_ft: finiteNumber(row.v),
+  })).filter((point) => point.time && Number.isFinite(point.height_ft));
+  if (!tideChart.length) return null;
+  return {
+    tide_chart: tideChart,
+    tide_source: station.label || `NOAA ${station.id}`,
+  };
+}
+
+async function fetchSpotTideFeatures(spot) {
+  const primary = spot.tideStation;
+  if (!primary?.id) return null;
+  const stations = [primary];
+  if (primary.fallbackId) {
+    stations.push({
+      id: primary.fallbackId,
+      label: primary.fallbackLabel || `NOAA ${primary.fallbackId}`,
+    });
+  }
+  for (const station of stations) {
+    try {
+      const tide = await fetchNoaaTideChart(station);
+      if (tide) return tide;
+    } catch {
+      // Try the next verified station. A missing island gauge must not blank swell/wind.
+    }
+  }
+  return null;
+}
+
+async function fetchLiveSpotFeatures(spot) {
+  const [marine, weather, tide] = await Promise.all([
+    fetchOpenMeteoMarine(spot).catch(() => null),
+    fetchOpenMeteoWeather(spot).catch(() => null),
+    fetchSpotTideFeatures(spot).catch(() => null),
+  ]);
+  return {
+    ...(marine || {}),
+    ...(weather || {}),
+    ...(tide || {}),
   };
 }
 
@@ -192,12 +296,21 @@ function initSpotPicker(activeSpot) {
   });
 }
 
+function swellMapFallbackImage(spot) {
+  const bounds = swellMapBoundsForSpot(spot);
+  const [west, south] = bounds[0];
+  const [east, north] = bounds[1];
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${west},${south},${east},${north}&bboxSR=4326&imageSR=3857&size=900,720&format=jpg&f=image`;
+}
+
 function updateSpotChrome(spot) {
   document.body.dataset.spot = spot.slug;
   const regionLabel = document.getElementById("regionMapLabel");
   if (regionLabel) regionLabel.textContent = spot.regionLabel || spot.location;
   const swellMap = document.getElementById("swellMap");
-  if (swellMap) swellMap.setAttribute("aria-label", `${spot.menuName || spot.name} coastline map`);
+  if (swellMap) swellMap.setAttribute("aria-label", `${spot.regionLabel || spot.name} coastline map`);
+  const swellPanel = document.querySelector(".swell-map-panel");
+  if (swellPanel) swellPanel.style.backgroundImage = `url("${swellMapFallbackImage(spot)}")`;
   const liveLink = document.querySelector(".camera-live-link");
   if (liveLink && spot.cameraUrl) {
     liveLink.href = spot.cameraUrl;
@@ -293,16 +406,10 @@ async function loadForecastData() {
   initSpotPicker(spot);
 
   if (!spot.hasModelForecast) {
-    let features = {};
-    let conditionsLoaded = false;
-    try {
-      features = await fetchOpenMeteoFeatures(spot) || {};
-      conditionsLoaded = Boolean(features.swell_wave_height_max_ft || features.wind_speed_max_mph);
-    } catch {
-      features = {};
-      conditionsLoaded = false;
-    }
-    const latest = unavailableSpotForecast(spot, features, { conditionsLoaded });
+    const features = await fetchLiveSpotFeatures(spot).catch(() => ({})) || {};
+    const latest = unavailableSpotForecast(spot, features, {
+      conditionsLoaded: liveFeaturesPresent(features),
+    });
     return { latest, tenDay: [], gradeGuide: [], history: [], cameraObservation: null };
   }
 
@@ -799,9 +906,26 @@ function chartXLabelAnchor(index, total) {
   return "middle";
 }
 
+const CHART_VIEW_WIDTH = 720;
+const CHART_VIEW_HEIGHT = 250;
+const CHART_PAD_X = 28;
+const CHART_PLOT_LEFT = CHART_PAD_X;
+const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PAD_X * 2;
+const CHART_PLOT_TOP = 18;
+const CHART_PLOT_HEIGHT = 176;
+
+function setTideSourceLabel(data) {
+  const source = document.getElementById("tideSource");
+  if (!source) return;
+  const label = data?.tide_source || data?.features?.tide_source || "";
+  source.textContent = label;
+  source.hidden = !label;
+}
+
 function renderTideChart(data) {
   const chart = document.getElementById("tideChart");
   if (!chart) return;
+  setTideSourceLabel(data);
   const points = data.features?.tide_chart || [];
   if (!points.length) {
     chart.textContent = "Tide data unavailable.";
@@ -811,10 +935,10 @@ function renderTideChart(data) {
   const yTicks = chartTicks(Math.min(...values), Math.max(...values), 5);
   const min = yTicks[0];
   const max = yTicks[yTicks.length - 1];
-  const left = 0;
-  const top = 18;
-  const width = 720;
-  const height = 176;
+  const left = CHART_PLOT_LEFT;
+  const top = CHART_PLOT_TOP;
+  const width = CHART_PLOT_WIDTH;
+  const height = CHART_PLOT_HEIGHT;
   const coords = points.map((point, index) => {
     const x = xFromIndex(index, points.length, left, width);
     const y = yFromValue(point.height_ft, min, max, top, height);
@@ -824,7 +948,7 @@ function renderTideChart(data) {
     .map((point, index) => ({ point, index }))
     .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
   chart.innerHTML = `
-    <svg viewBox="0 0 720 250" preserveAspectRatio="none" role="img" aria-label="Hourly tide height chart">
+    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly tide height chart">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
@@ -843,7 +967,7 @@ function renderTideChart(data) {
       }).join("")}
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
-        return `<text x="8" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(1)} ft</text>`;
+        return `<text x="${left + 8}" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(1)} ft</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
@@ -865,10 +989,10 @@ function renderWindChart(data) {
   const yTicks = chartTicks(0, Math.max(...values), 5);
   const min = 0;
   const max = yTicks[yTicks.length - 1];
-  const left = 0;
-  const top = 18;
-  const width = 720;
-  const height = 176;
+  const left = CHART_PLOT_LEFT;
+  const top = CHART_PLOT_TOP;
+  const width = CHART_PLOT_WIDTH;
+  const height = CHART_PLOT_HEIGHT;
   const gap = 4;
   const barWidth = points.length > 1
     ? (width - gap * (points.length - 1)) / points.length
@@ -877,7 +1001,7 @@ function renderWindChart(data) {
     .map((point, index) => ({ point, index }))
     .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
   chart.innerHTML = `
-    <svg viewBox="0 0 720 250" preserveAspectRatio="none" role="img" aria-label="Hourly wind speed chart">
+    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly wind speed chart">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
@@ -896,7 +1020,7 @@ function renderWindChart(data) {
       }).join("")}
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
-        return `<text x="8" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(0)} mph</text>`;
+        return `<text x="${left + 8}" y="${y + 4}" class="chart-y-label" text-anchor="start">${tick.toFixed(0)} mph</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
@@ -1008,8 +1132,9 @@ function swellRows(features) {
       label: "Secondary",
       height: features.wind_wave_height_max_ft,
       period: features.wind_wave_period_max_s,
-      directionLabel: features.secondary_swell_direction_label,
-      directionDeg: features.secondary_swell_direction_deg ?? features.wind_direction_deg,
+      directionLabel: features.secondary_swell_direction_label
+        || directionFromDegrees(features.secondary_swell_direction_deg ?? features.wind_wave_direction_deg ?? features.wind_direction_deg),
+      directionDeg: features.secondary_swell_direction_deg ?? features.wind_wave_direction_deg ?? features.wind_direction_deg,
       color: swellDirectionColor(1),
     });
   }
@@ -1089,7 +1214,7 @@ function initSwellMap() {
       attributionControl: false,
       interactive: false,
       fadeDuration: 0,
-      minZoom: 9.5,
+      minZoom: 8,
       maxZoom: 16,
     });
     swellMapInstance.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
@@ -1107,47 +1232,86 @@ function initSwellMap() {
   }
 }
 
+function angularDistanceDeg(a, b) {
+  const delta = Math.abs(((a - b + 540) % 360) - 180);
+  return delta;
+}
+
+function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headSize }) {
+  const cx = 80;
+  const cy = 80;
+  const rad = ((fromDeg - 90) * Math.PI) / 180;
+  const fromX = Math.cos(rad);
+  const fromY = Math.sin(rad);
+  const offsetX = -fromY * offsetPx;
+  const offsetY = fromX * offsetPx;
+  const tailX = cx + fromX * length + offsetX;
+  const tailY = cy + fromY * length + offsetY;
+  const tipX = cx - fromX * 12 + offsetX;
+  const tipY = cy - fromY * 12 + offsetY;
+  const travelX = tipX - tailX;
+  const travelY = tipY - tailY;
+  const mag = Math.hypot(travelX, travelY) || 1;
+  const ux = travelX / mag;
+  const uy = travelY / mag;
+  const px = -uy;
+  const py = ux;
+  const headLen = headSize;
+  const headHalf = headSize * 0.62;
+  const baseX = tipX - ux * headLen;
+  const baseY = tipY - uy * headLen;
+  const leftX = baseX + px * headHalf;
+  const leftY = baseY + py * headHalf;
+  const rightX = baseX - px * headHalf;
+  const rightY = baseY - py * headHalf;
+  const fmt = (value) => value.toFixed(1);
+  return `
+    <g>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
+      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}"></polygon>
+    </g>
+  `;
+}
+
 function renderSwellCompassRose(rows) {
   const rose = document.getElementById("swellRose");
   if (!rose) return;
-  const cx = 80;
-  const cy = 80;
-  const radius = 54;
-  const arrows = rows
-    .filter((row) => Number.isFinite(Number(row.directionDeg)))
-    .map((row) => {
-      const fromDeg = Number(row.directionDeg);
-      // Swell direction is meteorological: degrees the swell is COMING FROM,
-      // clockwise from north. Tail sits on that bearing; the head travels
-      // toward coming-from + 180 (through the rose hub / toward the coast).
-      // SVG y is down, so 0° (north) is (0, -1) after the -90° shift.
-      const rad = ((fromDeg - 90) * Math.PI) / 180;
-      const fromX = Math.cos(rad);
-      const fromY = Math.sin(rad);
-      const x1 = cx + fromX * radius;
-      const y1 = cy + fromY * radius;
-      const x2 = cx - fromX * 10;
-      const y2 = cy - fromY * 10;
-      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${row.color}" stroke-width="5" stroke-linecap="round" marker-end="url(#swell-arrow-${row.label.toLowerCase()})"></line>`;
-    })
-    .join("");
+  const directed = rows.filter((row) => Number.isFinite(Number(row.directionDeg)));
+  const primary = directed.find((row) => String(row.label).toLowerCase() === "primary") || directed[0];
+  const secondary = directed.find((row) => String(row.label).toLowerCase() === "secondary")
+    || (directed.length > 1 ? directed[1] : null);
+  const close = primary && secondary
+    && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 28;
+  const arrows = [];
+  if (secondary) {
+    arrows.push(swellArrowMarkup({
+      fromDeg: Number(secondary.directionDeg),
+      color: "#ee13ba",
+      length: close ? 40 : 42,
+      strokeWidth: 3.2,
+      offsetPx: close ? 7 : 0,
+      headSize: 11,
+    }));
+  }
+  if (primary) {
+    arrows.push(swellArrowMarkup({
+      fromDeg: Number(primary.directionDeg),
+      color: "#13baee",
+      length: close ? 58 : 56,
+      strokeWidth: 5.6,
+      offsetPx: close ? -6 : 0,
+      headSize: 15,
+    }));
+  }
   rose.innerHTML = `
-    <svg viewBox="0 0 160 160" role="img" aria-label="Swell compass rose">
-      <defs>
-        <marker id="swell-arrow-primary" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#13baee"></path>
-        </marker>
-        <marker id="swell-arrow-secondary" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ee13ba"></path>
-        </marker>
-      </defs>
+    <svg viewBox="0 0 160 160" role="img" aria-label="Swell compass rose with primary and secondary arrows">
       <circle cx="80" cy="80" r="62" class="swell-rose-ring"></circle>
       <circle cx="80" cy="80" r="3" class="swell-rose-hub"></circle>
       <text x="80" y="18" text-anchor="middle">N</text>
       <text x="148" y="85" text-anchor="middle">E</text>
       <text x="80" y="156" text-anchor="middle">S</text>
       <text x="12" y="85" text-anchor="middle">W</text>
-      ${arrows}
+      ${arrows.join("")}
     </svg>
   `;
 }
@@ -1472,11 +1636,18 @@ function render(data) {
   const range = data.estimated_visibility_range_ft;
   const score = data.numeric_score_0_100 ?? 0;
   const hasRange = Array.isArray(range) && range.length >= 2;
-  const hasConditions = Boolean(data.features && (data.features.swell_wave_height_max_ft || data.features.wind_speed_max_mph || data.features.wind_chart));
+  const features = data.features || {};
+  const swellHeight = Number(
+    features.swell_wave_height_max_ft
+    ?? features.surf_height_max_ft
+    ?? features.wave_height_max_ft,
+  );
+  const hasWave = Number.isFinite(swellHeight) && swellHeight > 0;
+  const hasConditions = liveFeaturesPresent(features);
   setText("grade", unavailable ? "—" : (data.grade || "C"));
   setText("visibility", unavailable || !hasRange ? "Unavailable" : feet(range));
   setText("bestWindow", unavailable ? "Unavailable" : (data.best_window || "Early morning"));
-  setText("waveWeight", unavailable && !hasConditions ? "Unavailable" : waveWeight(data));
+  setText("waveWeight", hasWave ? waveWeight(data) : "Unavailable");
   setText(
     "forecastSource",
     unavailable
@@ -1495,27 +1666,12 @@ function render(data) {
   const scoreFill = document.getElementById("scoreFill");
   if (scoreFill) scoreFill.style.width = `${unavailable ? 0 : score}%`;
   const featureEl = document.getElementById("featureRows");
-  if (featureEl) featureEl.innerHTML = hasConditions ? featureRows(data.features || {}) : (unavailable ? "<div><span>Conditions</span><strong>Unavailable</strong></div>" : featureRows(data.features || {}));
+  if (featureEl) {
+    featureEl.innerHTML = hasConditions || !unavailable
+      ? featureRows(features)
+      : "<div><span>Conditions</span><strong>Unavailable</strong></div>";
+  }
   renderCamera(data);
-  if (hasConditions) {
-    renderWaveComponents(data);
-    renderTideChart(data);
-    renderWindChart(data);
-    renderWaveSwell(data);
-    renderWeather(data);
-    return;
-  }
-  if (unavailable) {
-    const tideChart = document.getElementById("tideChart");
-    const windChart = document.getElementById("windChart");
-    const waveChart = document.getElementById("waveChart");
-    if (tideChart) tideChart.textContent = "Tide data unavailable.";
-    if (windChart) windChart.textContent = "Wind data unavailable.";
-    if (waveChart) waveChart.textContent = "Forecast data unavailable.";
-    const waveComponents = document.getElementById("waveComponents");
-    if (waveComponents) waveComponents.textContent = "Swell data unavailable.";
-    return;
-  }
   renderWaveComponents(data);
   renderTideChart(data);
   renderWindChart(data);
@@ -1697,6 +1853,11 @@ function renderForecastHistory(history, currentDate) {
   };
 }
 
+try {
+  updateSpotChrome(currentSpot());
+} catch {
+  // Chrome can still populate after forecast load.
+}
 try {
   initSwellMap();
 } catch {
