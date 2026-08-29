@@ -952,8 +952,8 @@ body {
 .map-spot-pin {
   position: relative;
   display: block;
-  width: 16px;
-  height: 20px;
+  width: 10px;
+  height: 13px;
   overflow: visible;
   border: 0;
   padding: 0;
@@ -982,11 +982,11 @@ body {
 .map-spot-pin-label {
   position: absolute;
   left: 50%;
-  bottom: 22px;
+  bottom: 16px;
   z-index: 1;
   display: block;
-  max-width: 118px;
-  padding: 4px 8px;
+  max-width: 92px;
+  padding: 3px 6px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.88);
   border-radius: 999px;
@@ -1008,7 +1008,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 20px;
+  height: 13px;
   pointer-events: none;
 }
 
@@ -1017,8 +1017,8 @@ body {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   background: linear-gradient(135deg, #ee13ba, #13baee);
@@ -1033,9 +1033,9 @@ body {
   bottom: 0;
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 9px solid #13baee;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid #13baee;
   transform: translateX(-50%);
 }
 
@@ -2599,6 +2599,10 @@ section.chart-grid article,
     #eefbff;
 }
 
+.region-map-card .map-frame {
+  height: clamp(520px, 54vw, 700px);
+}
+
 .spot-region-map {
   position: absolute;
   inset: 0;
@@ -2646,8 +2650,8 @@ section.chart-grid article,
 .map-spot-pin {
   position: relative;
   display: block;
-  width: 16px;
-  height: 20px;
+  width: 10px;
+  height: 13px;
   overflow: visible;
   border: 0;
   padding: 0;
@@ -2665,11 +2669,11 @@ section.chart-grid article,
 .map-spot-pin-label {
   position: absolute;
   left: 50%;
-  bottom: 22px;
+  bottom: 16px;
   z-index: 1;
   display: block;
-  max-width: 118px;
-  padding: 4px 8px;
+  max-width: 92px;
+  padding: 3px 6px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.88);
   border-radius: 999px;
@@ -2691,7 +2695,7 @@ section.chart-grid article,
   left: 0;
   right: 0;
   bottom: 0;
-  height: 20px;
+  height: 13px;
   pointer-events: none;
 }
 
@@ -2700,8 +2704,8 @@ section.chart-grid article,
   position: absolute;
   top: 0;
   left: 50%;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   background: linear-gradient(135deg, #ee13ba, #13baee);
@@ -2716,9 +2720,9 @@ section.chart-grid article,
   bottom: 0;
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 9px solid #13baee;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid #13baee;
   transform: translateX(-50%);
 }
 
