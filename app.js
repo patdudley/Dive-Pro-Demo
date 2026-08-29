@@ -179,7 +179,7 @@ async function fetchOpenMeteoWeather(spot) {
   const lon = Number(spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,wind_direction_10m,precipitation,temperature_2m&daily=temperature_2m_max,precipitation_sum&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_days=1&past_days=3&timezone=America/Los_Angeles`;
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,wind_direction_10m,precipitation,temperature_2m&daily=temperature_2m_max,precipitation_sum,sunrise,sunset&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_days=1&past_days=3&timezone=America/Los_Angeles`;
   const weather = await fetchJson(weatherUrl);
   const hourly = weather.hourly || {};
   const daily = weather.daily || {};
@@ -198,6 +198,7 @@ async function fetchOpenMeteoWeather(spot) {
     : null;
   const airTemps = (daily.temperature_2m_max || []).map(finiteNumber);
   const todayWindDir = windChart.find((point) => Number.isFinite(point.direction_deg))?.direction_deg ?? null;
+  const sun = sunTimesFromDaily(daily, today);
 
   return {
     wind_speed_max_mph: maxFinite(windChart.map((point) => point.speed_mph)),
@@ -207,6 +208,69 @@ async function fetchOpenMeteoWeather(spot) {
     rain_target_day_forecast_in: rainToday,
     rain_prior_3day_in: rainPrior,
     wind_chart: windChart.map(({ time, speed_mph }) => ({ time, speed_mph })),
+    ...(sun || {}),
+  };
+}
+
+function clockLabelFromHour(hour) {
+  const raw = ((Number(hour) % 24) + 24) % 24;
+  let minutes = Math.round(raw * 60);
+  if (minutes === 1440) minutes = 0;
+  const hour24 = Math.floor(minutes / 60) % 24;
+  const minute = minutes % 60;
+  const display = hour24 % 12 || 12;
+  const suffix = hour24 < 12 ? "am" : "pm";
+  return `${display}:${String(minute).padStart(2, "0")}${suffix}`;
+}
+
+function decimalHourFromIso(iso) {
+  const match = String(iso || "").match(/T(\d{1,2}):(\d{2})/);
+  if (match) return Number(match[1]) + Number(match[2]) / 60;
+  return pacificDecimalHour(new Date(iso));
+}
+
+function sunTimesFromDaily(daily, dateKey) {
+  const times = daily?.time || [];
+  const index = times.findIndex((value) => isoDateKey(value) === dateKey);
+  if (index < 0) return null;
+  const sunriseHour = decimalHourFromIso(daily.sunrise?.[index]);
+  const sunsetHour = decimalHourFromIso(daily.sunset?.[index]);
+  if (sunriseHour == null || sunsetHour == null || sunsetHour <= sunriseHour) return null;
+  return {
+    sunrise_hour: sunriseHour,
+    sunset_hour: sunsetHour,
+    sunrise_label: clockLabelFromHour(sunriseHour),
+    sunset_label: clockLabelFromHour(sunsetHour),
+  };
+}
+
+async function fetchOpenMeteoSunTimes(spot) {
+  const lat = Number(spot.lat);
+  const lon = Number(spot.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return {};
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=America/Los_Angeles&forecast_days=14&past_days=7`;
+  const weather = await fetchJson(url);
+  const daily = weather.daily || {};
+  const byDate = {};
+  (daily.time || []).forEach((date) => {
+    const key = isoDateKey(date);
+    const sun = sunTimesFromDaily(daily, key);
+    if (key && sun) byDate[key] = sun;
+  });
+  return byDate;
+}
+
+function attachSunTimes(forecast, sunByDate) {
+  if (!forecast) return forecast;
+  const key = isoDateKey(forecast.date || forecast.features?.date);
+  const sun = sunByDate?.[key];
+  if (!sun) return forecast;
+  return {
+    ...forecast,
+    features: {
+      ...(forecast.features || {}),
+      ...sun,
+    },
   };
 }
 
@@ -434,10 +498,13 @@ async function loadForecastData() {
   initSpotPicker(spot);
 
   if (!spot.hasModelForecast) {
-    const features = await fetchLiveSpotFeatures(spot).catch(() => ({})) || {};
-    const latest = unavailableSpotForecast(spot, features, {
+    const [features, sunByDate] = await Promise.all([
+      fetchLiveSpotFeatures(spot).catch(() => ({})) || {},
+      fetchOpenMeteoSunTimes(spot).catch(() => ({})),
+    ]);
+    const latest = attachSunTimes(unavailableSpotForecast(spot, features, {
       conditionsLoaded: liveFeaturesPresent(features),
-    });
+    }), sunByDate);
     return { latest, tenDay: [], gradeGuide: [], history: [], cameraObservation: null };
   }
 
@@ -464,9 +531,11 @@ async function loadForecastData() {
     } catch {
       history = [];
     }
+    const sunByDate = await fetchOpenMeteoSunTimes(spot).catch(() => ({}));
+    const days = Array.isArray(tenDay) && tenDay.length ? tenDay : [latest];
     return {
-      latest,
-      tenDay: Array.isArray(tenDay) && tenDay.length ? tenDay : [latest],
+      latest: attachSunTimes(latest, sunByDate),
+      tenDay: days.map((forecast) => attachSunTimes(forecast, sunByDate)),
       gradeGuide: Array.isArray(gradeGuide) ? gradeGuide : [],
       history: Array.isArray(history) ? history : [],
       cameraObservation,
@@ -951,9 +1020,20 @@ function pacificDecimalHour(date) {
 }
 
 function chartSunHours(data) {
-  const fallback = { sunrise: 6, sunset: 20 };
+  const features = data?.features || {};
+  const fromDataSunrise = finiteNumber(features.sunrise_hour);
+  const fromDataSunset = finiteNumber(features.sunset_hour);
+  if (fromDataSunrise != null && fromDataSunset != null && fromDataSunset > fromDataSunrise) {
+    return {
+      sunrise: fromDataSunrise,
+      sunset: fromDataSunset,
+      sunriseLabel: features.sunrise_label || clockLabelFromHour(fromDataSunrise),
+      sunsetLabel: features.sunset_label || clockLabelFromHour(fromDataSunset),
+    };
+  }
+  const fallback = { sunrise: 6, sunset: 20, sunriseLabel: "6:00am", sunsetLabel: "8:00pm" };
   const spot = currentSpot();
-  const dateKey = String(data?.date || data?.features?.date || "").slice(0, 10);
+  const dateKey = String(data?.date || features.date || "").slice(0, 10);
   const lat = Number(spot?.lat);
   const lon = Number(spot?.lon);
   if (!window.SunCalc || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || !Number.isFinite(lat) || !Number.isFinite(lon)) {
@@ -964,7 +1044,12 @@ function chartSunHours(data) {
     const sunrise = pacificDecimalHour(times?.sunrise);
     const sunset = pacificDecimalHour(times?.sunset);
     if (sunrise == null || sunset == null || sunset <= sunrise) return fallback;
-    return { sunrise, sunset };
+    return {
+      sunrise,
+      sunset,
+      sunriseLabel: clockLabelFromHour(sunrise),
+      sunsetLabel: clockLabelFromHour(sunset),
+    };
   } catch {
     return fallback;
   }
@@ -989,6 +1074,22 @@ function tideNightShadeMarkup(data, points, left, top, width, height) {
     const bandWidth = Math.max(0, x2 - x1);
     if (bandWidth < 1) return "";
     return `<rect class="tide-night" x="${x1.toFixed(2)}" y="${top}" width="${bandWidth.toFixed(2)}" height="${height}"></rect>`;
+  }).join("");
+}
+
+function tideSunLabelMarkup(data, points, left, top, width, height) {
+  const hours = points.map((point) => chartHour(point.time)).filter((value) => value != null);
+  if (hours.length < 2) return "";
+  const first = hours[0];
+  const last = hours[hours.length - 1];
+  const sun = chartSunHours(data);
+  const y = top + height - 14;
+  return [
+    { hour: sun.sunrise, label: sun.sunriseLabel, kind: "sunrise", anchor: "end", nudge: -5 },
+    { hour: sun.sunset, label: sun.sunsetLabel, kind: "sunset", anchor: "start", nudge: 5 },
+  ].filter((item) => item.hour > first && item.hour < last && item.label).map((item) => {
+    const x = xFromChartHour(item.hour, points, left, width) + item.nudge;
+    return `<text class="tide-sun-label" data-sun="${item.kind}" x="${x.toFixed(2)}" y="${y}" text-anchor="${item.anchor}">${item.label}</text>`;
   }).join("");
 }
 
@@ -1113,6 +1214,7 @@ function renderTideChart(data) {
         const x = xFromIndex(index, points.length, left, width);
         return `<text x="${x}" y="${CHART_X_LABEL_Y}" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
+      ${tideSunLabelMarkup(data, points, left, top, width, height)}
     </svg>
   `;
 }

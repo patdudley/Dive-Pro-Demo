@@ -2062,6 +2062,17 @@ section.chart-grid article,
   pointer-events: none;
 }
 
+.tide-sun-label {
+  fill: rgba(15, 46, 62, 0.58);
+  font-size: 10px;
+  font-weight: 650;
+  paint-order: stroke fill;
+  stroke: #ffffff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
 .tide-line {
   fill: none;
   stroke: #167384;
