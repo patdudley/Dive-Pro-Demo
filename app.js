@@ -939,12 +939,13 @@ function chartXLabelAnchor(index, total) {
 
 const CHART_VIEW_WIDTH = 800;
 const CHART_VIEW_HEIGHT = 500;
-const CHART_PLOT_LEFT = 48;
+const CHART_PLOT_LEFT = 70;
 const CHART_PLOT_RIGHT = 12;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
 const CHART_PLOT_TOP = 16;
 const CHART_PLOT_HEIGHT = 444;
 const CHART_X_LABEL_Y = 480;
+const CHART_Y_LABEL_X = CHART_PLOT_LEFT - 10;
 
 function chartHour(time) {
   const hour = Number(String(time || "0").split(":")[0]);
@@ -1054,7 +1055,7 @@ function renderTideChart(data) {
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "ft")}</text>`;
+        return `<text x="${CHART_Y_LABEL_X}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "ft")}</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
@@ -1100,7 +1101,7 @@ function renderWindChart(data) {
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "mph")}</text>`;
+        return `<text x="${CHART_Y_LABEL_X}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "mph")}</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);

@@ -1967,6 +1967,7 @@ h2::before {
 
 .chart-grid article {
   padding: 12px 12px 10px;
+  overflow: visible;
 }
 
 .chart-grid article > h2,
@@ -1995,7 +1996,7 @@ h2::before {
   border: 0;
   border-radius: 0;
   background: var(--surface);
-  overflow: hidden;
+  overflow: visible;
   color: var(--muted);
 }
 
@@ -2005,6 +2006,7 @@ h2::before {
   max-width: none;
   height: auto;
   aspect-ratio: 8 / 5;
+  overflow: visible;
 }
 
 .chart-plot-fill {
