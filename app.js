@@ -1091,7 +1091,8 @@ function renderWindChart(data) {
         const speed = point.speed_mph || 0;
         const x = left + index * (barWidth + (points.length > 1 ? gap : 0));
         const y = yFromValue(speed, min, max, top, height);
-        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(3, top + height - y).toFixed(2)}" rx="2" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
+        const fill = windGradeColor(speed);
+        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(3, top + height - y).toFixed(2)}" rx="2" class="wind-bar ${windGradeClass(speed)}" fill="${fill}" style="fill: ${fill}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
       }).join("")}
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
@@ -1347,11 +1348,11 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const fromY = Math.sin(rad);
   const offsetX = -fromY * offsetPx;
   const offsetY = fromX * offsetPx;
-  const gap = Number.isFinite(hubGap) ? hubGap : 14;
+  const destR = Number.isFinite(hubGap) ? hubGap : 14;
   const tailX = cx + fromX * length + offsetX;
   const tailY = cy + fromY * length + offsetY;
-  const tipX = cx - fromX * gap + offsetX;
-  const tipY = cy - fromY * gap + offsetY;
+  const tipX = cx - fromX * destR + offsetX;
+  const tipY = cy - fromY * destR + offsetY;
   const travelX = tipX - tailX;
   const travelY = tipY - tailY;
   const mag = Math.hypot(travelX, travelY) || 1;
@@ -1360,7 +1361,7 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const px = -uy;
   const py = ux;
   const headLen = headSize;
-  const headHalf = headSize * 0.68;
+  const headHalf = headSize * 0.62;
   const baseX = tipX - ux * headLen;
   const baseY = tipY - uy * headLen;
   const leftX = baseX + px * headHalf;
@@ -1368,13 +1369,13 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const rightX = baseX - px * headHalf;
   const rightY = baseY - py * headHalf;
   const fmt = (value) => value.toFixed(1);
-  const halo = Math.max(7, strokeWidth + 5);
+  const halo = strokeWidth + 2.1;
   return `
     <g>
       <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#04101f" stroke-width="${halo}" stroke-linecap="round"></line>
-      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#ffffff" stroke-width="${strokeWidth + 2.8}" stroke-linecap="round"></line>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#ffffff" stroke-width="${strokeWidth + 1.4}" stroke-linecap="round"></line>
       <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
-      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"></polygon>
+      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"></polygon>
     </g>
   `;
 }
@@ -1389,29 +1390,30 @@ function renderSwellCompassRose(rows) {
   const pair = Boolean(primary && secondary);
   const close = pair
     && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 15;
-  const offset = pair ? (close ? 16 : 14) : 0;
-  const hubGap = pair ? 26 : 14;
+  // Scripps S+W is ~97° apart. A parallel offset pulls the cyan shaft off the
+  // hub and past S. Only offset when two bearings are actually stacked.
+  const offset = close ? 12 : 0;
   const arrows = [];
   if (secondary) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(secondary.directionDeg),
       color: "#ee13ba",
-      length: close ? 34 : 40,
-      strokeWidth: 2.8,
+      length: close ? 46 : 50,
+      strokeWidth: 2.6,
       offsetPx: offset,
-      headSize: 11,
-      hubGap,
+      headSize: 10,
+      hubGap: close ? 24 : 36,
     }));
   }
   if (primary) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(primary.directionDeg),
       color: "#13baee",
-      length: close ? 58 : 56,
-      strokeWidth: 6.4,
-      offsetPx: -offset,
-      headSize: 16,
-      hubGap,
+      length: close ? 52 : 52,
+      strokeWidth: 5.6,
+      offsetPx: close ? -offset : 0,
+      headSize: 13,
+      hubGap: close ? 18 : 20,
     }));
   }
   rose.innerHTML = `
