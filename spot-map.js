@@ -75,6 +75,27 @@
     };
   }
 
+  function localSpotMapView(slug) {
+    const spotsFn = window.californiaSpots;
+    const spots = typeof spotsFn === "function" ? spotsFn() : [];
+    const spot = spots.find((item) => item.slug === slug);
+    const lon = Number(spot?.lon);
+    const lat = Number(spot?.lat);
+    const center = Number.isFinite(lon) && Number.isFinite(lat) ? [lon, lat] : [-118.37, 33.443];
+    const swellBounds = Array.isArray(spot?.swellBounds) && spot.swellBounds.length === 2
+      ? spot.swellBounds
+      : null;
+    return {
+      region: spot?.regionLabel || "California",
+      center,
+      zoom: 11.2,
+      fitPins: false,
+      fitLocalBounds: swellBounds,
+      maxBounds: CALIFORNIA_BOUNDS,
+      pins: californiaPins(),
+    };
+  }
+
   function currentMapSlug() {
     if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
       return "home";
@@ -86,10 +107,10 @@
 
   const DETAIL_MAPS = {
     home: californiaMapView(),
-    "la-jolla": californiaMapView(),
-    monterey: californiaMapView(),
-    "catalina-wrigley": californiaMapView(),
-    "anacapa-ocean": californiaMapView(),
+    "la-jolla": localSpotMapView("la-jolla"),
+    monterey: localSpotMapView("monterey"),
+    "catalina-wrigley": localSpotMapView("catalina-wrigley"),
+    "anacapa-ocean": localSpotMapView("anacapa-ocean"),
     "lower-keys": {
       region: "Lower Keys, Florida",
       center: [-81.43, 24.64],
@@ -1558,6 +1579,25 @@
     }
   }
 
+  function fitLocalSpotMap(map, bounds, fallbackCenter) {
+    if (!map || !bounds) return false;
+    map.resize();
+    try {
+      map.fitBounds(bounds, {
+        padding: { top: 48, right: 36, bottom: 40, left: 36 },
+        maxZoom: 12.8,
+        duration: 0,
+      });
+      return true;
+    } catch {
+      if (fallbackCenter) {
+        map.jumpTo({ center: fallbackCenter, zoom: 11.2, bearing: 0, pitch: 0 });
+        return true;
+      }
+      return false;
+    }
+  }
+
   function fallbackCaliforniaCamera(map) {
     const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
     map.jumpTo({
@@ -1596,12 +1636,13 @@
 
   async function initSpotMap() {
     const slug = currentMapSlug();
-    const config = { ...(DETAIL_MAPS[slug] || DETAIL_MAPS.home || DETAIL_MAPS["la-jolla"]) };
+    const localSlugs = ["la-jolla", "monterey", "catalina-wrigley", "anacapa-ocean"];
+    const config = localSlugs.includes(slug)
+      ? localSpotMapView(slug)
+      : { ...(DETAIL_MAPS[slug] || DETAIL_MAPS.home || californiaMapView()) };
     if (!config) return;
-    if (config.fitPins) {
-      config.pins = californiaPins();
-      config.region = "California";
-    }
+    config.pins = californiaPins();
+    if (config.fitPins) config.region = "California";
 
     const mapEl = document.getElementById("spotRegionMap") || insertMapCard(config);
     const apiKey = window.MAPTILER_API_KEY;
@@ -1637,16 +1678,21 @@
       map.on("load", async () => {
         addPins(map, config.pins);
         let userMoved = false;
-        const applyCaliforniaCamera = () => {
-          if (!config.fitPins || userMoved) return;
+        const applyInitialCamera = () => {
+          if (userMoved) return;
+          if (config.fitLocalBounds) {
+            fitLocalSpotMap(map, config.fitLocalBounds, config.center);
+            return;
+          }
+          if (!config.fitPins) return;
           try {
             fitCaliforniaRegionMap(map, config.pins, maplibre);
           } catch {
             fallbackCaliforniaCamera(map);
           }
         };
-        applyCaliforniaCamera();
-        map.once("idle", applyCaliforniaCamera);
+        applyInitialCamera();
+        map.once("idle", applyInitialCamera);
         map.once("dragstart", () => { userMoved = true; });
         setupSpotProbe(map);
         addDepthLayer(map);
@@ -1656,10 +1702,10 @@
         } catch (error) {
           mapEl.closest(".spot-map-frame")?.querySelector(".spot-wind-legend")?.classList.add("is-hidden");
         }
-        applyCaliforniaCamera();
+        applyInitialCamera();
         map._diveProInitialFitDone = true;
         window.addEventListener("resize", () => {
-          if (!userMoved) applyCaliforniaCamera();
+          if (!userMoved) applyInitialCamera();
         });
       });
       window.__diveProSpotRegionMap = map;
