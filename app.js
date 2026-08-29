@@ -937,14 +937,14 @@ function chartXLabelAnchor(index, total) {
   return "middle";
 }
 
-const CHART_VIEW_WIDTH = 720;
-const CHART_VIEW_HEIGHT = 310;
-const CHART_PLOT_LEFT = 58;
-const CHART_PLOT_RIGHT = 16;
+const CHART_VIEW_WIDTH = 800;
+const CHART_VIEW_HEIGHT = 500;
+const CHART_PLOT_LEFT = 48;
+const CHART_PLOT_RIGHT = 12;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
-const CHART_PLOT_TOP = 22;
-const CHART_PLOT_HEIGHT = 224;
-const CHART_X_LABEL_Y = 286;
+const CHART_PLOT_TOP = 16;
+const CHART_PLOT_HEIGHT = 444;
+const CHART_X_LABEL_Y = 480;
 
 function chartHour(time) {
   const hour = Number(String(time || "0").split(":")[0]);
@@ -981,17 +981,34 @@ function smoothLinePath(coords) {
 }
 
 function chartYLabelY(tick, min, max, top, height) {
-  const y = yFromValue(tick, min, max, top, height);
-  const bottom = top + height;
-  if (Math.abs(y - bottom) <= 10) return y - 13;
-  if (Math.abs(y - top) <= 8) return y + 13;
-  return y + 4;
+  return yFromValue(tick, min, max, top, height);
 }
 
 function showChartYLabel(tick, min, max, top, height) {
   const y = yFromValue(tick, min, max, top, height);
   const bottom = top + height;
-  return !(Math.abs(tick) < 0.05 && Math.abs(y - bottom) <= 3);
+  return !(Math.abs(tick) < 0.05 && Math.abs(y - bottom) <= 2);
+}
+
+function formatChartYLabel(tick, unit) {
+  const rounded = Math.abs(tick - Math.round(tick)) < 0.05 ? String(Math.round(tick)) : tick.toFixed(1);
+  return `${rounded} ${unit}`;
+}
+
+function areaFillPath(coords, baselineY) {
+  if (!coords.length) return "";
+  const last = coords[coords.length - 1];
+  const first = coords[0];
+  return `${smoothLinePath(coords)} L ${last.x.toFixed(2)} ${baselineY.toFixed(2)} L ${first.x.toFixed(2)} ${baselineY.toFixed(2)} Z`;
+}
+
+function windChartColor(speed) {
+  if (speed <= 1) return "#3b7eb5";
+  if (speed <= 4) return "#4ea3b4";
+  if (speed <= 6) return "#6d82b4";
+  if (speed <= 8) return "#8d6a9c";
+  if (speed <= 10) return "#a85a8c";
+  return "#b04d7a";
 }
 
 function setTideSourceLabel(data) {
@@ -1012,13 +1029,14 @@ function renderTideChart(data) {
     return;
   }
   const values = points.map((point) => point.height_ft);
-  const yTicks = chartTicks(Math.min(...values), Math.max(...values), 5);
+  const yTicks = chartTicks(Math.min(...values), Math.max(...values), 4);
   const min = yTicks[0];
   const max = yTicks[yTicks.length - 1];
   const left = CHART_PLOT_LEFT;
   const top = CHART_PLOT_TOP;
   const width = CHART_PLOT_WIDTH;
   const height = CHART_PLOT_HEIGHT;
+  const baseline = top + height;
   const coords = points.map((point, index) => ({
     x: xFromIndex(index, points.length, left, width),
     y: yFromValue(point.height_ft, min, max, top, height),
@@ -1026,22 +1044,17 @@ function renderTideChart(data) {
   const xTicks = chartXTicks(points);
   chart.innerHTML = `
     <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly tide height chart">
-      <rect class="chart-plot-fill" x="${left}" y="${top}" width="${width}" height="${height}" rx="6"></rect>
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
-        return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
+        const zero = Math.abs(tick) < 0.05 ? " is-zero" : "";
+        return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline${zero}"></line>`;
       }).join("")}
-      <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
-      <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
-      <path d="${smoothLinePath(coords)}" class="tide-line"></path>
-      ${coords.map((coord, index) => {
-        const point = points[index];
-        return `<circle cx="${coord.x.toFixed(2)}" cy="${coord.y.toFixed(2)}" r="2.6" class="tide-point"><title>${hourLabel(point.time)}: ${point.height_ft.toFixed(2)} ft</title></circle>`;
-      }).join("")}
+      <path class="tide-fill" d="${areaFillPath(coords, baseline)}"></path>
+      <path class="tide-line" d="${smoothLinePath(coords)}"></path>
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 10}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(1)} ft</text>`;
+        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "ft")}</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
@@ -1060,37 +1073,34 @@ function renderWindChart(data) {
     return;
   }
   const values = points.map((point) => point.speed_mph || 0);
-  const yTicks = chartTicks(0, Math.max(...values), 5);
+  const yTicks = chartTicks(0, Math.max(...values), 4);
   const min = 0;
   const max = yTicks[yTicks.length - 1];
   const left = CHART_PLOT_LEFT;
   const top = CHART_PLOT_TOP;
   const width = CHART_PLOT_WIDTH;
   const height = CHART_PLOT_HEIGHT;
-  const gap = 3;
+  const gap = 4;
   const barWidth = points.length > 1
     ? (width - gap * (points.length - 1)) / points.length
     : width;
   const xTicks = chartXTicks(points);
   chart.innerHTML = `
     <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly wind speed chart">
-      <rect class="chart-plot-fill" x="${left}" y="${top}" width="${width}" height="${height}" rx="6"></rect>
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
       }).join("")}
-      <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
-      <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
       ${points.map((point, index) => {
         const speed = point.speed_mph || 0;
         const x = left + index * (barWidth + (points.length > 1 ? gap : 0));
         const y = yFromValue(speed, min, max, top, height);
-        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(2, top + height - y).toFixed(2)}" rx="3" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
+        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(3, top + height - y).toFixed(2)}" rx="2" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windChartColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
       }).join("")}
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 10}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(0)} mph</text>`;
+        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "mph")}</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);

@@ -1966,7 +1966,7 @@ h2::before {
 }
 
 .chart-grid article {
-  padding: 16px 18px 14px;
+  padding: 12px 12px 10px;
 }
 
 .chart-grid article > h2,
@@ -1991,7 +1991,7 @@ h2::before {
   display: block;
   height: auto;
   min-height: 0;
-  padding: 4px 0 0;
+  padding: 2px 0 0;
   border: 0;
   border-radius: 0;
   background: var(--surface);
@@ -2004,36 +2004,39 @@ h2::before {
   width: 100%;
   max-width: none;
   height: auto;
-  aspect-ratio: 720 / 310;
+  aspect-ratio: 8 / 5;
 }
 
 .chart-plot-fill {
-  fill: #f8fafc;
+  fill: transparent;
 }
 
 .chart-axis,
 .axis {
   fill: none;
-  stroke: rgba(10, 10, 10, 0.2);
-  stroke-width: 1;
+  stroke: transparent;
 }
 
 .chart-gridline,
 .chart-x-grid {
-  stroke: rgba(15, 23, 42, 0.08);
+  stroke: rgba(15, 46, 62, 0.08);
   stroke-width: 1;
 }
 
+.chart-gridline.is-zero {
+  stroke: rgba(15, 46, 62, 0.16);
+}
+
 .chart-x-grid.is-soft {
-  stroke: rgba(15, 23, 42, 0.04);
+  stroke: rgba(15, 46, 62, 0.04);
 }
 
 .chart-y-label,
 .chart-x-label,
 .chart-axis-title {
-  fill: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+  fill: rgba(15, 46, 62, 0.55);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .chart-axis-title {
@@ -2044,23 +2047,27 @@ h2::before {
 
 .chart-y-label {
   paint-order: stroke fill;
-  stroke: var(--surface);
-  stroke-width: 5px;
+  stroke: #ffffff;
+  stroke-width: 3px;
   stroke-linejoin: round;
+}
+
+.tide-fill {
+  fill: rgba(22, 115, 132, 0.14);
+  stroke: none;
 }
 
 .tide-line {
   fill: none;
-  stroke: #ee13ba;
-  stroke-width: 2.6;
+  stroke: #167384;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .tide-point {
-  fill: #ee13ba;
-  stroke: var(--surface);
-  stroke-width: 1.2;
+  display: none;
 }
 
 .bars {
@@ -2304,7 +2311,8 @@ h2::before {
 }
 
 @media (min-width: 900px) {
-  .swell-card {
+  .swell-card,
+  .chart-grid article {
     padding: 14px;
   }
 
@@ -5097,6 +5105,7 @@ ul {
 
   .chart svg {
     max-width: none;
+    aspect-ratio: 8 / 5;
   }
 
   .fish-row summary {
