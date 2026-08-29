@@ -1422,9 +1422,10 @@
     const timelineHeight = timelineVisible ? Math.ceil(timeline.getBoundingClientRect().height) : 0;
     const expectedTimeline = width <= 640 ? 186 : 168;
     const overlay = Math.max(timelineHeight, expectedTimeline);
-    const top = Math.min(48, Math.max(24, Math.floor(height * 0.08)));
-    const side = Math.min(48, Math.max(28, Math.floor(width * 0.08)));
-    const bottom = Math.min(overlay + 28, Math.floor(height * 0.42));
+    const top = Math.min(52, Math.max(28, Math.floor(height * 0.08)));
+    const sideMin = width <= 640 ? 56 : 48;
+    const side = Math.min(Math.floor(width * 0.15), Math.max(sideMin, Math.floor(width * 0.1)));
+    const bottom = Math.min(overlay + 36, Math.floor(height * 0.44));
     if (height - top - bottom < 96) {
       return {
         top: 20,
@@ -1461,20 +1462,24 @@
     map.resize();
     const padding = regionMapFitPadding(map);
     try {
-      const bounds = pinLngLatBounds(maplibre, pins);
+      const raw = pinLngLatBounds(maplibre, pins);
+      const bounds = new maplibre.LngLatBounds(
+        [raw.getWest() - 0.18, raw.getSouth() - 0.08],
+        [raw.getEast() + 0.18, raw.getNorth() + 0.08],
+      );
       const camera = map.cameraForBounds(bounds, {
         padding,
-        maxZoom: 7.15,
+        maxZoom: 6.95,
       });
       if (camera && Number.isFinite(Number(camera.zoom))) {
         map.jumpTo({
           center: camera.center,
-          zoom: Math.min(Number(camera.zoom), 7.15),
+          zoom: Math.min(Number(camera.zoom), 6.95),
           bearing: 0,
           pitch: 0,
         });
       } else {
-        map.fitBounds(bounds, { padding, maxZoom: 7.15, duration: 0 });
+        map.fitBounds(bounds, { padding, maxZoom: 6.95, duration: 0 });
       }
     } catch {
       fallbackCaliforniaCamera(map);
