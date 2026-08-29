@@ -1985,10 +1985,6 @@ section.chart-grid article,
   margin-bottom: 8px;
 }
 
-.chart-grid .tide-meta {
-  padding: 0 0 8px;
-}
-
 .chart {
   position: relative;
   display: block;
@@ -2059,6 +2055,11 @@ section.chart-grid article,
 .tide-fill {
   fill: rgba(22, 115, 132, 0.14);
   stroke: none;
+}
+
+.tide-night {
+  fill: rgba(47, 61, 80, 0.09);
+  pointer-events: none;
 }
 
 .tide-line {

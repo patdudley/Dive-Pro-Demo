@@ -927,6 +927,71 @@ function xFromIndex(index, total, left, width) {
   return left + (index / Math.max(1, total - 1)) * width;
 }
 
+function xFromChartHour(hour, points, left, width) {
+  const hours = points.map((point) => chartHour(point.time)).filter((value) => value != null);
+  if (hours.length < 2) return left;
+  const first = hours[0];
+  const last = hours[hours.length - 1];
+  const clamped = Math.min(last, Math.max(first, hour));
+  return left + ((clamped - first) / Math.max(0.1, last - first)) * width;
+}
+
+function pacificDecimalHour(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  return hour + minute / 60;
+}
+
+function chartSunHours(data) {
+  const fallback = { sunrise: 6, sunset: 20 };
+  const spot = currentSpot();
+  const dateKey = String(data?.date || data?.features?.date || "").slice(0, 10);
+  const lat = Number(spot?.lat);
+  const lon = Number(spot?.lon);
+  if (!window.SunCalc || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return fallback;
+  }
+  try {
+    const times = window.SunCalc.getTimes(new Date(`${dateKey}T12:00:00Z`), lat, lon);
+    const sunrise = pacificDecimalHour(times?.sunrise);
+    const sunset = pacificDecimalHour(times?.sunset);
+    if (sunrise == null || sunset == null || sunset <= sunrise) return fallback;
+    return { sunrise, sunset };
+  } catch {
+    return fallback;
+  }
+}
+
+function tideNightWindows(data, points) {
+  const hours = points.map((point) => chartHour(point.time)).filter((value) => value != null);
+  if (hours.length < 2) return [];
+  const first = hours[0];
+  const last = hours[hours.length - 1];
+  const { sunrise, sunset } = chartSunHours(data);
+  const windows = [];
+  if (sunrise > first) windows.push({ startHour: first, endHour: Math.min(sunrise, last) });
+  if (sunset < last) windows.push({ startHour: Math.max(sunset, first), endHour: last });
+  return windows;
+}
+
+function tideNightShadeMarkup(data, points, left, top, width, height) {
+  return tideNightWindows(data, points).map((band) => {
+    const x1 = xFromChartHour(band.startHour, points, left, width);
+    const x2 = xFromChartHour(band.endHour, points, left, width);
+    const bandWidth = Math.max(0, x2 - x1);
+    if (bandWidth < 1) return "";
+    return `<rect class="tide-night" x="${x1.toFixed(2)}" y="${top}" width="${bandWidth.toFixed(2)}" height="${height}"></rect>`;
+  }).join("");
+}
+
 function yFromValue(value, min, max, top, height) {
   return top + (1 - ((value - min) / Math.max(0.1, max - min))) * height;
 }
@@ -1007,18 +1072,9 @@ function areaFillPath(coords, baselineY) {
   return `${smoothLinePath(coords)} L ${last.x.toFixed(2)} ${baselineY.toFixed(2)} L ${first.x.toFixed(2)} ${baselineY.toFixed(2)} Z`;
 }
 
-function setTideSourceLabel(data) {
-  const source = document.getElementById("tideSource");
-  if (!source) return;
-  const label = data?.tide_source || data?.features?.tide_source || "";
-  source.textContent = label;
-  source.hidden = !label;
-}
-
 function renderTideChart(data) {
   const chart = document.getElementById("tideChart");
   if (!chart) return;
-  setTideSourceLabel(data);
   const points = data.features?.tide_chart || [];
   if (!points.length) {
     chart.textContent = "Tide data unavailable.";
@@ -1040,6 +1096,7 @@ function renderTideChart(data) {
   const xTicks = chartXTicks(points);
   chart.innerHTML = `
     <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" overflow="visible" role="img" aria-label="Hourly tide height chart">
+      ${tideNightShadeMarkup(data, points, left, top, width, height)}
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         const zero = Math.abs(tick) < 0.05 ? " is-zero" : "";
