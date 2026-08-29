@@ -943,6 +943,41 @@ function renderCamera(data) {
     return;
   }
 
+  if (!spot.hasModelForecast && spot.image) {
+    const hero = frame.closest(".hero-camera");
+    const textLink = document.getElementById("spotLiveCamText");
+    const showStill = () => {
+      frame.classList.remove("is-camera-unavailable");
+      frame.hidden = false;
+      image.hidden = false;
+      if (unavailableMessage) unavailableMessage.hidden = true;
+      if (hero) hero.classList.remove("is-camera-free");
+      if (textLink) textLink.hidden = true;
+    };
+    const hideBrokenHero = () => {
+      image.hidden = true;
+      image.removeAttribute("src");
+      image.alt = "";
+      frame.classList.remove("is-camera-unavailable");
+      frame.hidden = true;
+      if (unavailableMessage) unavailableMessage.hidden = true;
+      if (badge) badge.hidden = true;
+      if (hero) hero.classList.add("is-camera-free");
+      if (textLink) textLink.hidden = false;
+    };
+    image.onerror = hideBrokenHero;
+    image.onload = showStill;
+    showStill();
+    image.src = spot.image;
+    image.alt = spot.imageAlt || `${spot.name} live camera`;
+    if (badge) {
+      badge.textContent = spot.imageLabel || "Live camera";
+      badge.classList.remove("is-reference");
+      badge.hidden = false;
+    }
+    return;
+  }
+
   const observation = scrippsCameraObservation;
   const showObservation = Boolean(observation);
   if (showObservation) {

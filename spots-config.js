@@ -57,7 +57,8 @@ window.outdoorSpots = [
     cameraLabel: "Live camera",
     cameraUrl: "https://www.portolahotel.com/our-hotel/webcam",
     liveEmbedUrl: "https://portal.hdontap.com/s/embed/?stream=portola_ttv-DMS&ratio=16:9",
-    image: "",
+    liveEmbedInPage: false,
+    image: "https://portal.hdontap.com/snapshot/portola_ttv-DMS",
     imageAlt: "Monterey marina / Custom House Plaza live camera from Portola Hotel",
     imageLabel: "Live camera",
     swellBounds: [
