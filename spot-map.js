@@ -1423,19 +1423,13 @@
       map.addControl(new maplibre.NavigationControl({ visualizePitch: true }), "top-right");
       map.on("load", async () => {
         addPins(map, config.pins);
-        const fitCaliforniaPins = () => {
-          if (!config.fitPins || !config.pins || config.pins.length < 2) return;
-          const bounds = new maplibre.LngLatBounds();
-          config.pins.forEach((pin) => bounds.extend(pin.lngLat));
+        const applyCaliforniaCamera = () => {
+          if (!config.fitPins) return;
           map.resize();
-          map.fitBounds(bounds, {
-            padding: { top: 36, right: 36, bottom: 196, left: 36 },
-            maxZoom: 6.9,
-            duration: 0,
-          });
+          map.jumpTo({ center: [-118.05, 33.12], zoom: 5.95 });
         };
-        fitCaliforniaPins();
-        map.once("idle", fitCaliforniaPins);
+        applyCaliforniaCamera();
+        map.once("idle", applyCaliforniaCamera);
         setupSpotProbe(map);
         addDepthLayer(map);
         setupMapLayerToggle(map, mapEl.closest(".spot-map-frame"));
