@@ -33,13 +33,13 @@
   const SPOT_PROBES = new WeakMap();
 
   const CALIFORNIA_PIN_FALLBACK = [
-    { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
-    { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
-    { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
+    { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.257, 32.867], href: "la-jolla.html" },
+    { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.482, 33.448], href: "catalina-wrigley.html" },
+    { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.362, 34.015], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-124.2, 29.2],
-    [-113.4, 37.6],
+    [-121.4, 31.6],
+    [-116.2, 35.1],
   ];
 
   function californiaPinsFromSpots() {
@@ -66,8 +66,8 @@
   function californiaMapView() {
     return {
       region: "Southern California",
-      center: [-118.32, 33.44],
-      zoom: 6.2,
+      center: [-118.37, 33.443],
+      zoom: 7.45,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: californiaPins(),
@@ -181,7 +181,7 @@
       marker.className = "map-spot-pin";
       marker.href = pin.href;
       marker.setAttribute("aria-label", `${pin.label}: ${pin.detail}`);
-      marker.innerHTML = `<span>${pin.label}</span>`;
+      marker.innerHTML = `<span class="map-spot-pin-label">${pin.label}</span><span class="map-spot-pin-needle" aria-hidden="true"></span>`;
 
       new maplibre.Marker({ element: marker, anchor: "bottom" })
         .setLngLat(pin.lngLat)
@@ -1365,9 +1365,8 @@
     map.__diveProSpotWindGrid = grid;
     const layer = createWindCanvasLayer(map, grid, waterMask);
     const timelineCoordinates = config?.pins?.find((pin) => pin.slug === "la-jolla" || pin.href === "la-jolla.html")?.lngLat
-      || config?.pins?.find((pin) => pin.lngLat?.[0] === -117.255)?.lngLat
       || config?.center
-      || [-117.255, 32.866];
+      || [-117.257, 32.867];
     if (layer && frame) setupSpotWindTimeline(frame, layer, manifest, frameCache, map, timelineCoordinates);
     return layer;
   }
@@ -1414,26 +1413,18 @@
 
   function regionMapFitPadding(map) {
     const container = map.getContainer();
-    const width = container?.clientWidth || window.innerWidth || 390;
     const height = container?.clientHeight || 440;
     const frame = container?.closest(".spot-map-frame");
     const timeline = frame?.querySelector(".spot-wind-timeline");
     const timelineVisible = timeline && !timeline.classList.contains("is-hidden");
     const timelineHeight = timelineVisible ? Math.ceil(timeline.getBoundingClientRect().height) : 0;
-    const expectedTimeline = width <= 640 ? 186 : 168;
-    const legendClearance = width <= 640 ? 58 : 42;
-    const overlay = Math.max(timelineHeight, expectedTimeline) + legendClearance;
-    const top = Math.min(52, Math.max(28, Math.floor(height * 0.08)));
-    const sideMin = width <= 640 ? 56 : 48;
-    const side = Math.min(Math.floor(width * 0.15), Math.max(sideMin, Math.floor(width * 0.1)));
-    const bottom = Math.min(overlay + 12, Math.floor(height * 0.48));
-    if (height - top - bottom < 96) {
-      return {
-        top: 20,
-        right: 24,
-        bottom: Math.min(96, Math.floor(height * 0.28)),
-        left: 24,
-      };
+    const top = 40;
+    const side = 48;
+    const bottom = timelineVisible
+      ? Math.min(timelineHeight + 18, Math.floor(height * 0.36))
+      : 48;
+    if (height - top - bottom < 120) {
+      return { top: 28, right: 36, bottom: 56, left: 36 };
     }
     return { top, right: side, bottom, left: side };
   }
@@ -1451,8 +1442,8 @@
   function fallbackCaliforniaCamera(map) {
     const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
     map.jumpTo({
-      center: [-118.32, 33.48],
-      zoom: mobile ? 5.95 : 6.4,
+      center: [-118.37, 33.443],
+      zoom: mobile ? 6.85 : 7.45,
       bearing: 0,
       pitch: 0,
     });
@@ -1463,24 +1454,20 @@
     map.resize();
     const padding = regionMapFitPadding(map);
     try {
-      const raw = pinLngLatBounds(maplibre, pins);
-      const bounds = new maplibre.LngLatBounds(
-        [raw.getWest() - 0.18, raw.getSouth() - 0.08],
-        [raw.getEast() + 0.18, raw.getNorth() + 0.08],
-      );
+      const bounds = pinLngLatBounds(maplibre, pins);
       const camera = map.cameraForBounds(bounds, {
         padding,
-        maxZoom: 6.95,
+        maxZoom: 8.35,
       });
       if (camera && Number.isFinite(Number(camera.zoom))) {
         map.jumpTo({
           center: camera.center,
-          zoom: Math.min(Number(camera.zoom), 6.95),
+          zoom: Math.min(Number(camera.zoom), 8.35),
           bearing: 0,
           pitch: 0,
         });
       } else {
-        map.fitBounds(bounds, { padding, maxZoom: 6.95, duration: 0 });
+        map.fitBounds(bounds, { padding, maxZoom: 8.35, duration: 0 });
       }
     } catch {
       fallbackCaliforniaCamera(map);

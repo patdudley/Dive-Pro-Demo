@@ -950,34 +950,27 @@ body {
 }
 
 .map-spot-pin {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(238, 19, 186, 0.98), rgba(19, 186, 238, 0.98));
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 20px;
+  overflow: visible;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
   color: #fff;
   text-decoration: none;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
   cursor: pointer;
 }
 
 .map-spot-pin::after {
-  content: "";
-  position: absolute;
-  bottom: -7px;
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid rgba(255, 255, 255, 0.92);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.92);
-  background: #13baee;
-  transform: rotate(45deg);
+  display: none;
 }
 
 .map-frame .maplibregl-marker,
 .spot-region-map .maplibregl-marker {
+  overflow: visible;
   z-index: 35;
 }
 
@@ -986,19 +979,64 @@ body {
   z-index: 45;
 }
 
-.map-spot-pin span {
-  position: relative;
+.map-spot-pin-label {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
   z-index: 1;
-  max-width: 104px;
-  padding: 0 10px;
+  display: block;
+  max-width: 118px;
+  padding: 4px 8px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(238, 19, 186, 0.96), rgba(19, 186, 238, 0.96));
   color: #fff;
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   font-weight: 900;
   line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+  transform: translateX(-50%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+}
+
+.map-spot-pin-needle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20px;
+  pointer-events: none;
+}
+
+.map-spot-pin-needle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ee13ba, #13baee);
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.map-spot-pin-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 9px solid #13baee;
+  transform: translateX(-50%);
 }
 
 .map-wind-probe-pin {
@@ -2607,50 +2645,86 @@ section.chart-grid article,
 
 .map-spot-pin {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(238, 19, 186, 0.98), rgba(19, 186, 238, 0.98));
+  display: block;
+  width: 16px;
+  height: 20px;
+  overflow: visible;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
   color: #fff;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
 }
 
 .map-spot-pin::after {
-  content: "";
-  position: absolute;
-  bottom: -7px;
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid rgba(255, 255, 255, 0.92);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.92);
-  background: #13baee;
-  transform: rotate(45deg);
+  display: none;
 }
 
-.map-spot-pin span {
-  position: relative;
+.map-spot-pin-label {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
   z-index: 1;
   display: block;
-  max-width: 104px;
-  padding: 0 10px;
+  max-width: 118px;
+  padding: 4px 8px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(238, 19, 186, 0.96), rgba(19, 186, 238, 0.96));
   color: #fff;
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   font-weight: 900;
   line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+  transform: translateX(-50%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+}
+
+.map-spot-pin-needle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20px;
+  pointer-events: none;
+}
+
+.map-spot-pin-needle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ee13ba, #13baee);
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.map-spot-pin-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 9px solid #13baee;
+  transform: translateX(-50%);
 }
 
 .map-frame .maplibregl-marker,
 .spot-region-map .maplibregl-marker {
+  overflow: visible;
   z-index: 35;
 }
 
@@ -5768,6 +5842,8 @@ ul {
 
 /* Spot map timeline: one responsive control for hourly frames and direct day selection. */
 .spot-map-frame .spot-wind-legend {
+  right: auto;
+  left: 16px;
   bottom: 190px;
 }
 
