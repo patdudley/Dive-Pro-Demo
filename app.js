@@ -945,7 +945,7 @@ const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
 const CHART_PLOT_TOP = 16;
 const CHART_PLOT_HEIGHT = 444;
 const CHART_X_LABEL_Y = 480;
-const CHART_Y_LABEL_X = CHART_PLOT_LEFT - 10;
+const CHART_Y_LABEL_X = CHART_PLOT_LEFT - 8;
 
 function chartHour(time) {
   const hour = Number(String(time || "0").split(":")[0]);
@@ -991,9 +991,13 @@ function showChartYLabel(tick, min, max, top, height) {
   return !(Math.abs(tick) < 0.05 && Math.abs(y - bottom) <= 2);
 }
 
+function formatChartTick(tick) {
+  return Math.abs(tick - Math.round(tick)) < 0.05 ? String(Math.round(tick)) : tick.toFixed(1);
+}
+
 function formatChartYLabel(tick, unit) {
-  const rounded = Math.abs(tick - Math.round(tick)) < 0.05 ? String(Math.round(tick)) : tick.toFixed(1);
-  return `${rounded} ${unit}`;
+  const value = formatChartTick(tick);
+  return unit ? `${value} ${unit}` : value;
 }
 
 function areaFillPath(coords, baselineY) {
@@ -1044,7 +1048,7 @@ function renderTideChart(data) {
   }));
   const xTicks = chartXTicks(points);
   chart.innerHTML = `
-    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly tide height chart">
+    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" overflow="visible" role="img" aria-label="Hourly tide height chart">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         const zero = Math.abs(tick) < 0.05 ? " is-zero" : "";
@@ -1087,7 +1091,7 @@ function renderWindChart(data) {
     : width;
   const xTicks = chartXTicks(points);
   chart.innerHTML = `
-    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly wind speed chart">
+    <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" overflow="visible" role="img" aria-label="Hourly wind speed in miles per hour">
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
@@ -1101,7 +1105,7 @@ function renderWindChart(data) {
       ${yTicks.map((tick) => {
         if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${CHART_Y_LABEL_X}" y="${y}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(tick, "mph")}</text>`;
+        return `<text x="${CHART_Y_LABEL_X}" y="${y}" class="chart-y-label" data-wind-ytick="${formatChartTick(tick)}" text-anchor="end" dominant-baseline="middle">${formatChartTick(tick)}</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);

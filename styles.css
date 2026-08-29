@@ -1965,9 +1965,11 @@ h2::before {
   grid-template-columns: 1fr;
 }
 
+section.chart-grid article,
+.chart-grid.chart-grid-single article,
 .chart-grid article {
   padding: 12px 12px 10px;
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .chart-grid article > h2,
