@@ -1408,11 +1408,16 @@
     }
 
     try {
+      const style = await getDiveProMapStyle(apiKey);
+      if (config.fitPins) {
+        style.center = [-118.05, 33.12];
+        style.zoom = 5.95;
+      }
       const map = new maplibre.Map({
         container: mapEl,
-        style: await getDiveProMapStyle(apiKey),
-        center: config.center,
-        zoom: config.zoom,
+        style,
+        center: config.fitPins ? [-118.05, 33.12] : config.center,
+        zoom: config.fitPins ? 5.95 : config.zoom,
         attributionControl: false,
         maxBounds: config.maxBounds || [
           [config.center[0] - 4, config.center[1] - 3],
