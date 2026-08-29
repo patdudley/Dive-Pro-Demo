@@ -32,30 +32,40 @@
   const LA_JOLLA_CALIBRATION = { lng: -117.255, lat: 32.866, radiusMiles: 4.5 };
   const SPOT_PROBES = new WeakMap();
 
+  const CALIFORNIA_PINS = [
+    { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
+    { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
+    { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
+  ];
+  const CALIFORNIA_BOUNDS = [
+    [-120.05, 32.25],
+    [-116.55, 34.55],
+  ];
+
   const DETAIL_MAPS = {
     "la-jolla": {
-      region: "La Jolla, San Diego",
-      center: [-117.255, 32.866],
-      zoom: 12.25,
-      pins: [
-        { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
-      ],
+      region: "Southern California",
+      center: [-118.31, 33.44],
+      zoom: 7.15,
+      fitPins: true,
+      maxBounds: CALIFORNIA_BOUNDS,
+      pins: CALIFORNIA_PINS,
     },
     "catalina-wrigley": {
-      region: "Catalina Island",
-      center: [-118.485, 33.445],
-      zoom: 10.6,
-      pins: [
-        { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
-      ],
+      region: "Southern California",
+      center: [-118.31, 33.44],
+      zoom: 7.15,
+      fitPins: true,
+      maxBounds: CALIFORNIA_BOUNDS,
+      pins: CALIFORNIA_PINS,
     },
     "anacapa-ocean": {
-      region: "Channel Islands",
-      center: [-119.37, 34.015],
-      zoom: 10.35,
-      pins: [
-        { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
-      ],
+      region: "Southern California",
+      center: [-118.31, 33.44],
+      zoom: 7.15,
+      fitPins: true,
+      maxBounds: CALIFORNIA_BOUNDS,
+      pins: CALIFORNIA_PINS,
     },
     "lower-keys": {
       region: "Lower Keys, Florida",
@@ -1404,7 +1414,7 @@
         center: config.center,
         zoom: config.zoom,
         attributionControl: false,
-        maxBounds: [
+        maxBounds: config.maxBounds || [
           [config.center[0] - 4, config.center[1] - 3],
           [config.center[0] + 4, config.center[1] + 3],
         ],
@@ -1413,6 +1423,15 @@
       map.addControl(new maplibre.NavigationControl({ visualizePitch: true }), "top-right");
       map.on("load", async () => {
         addPins(map, config.pins);
+        if (config.fitPins && config.pins?.length > 1) {
+          const bounds = new maplibre.LngLatBounds();
+          config.pins.forEach((pin) => bounds.extend(pin.lngLat));
+          map.fitBounds(bounds, {
+            padding: { top: 64, bottom: 64, left: 56, right: 56 },
+            maxZoom: 8.4,
+            duration: 0,
+          });
+        }
         setupSpotProbe(map);
         addDepthLayer(map);
         setupMapLayerToggle(map, mapEl.closest(".spot-map-frame"));

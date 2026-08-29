@@ -368,7 +368,11 @@ function swellMapFallbackImage(spot) {
 function updateSpotChrome(spot) {
   document.body.dataset.spot = spot.slug;
   const regionLabel = document.getElementById("regionMapLabel");
-  if (regionLabel) regionLabel.textContent = spot.regionLabel || spot.location;
+  if (regionLabel) {
+    regionLabel.textContent = spot.regionGroup === "California"
+      ? "Southern California"
+      : (spot.regionLabel || spot.location);
+  }
   const swellMap = document.getElementById("swellMap");
   if (swellMap) swellMap.setAttribute("aria-label", `${spot.regionLabel || spot.name} coastline map`);
   const swellPanel = document.querySelector(".swell-map-panel");
