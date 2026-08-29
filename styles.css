@@ -6542,3 +6542,81 @@ ul {
     color: #fff;
   }
 }
+
+/* Player lives under the map canvas on home + every spot page. Never overlay. */
+.map-frame.spot-map-frame,
+.spot-map-frame {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  overflow: visible;
+}
+
+.spot-map-frame .wind-timeline.spot-wind-timeline {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  inset: auto;
+  z-index: 1;
+  width: 100%;
+  min-height: 0;
+  margin-top: 8px;
+  padding: 8px 10px 9px;
+  gap: 8px;
+  border: 1px solid rgba(13, 122, 140, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--navy);
+  box-shadow: 0 4px 14px rgba(19, 186, 238, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.spot-map-frame .spot-wind-legend {
+  bottom: 14px;
+}
+
+.spot-wind-control-row {
+  column-gap: 12px;
+  row-gap: 0;
+}
+
+.spot-wind-timeline .spot-wind-play {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(19, 186, 238, 0.28);
+  background: #fff;
+  color: var(--navy);
+  box-shadow: none;
+}
+
+.spot-wind-readout {
+  min-width: 52px;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid rgba(19, 186, 238, 0.36);
+  background: rgba(19, 186, 238, 0.12);
+  color: var(--navy);
+}
+
+.spot-wind-days {
+  background: rgba(125, 216, 247, 0.1);
+  border: 1px solid rgba(13, 122, 140, 0.12);
+}
+
+@media (max-width: 640px) {
+  .spot-map-frame .wind-timeline.spot-wind-timeline {
+    right: auto;
+    bottom: auto;
+    left: auto;
+    margin-top: 8px;
+    min-height: 0;
+    padding: 8px 10px 9px;
+    border-radius: 10px;
+  }
+
+  .spot-map-frame .spot-wind-legend {
+    bottom: 12px;
+  }
+}
