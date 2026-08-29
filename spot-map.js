@@ -38,31 +38,31 @@
     { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-120.05, 32.25],
-    [-116.55, 34.55],
+    [-121.1, 31.85],
+    [-115.7, 35.15],
   ];
 
   const DETAIL_MAPS = {
     "la-jolla": {
       region: "Southern California",
-      center: [-118.31, 33.44],
-      zoom: 7.15,
+      center: [-118.4, 33.38],
+      zoom: 6.45,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
     },
     "catalina-wrigley": {
       region: "Southern California",
-      center: [-118.31, 33.44],
-      zoom: 7.15,
+      center: [-118.4, 33.38],
+      zoom: 6.45,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
     },
     "anacapa-ocean": {
       region: "Southern California",
-      center: [-118.31, 33.44],
-      zoom: 7.15,
+      center: [-118.4, 33.38],
+      zoom: 6.45,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
@@ -1427,11 +1427,10 @@
           if (!config.fitPins || !config.pins || config.pins.length < 2) return;
           const bounds = new maplibre.LngLatBounds();
           config.pins.forEach((pin) => bounds.extend(pin.lngLat));
-          bounds.extend([-117.1, 32.7]);
-          bounds.extend([-119.5, 34.15]);
           map.resize();
           map.fitBounds(bounds, {
-            padding: { top: 72, bottom: 88, left: 72, right: 72 },
+            padding: 24,
+            maxZoom: 6.7,
             duration: 0,
           });
         };
