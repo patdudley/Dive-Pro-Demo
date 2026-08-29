@@ -1389,8 +1389,8 @@ function renderSwellCompassRose(rows) {
   const pair = Boolean(primary && secondary);
   const close = pair
     && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 15;
-  const offset = pair ? (close ? 16 : 12) : 0;
-  const hubGap = pair ? 20 : 14;
+  const offset = pair ? (close ? 16 : 14) : 0;
+  const hubGap = pair ? 26 : 14;
   const arrows = [];
   if (secondary) {
     arrows.push(swellArrowMarkup({
