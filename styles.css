@@ -6254,6 +6254,16 @@ ul {
   gap: 18px;
 }
 
+.home-spot-layout > * {
+  min-width: 0;
+}
+
+.home-map-card,
+.home-map-card .map-frame,
+.home-map-card .spot-map-graphic {
+  max-width: 100%;
+}
+
 .home-bubbles-card {
   min-width: 0;
 }
