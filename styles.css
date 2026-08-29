@@ -2004,7 +2004,7 @@ h2::before {
   width: 100%;
   max-width: none;
   height: auto;
-  aspect-ratio: 720 / 280;
+  aspect-ratio: 720 / 310;
 }
 
 .chart-plot-fill {

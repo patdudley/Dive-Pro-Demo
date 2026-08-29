@@ -938,13 +938,13 @@ function chartXLabelAnchor(index, total) {
 }
 
 const CHART_VIEW_WIDTH = 720;
-const CHART_VIEW_HEIGHT = 280;
-const CHART_PLOT_LEFT = 54;
+const CHART_VIEW_HEIGHT = 310;
+const CHART_PLOT_LEFT = 58;
 const CHART_PLOT_RIGHT = 16;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
-const CHART_PLOT_TOP = 20;
-const CHART_PLOT_HEIGHT = 198;
-const CHART_X_LABEL_Y = 258;
+const CHART_PLOT_TOP = 22;
+const CHART_PLOT_HEIGHT = 224;
+const CHART_X_LABEL_Y = 286;
 
 function chartHour(time) {
   const hour = Number(String(time || "0").split(":")[0]);

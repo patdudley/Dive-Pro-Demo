@@ -845,6 +845,7 @@
     let tickResizeTimer;
     let tickResizeObserver;
     let activeWindSpeed = null;
+    let suppressForecastDateSync = true;
     timeline.classList.toggle("is-hidden", frames.length < 2);
 
     function firstIndexForDate(date) {
@@ -999,7 +1000,7 @@
     }
 
     function syncForecastDate(forecastFrame) {
-      if (!forecastFrame.localDate) return;
+      if (suppressForecastDateSync || !forecastFrame.localDate) return;
       window.dispatchEvent(new CustomEvent("divepro:selectForecastDate", {
         detail: {
           date: forecastFrame.localDate,
@@ -1163,6 +1164,7 @@
       if (sliderWrap) tickResizeObserver.observe(sliderWrap);
     }
     applyFrame(activeIndex);
+    suppressForecastDateSync = false;
     window.requestAnimationFrame(scheduleResponsiveTimeline);
   }
 
