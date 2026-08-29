@@ -1993,7 +1993,7 @@ h2::before {
   align-items: center;
   height: auto;
   min-height: 0;
-  padding: 6px 12px 12px;
+  padding: 10px 20px 16px;
   border: 0;
   border-top: 1px solid var(--line);
   border-radius: 0;
@@ -2005,8 +2005,9 @@ h2::before {
 .chart svg {
   display: block;
   width: 100%;
-  max-width: 760px;
+  max-width: 680px;
   height: auto;
+  margin: 0 auto;
   aspect-ratio: 720 / 250;
 }
 

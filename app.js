@@ -942,7 +942,7 @@ function chartXLabelAnchor(index, total) {
 
 const CHART_VIEW_WIDTH = 720;
 const CHART_VIEW_HEIGHT = 250;
-const CHART_PAD_X = 28;
+const CHART_PAD_X = 40;
 const CHART_PLOT_LEFT = CHART_PAD_X;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PAD_X * 2;
 const CHART_PLOT_TOP = 18;
@@ -1300,13 +1300,13 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const rightX = baseX - px * headHalf;
   const rightY = baseY - py * headHalf;
   const fmt = (value) => value.toFixed(1);
-  const halo = Math.max(4, strokeWidth + 3);
+  const halo = Math.max(7, strokeWidth + 5);
   return `
     <g>
-      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#061428" stroke-width="${halo}" stroke-linecap="round"></line>
-      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#ffffff" stroke-width="${strokeWidth + 1.6}" stroke-linecap="round"></line>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#04101f" stroke-width="${halo}" stroke-linecap="round"></line>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#ffffff" stroke-width="${strokeWidth + 2.8}" stroke-linecap="round"></line>
       <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
-      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"></polygon>
+      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"></polygon>
     </g>
   `;
 }
@@ -1319,26 +1319,26 @@ function renderSwellCompassRose(rows) {
   const secondary = directed.find((row) => String(row.label).toLowerCase() === "secondary")
     || (directed.length > 1 ? directed[1] : null);
   const close = primary && secondary
-    && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 28;
+    && angularDistanceDeg(Number(primary.directionDeg), Number(secondary.directionDeg)) <= 36;
   const arrows = [];
   if (secondary) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(secondary.directionDeg),
       color: "#ee13ba",
-      length: close ? 38 : 40,
-      strokeWidth: 3.4,
-      offsetPx: close ? 8 : 0,
-      headSize: 12,
+      length: close ? 36 : 38,
+      strokeWidth: 3,
+      offsetPx: close ? 10 : 5,
+      headSize: 11,
     }));
   }
   if (primary) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(primary.directionDeg),
       color: "#13baee",
-      length: close ? 58 : 56,
-      strokeWidth: 6,
-      offsetPx: close ? -7 : 0,
-      headSize: 16,
+      length: close ? 60 : 58,
+      strokeWidth: 7.2,
+      offsetPx: close ? -8 : -4,
+      headSize: 18,
     }));
   }
   rose.innerHTML = `
