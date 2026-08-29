@@ -33,9 +33,9 @@
   const SPOT_PROBES = new WeakMap();
 
   const CALIFORNIA_PINS = [
-    { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
-    { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
     { label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
+    { label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.445], href: "catalina-wrigley.html" },
+    { label: "Scripps Beach", detail: "San Diego", lngLat: [-117.255, 32.866], href: "la-jolla.html" },
   ];
   const CALIFORNIA_BOUNDS = [
     [-121.1, 31.85],
@@ -45,24 +45,24 @@
   const DETAIL_MAPS = {
     "la-jolla": {
       region: "Southern California",
-      center: [-118.4, 33.38],
-      zoom: 6.45,
+      center: [-118.15, 33.2],
+      zoom: 6.2,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
     },
     "catalina-wrigley": {
       region: "Southern California",
-      center: [-118.4, 33.38],
-      zoom: 6.45,
+      center: [-118.15, 33.2],
+      zoom: 6.2,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
     },
     "anacapa-ocean": {
       region: "Southern California",
-      center: [-118.4, 33.38],
-      zoom: 6.45,
+      center: [-118.15, 33.2],
+      zoom: 6.2,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: CALIFORNIA_PINS,
