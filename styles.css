@@ -6026,6 +6026,8 @@ ul {
   }
 
   .spot-map-frame .spot-wind-legend {
+    right: auto;
+    left: 12px;
     bottom: 202px;
   }
 

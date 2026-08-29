@@ -38,8 +38,8 @@
     { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.37, 34.015], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-123.2, 30.6],
-    [-114.2, 36.8],
+    [-124.2, 29.2],
+    [-113.4, 37.6],
   ];
 
   function californiaPinsFromSpots() {
