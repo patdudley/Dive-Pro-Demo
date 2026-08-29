@@ -34,7 +34,7 @@
 
   const CALIFORNIA_PIN_FALLBACK = [
     { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.254, 32.867], href: "la-jolla.html" },
-    { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.484, 33.445], href: "catalina-wrigley.html" },
+    { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.485, 33.443], href: "catalina-wrigley.html" },
     { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.362, 34.014], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
@@ -1421,7 +1421,7 @@
     const top = 32;
     const side = 36;
     const bottom = timelineVisible
-      ? Math.min(Math.max(88, Math.round(timelineHeight * 0.58)), 110)
+      ? Math.min(timelineHeight + 16, Math.floor(height * 0.34))
       : 40;
     if (height - top - bottom < 140) {
       return { top: 24, right: 28, bottom: 56, left: 28 };
