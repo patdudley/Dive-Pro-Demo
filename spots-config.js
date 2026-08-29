@@ -51,6 +51,8 @@ window.outdoorSpots = [
     location: "Monterey Bay",
     lat: 36.6011,
     lon: -121.8946,
+    marineLat: 36.64,
+    marineLon: -121.80,
     hasModelForecast: false,
     cameraLabel: "Live camera",
     cameraUrl: "https://www.portolahotel.com/our-hotel/webcam",
@@ -59,8 +61,8 @@ window.outdoorSpots = [
     imageAlt: "Monterey marina / Custom House Plaza live camera from Portola Hotel",
     imageLabel: "Live camera",
     swellBounds: [
-      [-121.98, 36.54],
-      [-121.80, 36.66],
+      [-122.12, 36.50],
+      [-121.58, 36.84],
     ],
     tideStation: {
       id: "9413450",

@@ -2355,6 +2355,12 @@ section.chart-grid article,
   pointer-events: none;
 }
 
+/* Monterey: hub sits over bay water, not the forested peninsula. */
+body[data-spot="monterey"] .swell-rose-wrap {
+  place-items: center;
+  padding: 0 8% 22% 18%;
+}
+
 .swell-rose {
   width: min(188px, 62%);
 }
@@ -2472,6 +2478,11 @@ section.chart-grid article,
   .swell-rose-wrap {
     place-items: center;
     padding-bottom: 0;
+  }
+
+  body[data-spot="monterey"] .swell-rose-wrap {
+    place-items: center;
+    padding: 0 6% 16% 16%;
   }
 
   .swell-rose {

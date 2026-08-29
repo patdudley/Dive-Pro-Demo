@@ -146,8 +146,8 @@ function liveFeaturesPresent(features = {}) {
 }
 
 async function fetchOpenMeteoMarine(spot) {
-  const lat = Number(spot.lat);
-  const lon = Number(spot.lon);
+  const lat = Number(spot.marineLat ?? spot.lat);
+  const lon = Number(spot.marineLon ?? spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
   const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
@@ -1357,6 +1357,14 @@ function meaningfulSwellHeight(value) {
   return Number.isFinite(number) && number >= 0.25 ? number : null;
 }
 
+function swellComponentIsClone(primaryDeg, otherDeg, primaryHeight, otherHeight) {
+  if (primaryDeg == null || otherDeg == null) return false;
+  if (angularDistanceDeg(primaryDeg, otherDeg) > 12) return false;
+  if (primaryHeight == null || otherHeight == null) return true;
+  const taller = Math.max(primaryHeight, otherHeight);
+  return Math.abs(primaryHeight - otherHeight) <= Math.max(0.2, 0.15 * taller);
+}
+
 function swellRows(features) {
   const primaryHeight = finiteNumber(
     features.ml_p1_height_ft
@@ -1386,9 +1394,7 @@ function swellRows(features) {
   const secondaryHeight = finiteNumber(features.ml_p2_height_ft ?? features.secondary_swell_height_ft);
   const secondaryPeriod = finiteNumber(features.ml_p2_period_s ?? features.secondary_swell_period_s);
   const secondaryDeg = finiteNumber(features.ml_p2_direction_deg ?? features.secondary_swell_direction_deg);
-  const secondaryIsClone = primaryDeg != null
-    && secondaryDeg != null
-    && angularDistanceDeg(primaryDeg, secondaryDeg) <= 12;
+  const secondaryIsClone = swellComponentIsClone(primaryDeg, secondaryDeg, primaryHeight, secondaryHeight);
   if (secondaryDeg != null && !secondaryIsClone && (secondaryHeight == null || secondaryHeight >= 0.25)) {
     rows.push({
       label: "Secondary",
@@ -1403,9 +1409,7 @@ function swellRows(features) {
 
   const windWaveHeight = meaningfulSwellHeight(features.wind_wave_height_max_ft);
   const windWaveDeg = finiteNumber(features.wind_wave_direction_deg);
-  const windIsClone = primaryDeg != null
-    && windWaveDeg != null
-    && angularDistanceDeg(primaryDeg, windWaveDeg) <= 12;
+  const windIsClone = swellComponentIsClone(primaryDeg, windWaveDeg, primaryHeight, windWaveHeight);
   if (windWaveHeight != null && windWaveDeg != null && !windIsClone) {
     rows.push({
       label: "Secondary",
