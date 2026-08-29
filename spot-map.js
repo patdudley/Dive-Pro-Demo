@@ -33,9 +33,9 @@
   const SPOT_PROBES = new WeakMap();
 
   const CALIFORNIA_PIN_FALLBACK = [
-    { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.249, 32.866], href: "la-jolla.html" },
+    { slug: "la-jolla", label: "Scripps Beach", detail: "San Diego", lngLat: [-117.243, 32.863], href: "la-jolla.html" },
     { slug: "catalina-wrigley", label: "Wrigley Reserve", detail: "Catalina Island", lngLat: [-118.492, 33.438], href: "catalina-wrigley.html" },
-    { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.3618, 34.0135], href: "anacapa-ocean.html" },
+    { slug: "anacapa-ocean", label: "Anacapa Ocean", detail: "Channel Islands", lngLat: [-119.368, 34.014], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
     [-121.4, 31.6],
