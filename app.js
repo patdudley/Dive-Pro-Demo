@@ -400,6 +400,38 @@ async function loadCameraObservation() {
   }
 }
 
+function hasDirectedSwellSecondary(features = {}) {
+  return Number.isFinite(Number(features.secondary_swell_direction_deg))
+    || Number.isFinite(Number(features.wind_wave_direction_deg));
+}
+
+function mergeSecondarySwell(features = {}, marine) {
+  if (!marine || hasDirectedSwellSecondary(features)) return features;
+  const next = { ...features };
+  if (Number.isFinite(Number(marine.secondary_swell_direction_deg))) {
+    next.secondary_swell_height_ft = next.secondary_swell_height_ft ?? marine.secondary_swell_height_ft;
+    next.secondary_swell_period_s = next.secondary_swell_period_s ?? marine.secondary_swell_period_s;
+    next.secondary_swell_direction_deg = marine.secondary_swell_direction_deg;
+    next.secondary_swell_direction_label = marine.secondary_swell_direction_label
+      || directionFromDegrees(marine.secondary_swell_direction_deg);
+  } else if (Number.isFinite(Number(marine.wind_wave_direction_deg))) {
+    next.wind_wave_height_max_ft = next.wind_wave_height_max_ft ?? marine.wind_wave_height_max_ft;
+    next.wind_wave_period_max_s = next.wind_wave_period_max_s ?? marine.wind_wave_period_max_s;
+    next.wind_wave_direction_deg = marine.wind_wave_direction_deg;
+    next.secondary_swell_direction_label = next.secondary_swell_direction_label
+      || directionFromDegrees(marine.wind_wave_direction_deg);
+  }
+  return next;
+}
+
+function enrichForecastSwell(forecast, marine) {
+  if (!forecast || !marine) return forecast;
+  return {
+    ...forecast,
+    features: mergeSecondarySwell(forecast.features || {}, marine),
+  };
+}
+
 async function loadForecastData() {
   const spot = currentSpot();
   updateSpotChrome(spot);
@@ -425,10 +457,11 @@ async function loadForecastData() {
   }
 
   try {
-    const [latest, tenDay, gradeGuide] = await Promise.all([
+    const [latest, tenDay, gradeGuide, marine] = await Promise.all([
       fetchJson("model_outputs/latest_forecast.json"),
       fetchJson("model_outputs/forecast_10day.json"),
       fetchJson("diveprosd_grade_guidance.json"),
+      fetchOpenMeteoMarine(spot).catch(() => null),
     ]);
     let history = [];
     try {
@@ -436,9 +469,10 @@ async function loadForecastData() {
     } catch {
       history = [];
     }
+    const days = Array.isArray(tenDay) && tenDay.length ? tenDay : [latest];
     return {
-      latest,
-      tenDay: Array.isArray(tenDay) && tenDay.length ? tenDay : [latest],
+      latest: enrichForecastSwell(latest, marine),
+      tenDay: days.map((forecast) => enrichForecastSwell(forecast, marine)),
       gradeGuide: Array.isArray(gradeGuide) ? gradeGuide : [],
       history: Array.isArray(history) ? history : [],
       cameraObservation,
@@ -1116,25 +1150,26 @@ function swellRows(features) {
       color: swellDirectionColor(0),
     },
   ];
-  const secondaryHeight = meaningfulSwellHeight(features.secondary_swell_height_ft);
-  const windWaveHeight = meaningfulSwellHeight(features.wind_wave_height_max_ft);
-  if (secondaryHeight !== null) {
+  const secondaryDir = finiteNumber(features.secondary_swell_direction_deg);
+  const secondaryHeight = finiteNumber(features.secondary_swell_height_ft);
+  const windWaveDir = finiteNumber(features.wind_wave_direction_deg ?? features.wind_direction_deg);
+  const windWaveHeight = finiteNumber(features.wind_wave_height_max_ft);
+  if (secondaryDir != null || secondaryHeight != null) {
     rows.push({
       label: "Secondary",
-      height: features.secondary_swell_height_ft,
+      height: secondaryHeight,
       period: features.secondary_swell_period_s,
-      directionLabel: features.secondary_swell_direction_label,
-      directionDeg: features.secondary_swell_direction_deg,
+      directionLabel: features.secondary_swell_direction_label || directionFromDegrees(secondaryDir),
+      directionDeg: secondaryDir,
       color: swellDirectionColor(1),
     });
-  } else if (windWaveHeight !== null) {
+  } else if (windWaveDir != null || windWaveHeight != null) {
     rows.push({
       label: "Secondary",
-      height: features.wind_wave_height_max_ft,
+      height: windWaveHeight,
       period: features.wind_wave_period_max_s,
-      directionLabel: features.secondary_swell_direction_label
-        || directionFromDegrees(features.secondary_swell_direction_deg ?? features.wind_wave_direction_deg ?? features.wind_direction_deg),
-      directionDeg: features.secondary_swell_direction_deg ?? features.wind_wave_direction_deg ?? features.wind_direction_deg,
+      directionLabel: features.secondary_swell_direction_label || directionFromDegrees(windWaveDir),
+      directionDeg: windWaveDir,
       color: swellDirectionColor(1),
     });
   }
@@ -1247,8 +1282,8 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const offsetY = fromX * offsetPx;
   const tailX = cx + fromX * length + offsetX;
   const tailY = cy + fromY * length + offsetY;
-  const tipX = cx - fromX * 12 + offsetX;
-  const tipY = cy - fromY * 12 + offsetY;
+  const tipX = cx - fromX * 14 + offsetX;
+  const tipY = cy - fromY * 14 + offsetY;
   const travelX = tipX - tailX;
   const travelY = tipY - tailY;
   const mag = Math.hypot(travelX, travelY) || 1;
@@ -1257,7 +1292,7 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const px = -uy;
   const py = ux;
   const headLen = headSize;
-  const headHalf = headSize * 0.62;
+  const headHalf = headSize * 0.68;
   const baseX = tipX - ux * headLen;
   const baseY = tipY - uy * headLen;
   const leftX = baseX + px * headHalf;
@@ -1265,10 +1300,13 @@ function swellArrowMarkup({ fromDeg, color, length, strokeWidth, offsetPx, headS
   const rightX = baseX - px * headHalf;
   const rightY = baseY - py * headHalf;
   const fmt = (value) => value.toFixed(1);
+  const halo = Math.max(4, strokeWidth + 3);
   return `
     <g>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#061428" stroke-width="${halo}" stroke-linecap="round"></line>
+      <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="#ffffff" stroke-width="${strokeWidth + 1.6}" stroke-linecap="round"></line>
       <line x1="${fmt(tailX)}" y1="${fmt(tailY)}" x2="${fmt(baseX)}" y2="${fmt(baseY)}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
-      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}"></polygon>
+      <polygon points="${fmt(tipX)},${fmt(tipY)} ${fmt(leftX)},${fmt(leftY)} ${fmt(rightX)},${fmt(rightY)}" fill="${color}" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"></polygon>
     </g>
   `;
 }
@@ -1287,10 +1325,10 @@ function renderSwellCompassRose(rows) {
     arrows.push(swellArrowMarkup({
       fromDeg: Number(secondary.directionDeg),
       color: "#ee13ba",
-      length: close ? 40 : 42,
-      strokeWidth: 3.2,
-      offsetPx: close ? 7 : 0,
-      headSize: 11,
+      length: close ? 38 : 40,
+      strokeWidth: 3.4,
+      offsetPx: close ? 8 : 0,
+      headSize: 12,
     }));
   }
   if (primary) {
@@ -1298,9 +1336,9 @@ function renderSwellCompassRose(rows) {
       fromDeg: Number(primary.directionDeg),
       color: "#13baee",
       length: close ? 58 : 56,
-      strokeWidth: 5.6,
-      offsetPx: close ? -6 : 0,
-      headSize: 15,
+      strokeWidth: 6,
+      offsetPx: close ? -7 : 0,
+      headSize: 16,
     }));
   }
   rose.innerHTML = `

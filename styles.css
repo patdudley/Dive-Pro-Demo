@@ -2260,7 +2260,7 @@ h2::before {
 }
 
 .swell-rose {
-  width: min(168px, 54%);
+  width: min(188px, 62%);
 }
 
 .swell-rose svg {
@@ -2268,7 +2268,6 @@ h2::before {
   width: 100%;
   height: auto;
   overflow: visible;
-  filter: drop-shadow(0 2px 8px rgba(6, 20, 46, 0.45));
 }
 
 .swell-rose text {
@@ -2379,7 +2378,7 @@ h2::before {
   }
 
   .swell-rose {
-    width: min(240px, 58%);
+    width: min(260px, 64%);
   }
 }
 
