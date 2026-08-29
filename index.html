@@ -7,6 +7,7 @@
     <meta name="description" content="Find California dive spots on Dive Pro. Search La Jolla, Monterey, Catalina Wrigley, and Anacapa.">
     <meta name="robots" content="noindex,nofollow">
     <meta name="theme-color" content="#13baee">
+    <meta name="divepro-build" content="pages-20260829aq">
     <link rel="canonical" href="https://patdudley.github.io/Dive-Pro-Demo/">
     <link rel="icon" href="favicon.ico?v=fish-icon-4" sizes="any">
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=fish-icon-4">
@@ -48,7 +49,7 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829ap">
+    <link rel="stylesheet" href="styles.css?v=pages-20260829aq">
   </head>
   <body class="home-directory" data-page="home">
     <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
@@ -96,18 +97,43 @@
         </section>
 
         <section class="home-bubbles-card" aria-label="California locations">
-          <div id="spotBubbles" class="home-bubbles"></div>
+          <div id="spotBubbles" class="home-bubbles">
+            <a class="spot-bubble" href="la-jolla.html" data-slug="la-jolla" aria-label="Open La Jolla">
+              <div class="spot-bubble-copy">
+                <h2>La Jolla</h2>
+                <p>San Diego</p>
+              </div>
+            </a>
+            <a class="spot-bubble" href="monterey.html" data-slug="monterey" aria-label="Open Monterey">
+              <div class="spot-bubble-copy">
+                <h2>Monterey</h2>
+                <p>Monterey Bay</p>
+              </div>
+            </a>
+            <a class="spot-bubble" href="catalina-wrigley.html" data-slug="catalina-wrigley" aria-label="Open Catalina Wrigley">
+              <div class="spot-bubble-copy">
+                <h2>Catalina Wrigley</h2>
+                <p>Catalina Island</p>
+              </div>
+            </a>
+            <a class="spot-bubble" href="anacapa-ocean.html" data-slug="anacapa-ocean" aria-label="Open Anacapa">
+              <div class="spot-bubble-copy">
+                <h2>Anacapa</h2>
+                <p>Channel Islands</p>
+              </div>
+            </a>
+          </div>
           <p class="home-search-empty" id="spotSearchEmpty" hidden>No spots match that search.</p>
         </section>
       </div>
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829ap"></script>
-    <script src="home-directory.js?v=pages-20260829ap"></script>
+    <script src="spots-config.js?v=pages-20260829aq"></script>
+    <script src="home-directory.js?v=pages-20260829aq"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829ap"></script>
+    <script src="spot-map.js?v=pages-20260829aq"></script>
   </body>
 </html>

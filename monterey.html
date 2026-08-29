@@ -7,6 +7,7 @@
     <meta name="description" content="Monterey Bay location preview. Dive Pro vis grades are unavailable here — the frozen model is trained on La Jolla only.">
     <meta name="robots" content="noindex,nofollow">
     <meta name="theme-color" content="#13baee">
+    <meta name="divepro-build" content="pages-20260829aq">
     <link rel="canonical" href="https://patdudley.github.io/Dive-Pro-Demo/monterey.html">
     <link rel="icon" href="favicon.ico?v=fish-icon-4" sizes="any">
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=fish-icon-4">
@@ -48,7 +49,7 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829ap">
+    <link rel="stylesheet" href="styles.css?v=pages-20260829aq">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
   </head>
   <body data-spot="monterey">
@@ -65,7 +66,14 @@
     </header>
     <main class="shell">
       <div class="stale-banner" id="staleBanner" hidden></div>
-      <section class="hero-camera is-camera-free">
+      <section class="hero-camera">
+        <figure class="camera-frame is-camera-unavailable" id="cameraFrame">
+          <img id="cameraImage" alt="Monterey marina / Custom House Plaza live camera from Portola Hotel" hidden>
+          <p class="camera-unavailable-message" id="cameraUnavailableMessage">Camera unavailable · no verified recent image</p>
+          <span class="camera-observed-badge" id="cameraObservedBadge" hidden>Today</span>
+          <a class="camera-live-link" href="https://www.portolahotel.com/our-hotel/webcam" target="_blank" rel="noopener noreferrer" aria-label="Open the Monterey live camera on Portola Hotel in a new tab">Live camera <span aria-hidden="true">&nearr;</span></a>
+        </figure>
+
         <div class="hero-content">
           <section class="forecast-panel">
             <div class="forecast-meta">
@@ -74,17 +82,14 @@
                 <div class="spot-picker-row">
                   <button type="button" id="heroPrevSpot" class="spot-picker-nav" aria-label="Previous California location">‹</button>
                   <select id="spotPicker" aria-label="California dive location">
-                    <option value="la-jolla">Scripps Beach</option>
-                    <option value="monterey">Monterey</option>
-                    <option value="catalina-wrigley">Wrigley Reserve</option>
-                    <option value="anacapa-ocean">Anacapa Ocean</option>
+                    <option value="la-jolla">La Jolla</option>
+                    <option value="monterey" selected>Monterey</option>
+                    <option value="catalina-wrigley">Wrigley</option>
+                    <option value="anacapa-ocean">Anacapa</option>
                   </select>
                   <button type="button" id="heroNextSpot" class="spot-picker-nav" aria-label="Next California location">›</button>
                 </div>
               </label>
-              <p class="spot-live-cam-link">
-                <a href="https://www.portolahotel.com/our-hotel/webcam" target="_blank" rel="noopener noreferrer">Live camera</a>
-              </p>
             </div>
           </section>
         </div>
@@ -160,20 +165,23 @@
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829ap"></script>
+    <script src="spots-config.js?v=pages-20260829aq"></script>
     <script>
       (function applySpotFromPath() {
-        const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
-        const requested = (file && file !== "index") ? file : "la-jolla";
+        const parts = (window.location.pathname || "").split("/").filter(Boolean);
+        let last = (parts.pop() || "").replace(/\.html$/i, "");
+        if (!last || last === "index") last = (parts.pop() || "").replace(/\.html$/i, "");
+        if (last === "Dive-Pro-Demo") last = "";
+        const requested = last || "monterey";
         const spot = window.spotFromSlug ? window.spotFromSlug(requested) : null;
-        document.body.dataset.spot = (file && file !== "index" && spot?.slug) ? spot.slug : "la-jolla";
+        document.body.dataset.spot = spot?.slug || requested || "monterey";
       })();
     </script>
-    <script type="module" src="app.js?v=pages-20260829ap"></script>
+    <script type="module" src="app.js?v=pages-20260829aq"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829ap"></script>
+    <script src="spot-map.js?v=pages-20260829aq"></script>
   </body>
 </html>

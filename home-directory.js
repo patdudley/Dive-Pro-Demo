@@ -1,6 +1,6 @@
 (function () {
   const BUBBLE_COPY = {
-    "la-jolla": { name: "La Jolla / Scripps Beach", place: "San Diego" },
+    "la-jolla": { name: "La Jolla", place: "San Diego" },
     monterey: { name: "Monterey", place: "Monterey Bay" },
     "catalina-wrigley": { name: "Catalina Wrigley", place: "Catalina Island" },
     "anacapa-ocean": { name: "Anacapa", place: "Channel Islands" },

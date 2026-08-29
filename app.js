@@ -30,9 +30,17 @@ function californiaSpots() {
   return (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
 }
 
+function slugFromPathname(pathname = window.location.pathname) {
+  const parts = String(pathname || "").split("/").filter(Boolean);
+  let last = (parts.pop() || "").replace(/\.html$/i, "");
+  if (!last || last === "index") last = (parts.pop() || "").replace(/\.html$/i, "");
+  if (!last || last === "Dive-Pro-Demo") return "";
+  return last;
+}
+
 function currentPageSlug() {
-  const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
-  if (file && file !== "index") return file;
+  const file = slugFromPathname();
+  if (file) return file;
   if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
     return "";
   }
@@ -57,7 +65,7 @@ function spotHref(slug) {
 }
 
 function isOnSpotPage(spot) {
-  const file = (window.location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
+  const file = slugFromPathname();
   if (file === spot.slug) return true;
   const query = new URLSearchParams(window.location.search).get("spot");
   if (query === spot.slug) return true;
