@@ -6441,3 +6441,77 @@ ul {
     border-radius: 12px;
   }
 }
+
+/* Light wind player: same white/teal cards as the rest of the site. */
+.spot-map-frame .spot-wind-timeline {
+  background: #fff;
+  color: var(--navy);
+  border: 1px solid rgba(13, 122, 140, 0.16);
+  box-shadow: 0 12px 38px rgba(19, 186, 238, 0.08);
+  backdrop-filter: none;
+}
+
+.spot-wind-readout {
+  background: rgba(19, 186, 238, 0.14);
+  border-color: rgba(19, 186, 238, 0.4);
+  color: var(--navy);
+}
+
+.spot-wind-timeline .spot-wind-play {
+  background: #fff;
+  border: 1px solid rgba(19, 186, 238, 0.32);
+  color: var(--navy);
+  box-shadow: none;
+}
+
+.spot-wind-timeline .spot-wind-play:hover,
+.spot-wind-timeline .spot-wind-play:focus-visible {
+  border-color: #13baee;
+  background: rgba(19, 186, 238, 0.12);
+  color: var(--navy);
+}
+
+.spot-wind-timeline .spot-wind-ticks {
+  color: rgba(10, 37, 64, 0.48);
+}
+
+.spot-wind-timeline .spot-wind-slider::-webkit-slider-runnable-track,
+.spot-wind-timeline .spot-wind-slider::-moz-range-track {
+  background: rgba(19, 186, 238, 0.16);
+  border-color: rgba(19, 186, 238, 0.28);
+}
+
+.spot-wind-days {
+  background: rgba(125, 216, 247, 0.12);
+  border-color: rgba(13, 122, 140, 0.14);
+}
+
+.spot-wind-timeline .spot-wind-days button {
+  color: rgba(10, 37, 64, 0.55);
+  border-right-color: rgba(13, 122, 140, 0.12);
+  background: transparent;
+}
+
+.spot-wind-timeline .spot-wind-days button.is-active,
+.spot-wind-timeline .spot-wind-days button:first-child.is-active,
+.spot-wind-timeline .spot-wind-days button:last-child.is-active {
+  background: linear-gradient(135deg, #13baee, #0075df);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(19, 186, 238, 0.2);
+}
+
+@media (max-width: 640px) {
+  .spot-wind-timeline .spot-wind-days button {
+    border-color: rgba(13, 122, 140, 0.16);
+    background: #fff;
+    color: rgba(10, 37, 64, 0.55);
+  }
+
+  .spot-wind-timeline .spot-wind-days button.is-active,
+  .spot-wind-timeline .spot-wind-days button:first-child.is-active,
+  .spot-wind-timeline .spot-wind-days button:last-child.is-active {
+    border-color: transparent;
+    background: linear-gradient(135deg, #13baee, #0075df);
+    color: #fff;
+  }
+}

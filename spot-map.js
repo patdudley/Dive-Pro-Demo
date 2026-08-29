@@ -440,17 +440,122 @@
     return firstCurrentOrFuture >= 0 ? firstCurrentOrFuture : 0;
   }
 
+  const CA_WIND_BBOX = { west: -123.8, south: 31.2, east: -115.4, north: 37.8 };
+  const CA_WIND_STEP = 0.5;
+
+  function uvFromSpeedDir(speedMs, directionDeg) {
+    const speed = Number(speedMs);
+    const direction = Number(directionDeg);
+    if (!Number.isFinite(speed) || !Number.isFinite(direction)) return { u: null, v: null };
+    const radians = (direction * Math.PI) / 180;
+    return { u: -speed * Math.sin(radians), v: -speed * Math.cos(radians) };
+  }
+
+  function californiaWindPoints() {
+    const lats = [];
+    const lons = [];
+    for (let lat = CA_WIND_BBOX.north; lat >= CA_WIND_BBOX.south - 1e-6; lat -= CA_WIND_STEP) {
+      lats.push(Number(lat.toFixed(2)));
+    }
+    for (let lon = CA_WIND_BBOX.west; lon <= CA_WIND_BBOX.east + 1e-6; lon += CA_WIND_STEP) {
+      lons.push(Number(lon.toFixed(2)));
+    }
+    const points = [];
+    lats.forEach((lat, row) => {
+      lons.forEach((lon, col) => points.push({ lat, lon, row, col }));
+    });
+    return { lats, lons, points };
+  }
+
+  async function fetchOpenMeteoWindBatch(points) {
+    const url = new URL("https://api.open-meteo.com/v1/forecast");
+    url.searchParams.set("latitude", points.map((point) => point.lat).join(","));
+    url.searchParams.set("longitude", points.map((point) => point.lon).join(","));
+    url.searchParams.set("hourly", "wind_speed_10m,wind_direction_10m");
+    url.searchParams.set("wind_speed_unit", "ms");
+    url.searchParams.set("timezone", "America/Los_Angeles");
+    url.searchParams.set("forecast_days", "3");
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error("Open-Meteo wind request failed");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : [payload];
+  }
+
+  async function loadCaliforniaWindManifest() {
+    const { lats, lons, points } = californiaWindPoints();
+    const batches = [];
+    for (let index = 0; index < points.length; index += 40) {
+      batches.push(points.slice(index, index + 40));
+    }
+    const results = (await Promise.all(batches.map(fetchOpenMeteoWindBatch))).flat();
+    if (results.length !== points.length) throw new Error("California wind grid point mismatch");
+
+    const times = results[0]?.hourly?.time || [];
+    if (times.length < 8) throw new Error("California wind hourly times unavailable");
+    const now = Date.now();
+    let start = times.findIndex((stamp) => {
+      const time = new Date(stamp).getTime();
+      return Number.isFinite(time) && time >= now - NOW_FRAME_TOLERANCE_MS;
+    });
+    if (start < 0) start = 0;
+    const windowTimes = times.slice(start, start + 48);
+    const nx = lons.length;
+    const ny = lats.length;
+
+    const frames = windowTimes.map((iso, index) => {
+      const timeIndex = start + index;
+      const u = Array.from({ length: ny }, () => Array(nx).fill(null));
+      const v = Array.from({ length: ny }, () => Array(nx).fill(null));
+      points.forEach((point, pointIndex) => {
+        const hourly = results[pointIndex]?.hourly || {};
+        const uv = uvFromSpeedDir(hourly.wind_speed_10m?.[timeIndex], hourly.wind_direction_10m?.[timeIndex]);
+        u[point.row][point.col] = uv.u;
+        v[point.row][point.col] = uv.v;
+      });
+      const path = `live-ca-wind:${iso}`;
+      return normalizeWindFrame({
+        hour: index,
+        label: index === 0 ? "Now" : iso,
+        valid_utc: new Date(iso).toISOString(),
+        path,
+        grid: {
+          metadata: {
+            source: "Open-Meteo 10m wind",
+            bbox: { ...CA_WIND_BBOX },
+            nx,
+            ny,
+            dx: CA_WIND_STEP,
+            dy: CA_WIND_STEP,
+          },
+          u,
+          v,
+        },
+      }, index);
+    });
+
+    if (!frames.length) throw new Error("California wind frames unavailable");
+    return { run: "open-meteo-california", frames };
+  }
+
   async function loadWindManifest() {
-    const response = await fetch(WIND_MANIFEST_PATH, { cache: "no-store" });
-    if (!response.ok) throw new Error("Wind forecast manifest unavailable");
-    const manifest = await response.json();
-    const frames = (manifest.frames || []).map(normalizeWindFrame).filter((frame) => frame.path);
-    if (!frames.length) throw new Error("Wind forecast manifest has no frames");
-    return { ...manifest, frames };
+    try {
+      return await loadCaliforniaWindManifest();
+    } catch (error) {
+      const response = await fetch(WIND_MANIFEST_PATH, { cache: "no-store" });
+      if (!response.ok) throw new Error("Wind forecast manifest unavailable");
+      const manifest = await response.json();
+      const frames = (manifest.frames || []).map(normalizeWindFrame).filter((frame) => frame.path);
+      if (!frames.length) throw new Error("Wind forecast manifest has no frames");
+      return { ...manifest, frames };
+    }
   }
 
   async function fetchWindFrame(frame, cache) {
     if (cache?.has(frame.path)) return cache.get(frame.path);
+    if (frame.grid) {
+      cache?.set(frame.path, frame.grid);
+      return frame.grid;
+    }
     const response = await fetch(frame.path, { cache: "no-store" });
     if (!response.ok) throw new Error(`Wind frame request failed: ${frame.path}`);
     const grid = await response.json();
@@ -655,8 +760,12 @@
       waterMaskCtx.clearRect(0, 0, rect.width, rect.height);
       waterMaskCtx.fillStyle = "#000";
       const renderedOceanPolygons = getRenderedOceanPolygons();
-      const polygons = renderedOceanPolygons.length ? renderedOceanPolygons : waterPolygons;
-      polygons.forEach(drawPolygon);
+      if (!renderedOceanPolygons.length && Number(grid?.metadata?.bbox?.north) > 35.2) {
+        waterMaskCtx.fillRect(0, 0, rect.width, rect.height);
+      } else {
+        const polygons = renderedOceanPolygons.length ? renderedOceanPolygons : waterPolygons;
+        polygons.forEach(drawPolygon);
+      }
       waterMaskData = waterMaskCtx.getImageData(0, 0, waterMaskCanvas.width, waterMaskCanvas.height).data;
       needsWaterMaskDraw = false;
     }
