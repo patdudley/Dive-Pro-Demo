@@ -461,8 +461,13 @@
     return firstCurrentOrFuture >= 0 ? firstCurrentOrFuture : 0;
   }
 
-  const CA_WIND_BBOX = { west: -123.8, south: 31.2, east: -115.4, north: 37.8 };
-  const CA_WIND_STEP = 0.5;
+  const CA_WIND_BBOX = {
+    west: CALIFORNIA_BOUNDS[0][0] - 0.6,
+    south: CALIFORNIA_BOUNDS[0][1] - 0.6,
+    east: CALIFORNIA_BOUNDS[1][0] + 0.6,
+    north: CALIFORNIA_BOUNDS[1][1] + 0.6,
+  };
+  const CA_WIND_STEP = 0.7;
 
   function uvFromSpeedDir(speedMs, directionDeg) {
     const speed = Number(speedMs);
@@ -472,20 +477,24 @@
     return { u: -speed * Math.sin(radians), v: -speed * Math.cos(radians) };
   }
 
-  function californiaWindPoints() {
+  function californiaWindPoints(step = CA_WIND_STEP) {
     const lats = [];
     const lons = [];
-    for (let lat = CA_WIND_BBOX.north; lat >= CA_WIND_BBOX.south - 1e-6; lat -= CA_WIND_STEP) {
+    for (let lat = CA_WIND_BBOX.north; lat >= CA_WIND_BBOX.south - 1e-6; lat -= step) {
       lats.push(Number(lat.toFixed(2)));
     }
-    for (let lon = CA_WIND_BBOX.west; lon <= CA_WIND_BBOX.east + 1e-6; lon += CA_WIND_STEP) {
+    for (let lon = CA_WIND_BBOX.west; lon <= CA_WIND_BBOX.east + 1e-6; lon += step) {
       lons.push(Number(lon.toFixed(2)));
     }
     const points = [];
     lats.forEach((lat, row) => {
       lons.forEach((lon, col) => points.push({ lat, lon, row, col }));
     });
-    return { lats, lons, points };
+    return { lats, lons, points, step };
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async function fetchOpenMeteoWindBatch(points) {
@@ -496,21 +505,34 @@
     url.searchParams.set("wind_speed_unit", "ms");
     url.searchParams.set("timezone", "America/Los_Angeles");
     url.searchParams.set("forecast_days", "3");
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error("Open-Meteo wind request failed");
-    const payload = await response.json();
-    return Array.isArray(payload) ? payload : [payload];
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await fetch(url.toString());
+        if (!response.ok) throw new Error(`Open-Meteo wind request failed (${response.status})`);
+        const payload = await response.json();
+        if (payload?.error) throw new Error(payload.reason || "Open-Meteo wind error");
+        const rows = Array.isArray(payload) ? payload : [payload];
+        if (rows.length !== points.length) throw new Error("Open-Meteo wind batch size mismatch");
+        return rows;
+      } catch (error) {
+        lastError = error;
+        await sleep(250 * (attempt + 1));
+      }
+    }
+    throw lastError || new Error("Open-Meteo wind request failed");
   }
 
-  async function loadCaliforniaWindManifest() {
-    const { lats, lons, points } = californiaWindPoints();
-    const batches = [];
-    for (let index = 0; index < points.length; index += 40) {
-      batches.push(points.slice(index, index + 40));
+  async function fetchOpenMeteoWindBatches(points) {
+    const results = [];
+    for (let index = 0; index < points.length; index += 24) {
+      const batch = points.slice(index, index + 24);
+      results.push(...await fetchOpenMeteoWindBatch(batch));
     }
-    const results = (await Promise.all(batches.map(fetchOpenMeteoWindBatch))).flat();
-    if (results.length !== points.length) throw new Error("California wind grid point mismatch");
+    return results;
+  }
 
+  function buildCaliforniaWindManifest(lats, lons, points, results, step) {
     const times = results[0]?.hourly?.time || [];
     if (times.length < 8) throw new Error("California wind hourly times unavailable");
     const now = Date.now();
@@ -533,20 +555,19 @@
         u[point.row][point.col] = uv.u;
         v[point.row][point.col] = uv.v;
       });
-      const path = `live-ca-wind:${iso}`;
       return normalizeWindFrame({
         hour: index,
         label: index === 0 ? "Now" : iso,
         valid_utc: new Date(iso).toISOString(),
-        path,
+        path: `live-ca-wind:${iso}`,
         grid: {
           metadata: {
             source: "Open-Meteo 10m wind",
             bbox: { ...CA_WIND_BBOX },
             nx,
             ny,
-            dx: CA_WIND_STEP,
-            dy: CA_WIND_STEP,
+            dx: step,
+            dy: step,
           },
           u,
           v,
@@ -558,17 +579,24 @@
     return { run: "open-meteo-california", frames };
   }
 
+  async function loadCaliforniaWindManifest(step = CA_WIND_STEP) {
+    const { lats, lons, points } = californiaWindPoints(step);
+    const results = await fetchOpenMeteoWindBatches(points);
+    if (results.length !== points.length) throw new Error("California wind grid point mismatch");
+    return buildCaliforniaWindManifest(lats, lons, points, results, step);
+  }
+
   async function loadWindManifest() {
-    try {
-      return await loadCaliforniaWindManifest();
-    } catch (error) {
-      const response = await fetch(WIND_MANIFEST_PATH, { cache: "no-store" });
-      if (!response.ok) throw new Error("Wind forecast manifest unavailable");
-      const manifest = await response.json();
-      const frames = (manifest.frames || []).map(normalizeWindFrame).filter((frame) => frame.path);
-      if (!frames.length) throw new Error("Wind forecast manifest has no frames");
-      return { ...manifest, frames };
+    const steps = [CA_WIND_STEP, 1, 1.6];
+    let lastError = null;
+    for (const step of steps) {
+      try {
+        return await loadCaliforniaWindManifest(step);
+      } catch (error) {
+        lastError = error;
+      }
     }
+    throw lastError || new Error("California wind overlay unavailable");
   }
 
   async function fetchWindFrame(frame, cache) {
@@ -775,13 +803,18 @@
         .flatMap((feature) => geometryToPolygons(feature.geometry));
     }
 
+    function gridCoversCalifornia(nextGrid = grid) {
+      const bbox = nextGrid?.metadata?.bbox || {};
+      return Number(bbox.north) >= 36.5 && Number(bbox.west) <= -121.7 && Number(bbox.east) >= -116.2;
+    }
+
     function drawWaterMask() {
       if (!needsWaterMaskDraw) return;
       const rect = mapContainer.getBoundingClientRect();
       waterMaskCtx.clearRect(0, 0, rect.width, rect.height);
       waterMaskCtx.fillStyle = "#000";
       const renderedOceanPolygons = getRenderedOceanPolygons();
-      if (!renderedOceanPolygons.length && Number(grid?.metadata?.bbox?.north) > 35.2) {
+      if (gridCoversCalifornia()) {
         waterMaskCtx.fillRect(0, 0, rect.width, rect.height);
       } else {
         const polygons = renderedOceanPolygons.length ? renderedOceanPolygons : waterPolygons;
@@ -1497,12 +1530,11 @@
     const frameCache = new Map();
     const [manifest, waterResponse] = await Promise.all([
       loadWindManifest(),
-      fetch(WATER_MASK_PATH, { cache: "no-store" }),
+      fetch(WATER_MASK_PATH, { cache: "no-store" }).catch(() => null),
     ]);
-    if (!waterResponse.ok) throw new Error("Wind water mask unavailable");
     const [grid, waterMask] = await Promise.all([
       fetchWindFrame(manifest.frames[0], frameCache),
-      waterResponse.json(),
+      waterResponse?.ok ? waterResponse.json() : Promise.resolve({ features: [] }),
     ]);
     const frame = mapEl.closest(".spot-map-frame");
     frame?.querySelector(".spot-wind-legend")?.classList.remove("is-hidden");
