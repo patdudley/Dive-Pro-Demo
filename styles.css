@@ -1608,12 +1608,14 @@ h2::before {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .spot-picker {
   display: grid;
   gap: 4px;
-  min-width: min(100%, 320px);
+  width: 100%;
+  min-width: 0;
 }
 
 .spot-picker-kicker {
@@ -1628,12 +1630,16 @@ h2::before {
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr) 36px;
   align-items: center;
-  gap: 6px;
+  column-gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .spot-picker-nav {
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  padding: 0;
   border: 1px solid rgba(19, 186, 238, 0.35);
   border-radius: 999px;
   background: #fff;
@@ -1652,8 +1658,10 @@ h2::before {
 .spot-picker select {
   appearance: none;
   -webkit-appearance: none;
-  width: 100%;
-  max-width: none;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  justify-self: stretch;
   padding: 8px 34px 8px 12px;
   border: 1px solid rgba(19, 186, 238, 0.35);
   border-radius: 999px;
@@ -5155,14 +5163,40 @@ ul {
 
   .forecast-meta {
     align-items: stretch;
+    width: 100%;
+    min-width: 0;
   }
 
-  .spot-picker,
-  .spot-picker-row,
-  .spot-picker select {
-    max-width: none;
-    min-width: 0;
+  .forecast-panel {
+    overflow: hidden;
+    padding: 16px;
+  }
+
+  .spot-picker {
     width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .spot-picker-row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    column-gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .spot-picker-nav {
+    justify-self: stretch;
+  }
+
+  .spot-picker select {
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    justify-self: stretch;
   }
 
   .camera-frame img {
