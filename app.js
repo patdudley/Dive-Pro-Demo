@@ -136,25 +136,23 @@ async function fetchOpenMeteoMarine(spot) {
   const lon = Number(spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
   const marine = await fetchJson(marineUrl);
   const hourly = marine.hourly || {};
   const waveHeights = (hourly.wave_height || []).map(metersToFeet);
   const swellHeights = (hourly.swell_wave_height || []).map(metersToFeet);
-  const secondaryHeights = (hourly.secondary_swell_wave_height || []).map(metersToFeet);
   const windWaveHeights = (hourly.wind_wave_height || []).map(metersToFeet);
   const swellIndex = indexOfMaxFinite(swellHeights);
-  const secondaryIndex = indexOfMaxFinite(secondaryHeights);
   const windWaveIndex = indexOfMaxFinite(windWaveHeights);
   const waterTemps = (hourly.sea_surface_temperature || []).map(celsiusToFahrenheit);
 
   const primaryHeight = swellIndex >= 0 ? swellHeights[swellIndex] : maxFinite(swellHeights);
   const primaryPeriod = swellIndex >= 0 ? finiteNumber(hourly.swell_wave_period?.[swellIndex]) : null;
   const primaryDir = swellIndex >= 0 ? finiteNumber(hourly.swell_wave_direction?.[swellIndex]) : null;
-  const secondaryHeight = secondaryIndex >= 0 ? secondaryHeights[secondaryIndex] : maxFinite(secondaryHeights);
-  const secondaryPeriod = secondaryIndex >= 0 ? finiteNumber(hourly.secondary_swell_wave_period?.[secondaryIndex]) : null;
-  const secondaryDir = secondaryIndex >= 0 ? finiteNumber(hourly.secondary_swell_wave_direction?.[secondaryIndex]) : null;
   const windWaveHeight = windWaveIndex >= 0 ? windWaveHeights[windWaveIndex] : maxFinite(windWaveHeights);
+  const windWavePeriod = windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_period?.[windWaveIndex]) : null;
+  const windWaveDir = windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_direction?.[windWaveIndex]) : null;
+  const secondaryUsable = windWaveHeight != null && windWaveHeight >= 0.25 && windWaveDir != null;
 
   return {
     surf_height_max_ft: maxFinite(waveHeights),
@@ -163,13 +161,13 @@ async function fetchOpenMeteoMarine(spot) {
     swell_wave_period_max_s: primaryPeriod,
     swell_wave_direction_deg: primaryDir,
     swell_direction_label: primaryDir != null ? directionFromDegrees(primaryDir) : "",
-    secondary_swell_height_ft: secondaryHeight,
-    secondary_swell_period_s: secondaryPeriod,
-    secondary_swell_direction_deg: secondaryDir,
-    secondary_swell_direction_label: secondaryDir != null ? directionFromDegrees(secondaryDir) : "",
+    secondary_swell_height_ft: secondaryUsable ? windWaveHeight : null,
+    secondary_swell_period_s: secondaryUsable ? windWavePeriod : null,
+    secondary_swell_direction_deg: secondaryUsable ? windWaveDir : null,
+    secondary_swell_direction_label: secondaryUsable ? directionFromDegrees(windWaveDir) : "",
     wind_wave_height_max_ft: windWaveHeight,
-    wind_wave_period_max_s: windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_period?.[windWaveIndex]) : null,
-    wind_wave_direction_deg: windWaveIndex >= 0 ? finiteNumber(hourly.wind_wave_direction?.[windWaveIndex]) : null,
+    wind_wave_period_max_s: windWavePeriod,
+    wind_wave_direction_deg: windWaveDir,
     total_swell_height_mean_ft: primaryHeight,
     water_temp_estimate_f: maxFinite(waterTemps),
     swell_source: "Open-Meteo",
@@ -400,35 +398,33 @@ async function loadCameraObservation() {
   }
 }
 
-function hasDirectedSwellSecondary(features = {}) {
-  return Number.isFinite(Number(features.secondary_swell_direction_deg))
-    || Number.isFinite(Number(features.wind_wave_direction_deg));
-}
-
-function mergeSecondarySwell(features = {}, marine) {
-  if (!marine || hasDirectedSwellSecondary(features)) return features;
-  const next = { ...features };
-  if (Number.isFinite(Number(marine.secondary_swell_direction_deg))) {
-    next.secondary_swell_height_ft = next.secondary_swell_height_ft ?? marine.secondary_swell_height_ft;
-    next.secondary_swell_period_s = next.secondary_swell_period_s ?? marine.secondary_swell_period_s;
-    next.secondary_swell_direction_deg = marine.secondary_swell_direction_deg;
-    next.secondary_swell_direction_label = marine.secondary_swell_direction_label
-      || directionFromDegrees(marine.secondary_swell_direction_deg);
-  } else if (Number.isFinite(Number(marine.wind_wave_direction_deg))) {
-    next.wind_wave_height_max_ft = next.wind_wave_height_max_ft ?? marine.wind_wave_height_max_ft;
-    next.wind_wave_period_max_s = next.wind_wave_period_max_s ?? marine.wind_wave_period_max_s;
-    next.wind_wave_direction_deg = marine.wind_wave_direction_deg;
-    next.secondary_swell_direction_label = next.secondary_swell_direction_label
-      || directionFromDegrees(marine.wind_wave_direction_deg);
-  }
-  return next;
-}
-
 function enrichForecastSwell(forecast, marine) {
-  if (!forecast || !marine) return forecast;
+  if (!forecast) return forecast;
+  const features = { ...(forecast.features || {}) };
+  const modelSecondary = finiteNumber(features.ml_p2_direction_deg)
+    ?? finiteNumber(features.secondary_swell_direction_deg);
+  if (modelSecondary != null || !marine) {
+    return { ...forecast, features };
+  }
+  const windHeight = meaningfulSwellHeight(marine.wind_wave_height_max_ft);
+  const windDeg = finiteNumber(marine.wind_wave_direction_deg);
+  const primaryDeg = finiteNumber(features.ml_p1_direction_deg ?? features.swell_wave_direction_deg);
+  if (windHeight == null || windDeg == null) return { ...forecast, features };
+  if (primaryDeg != null && angularDistanceDeg(primaryDeg, windDeg) <= 12) {
+    return { ...forecast, features };
+  }
   return {
     ...forecast,
-    features: mergeSecondarySwell(forecast.features || {}, marine),
+    features: {
+      ...features,
+      secondary_swell_height_ft: features.secondary_swell_height_ft ?? windHeight,
+      secondary_swell_period_s: features.secondary_swell_period_s ?? marine.wind_wave_period_max_s,
+      secondary_swell_direction_deg: windDeg,
+      secondary_swell_direction_label: directionFromDegrees(windDeg),
+      wind_wave_height_max_ft: features.wind_wave_height_max_ft ?? windHeight,
+      wind_wave_period_max_s: features.wind_wave_period_max_s ?? marine.wind_wave_period_max_s,
+      wind_wave_direction_deg: features.wind_wave_direction_deg ?? windDeg,
+    },
   };
 }
 
@@ -457,11 +453,10 @@ async function loadForecastData() {
   }
 
   try {
-    const [latest, tenDay, gradeGuide, marine] = await Promise.all([
+    const [latest, tenDay, gradeGuide] = await Promise.all([
       fetchJson("model_outputs/latest_forecast.json"),
       fetchJson("model_outputs/forecast_10day.json"),
       fetchJson("diveprosd_grade_guidance.json"),
-      fetchOpenMeteoMarine(spot).catch(() => null),
     ]);
     let history = [];
     try {
@@ -469,10 +464,9 @@ async function loadForecastData() {
     } catch {
       history = [];
     }
-    const days = Array.isArray(tenDay) && tenDay.length ? tenDay : [latest];
     return {
-      latest: enrichForecastSwell(latest, marine),
-      tenDay: days.map((forecast) => enrichForecastSwell(forecast, marine)),
+      latest,
+      tenDay: Array.isArray(tenDay) && tenDay.length ? tenDay : [latest],
       gradeGuide: Array.isArray(gradeGuide) ? gradeGuide : [],
       history: Array.isArray(history) ? history : [],
       cameraObservation,
@@ -512,11 +506,14 @@ function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
   return pad.concat(upcoming).slice(0, 10);
 }
 
-function initialForecastForToday(forecasts, fallbackForecast, today = localTodayInLaJolla()) {
+function initialForecastForToday(forecasts, publishedLatest, today = localTodayInLaJolla()) {
+  if (publishedLatest?.date && publishedLatest.date <= today) {
+    return publishedLatest;
+  }
   return forecasts.find((forecast) => forecast.date === today)
     || forecasts.find((forecast) => forecast.date && forecast.date > today)
     || forecasts[0]
-    || fallbackForecast;
+    || publishedLatest;
 }
 
 function list(id, values) {
@@ -941,19 +938,60 @@ function chartXLabelAnchor(index, total) {
 }
 
 const CHART_VIEW_WIDTH = 720;
-const CHART_VIEW_HEIGHT = 250;
-const CHART_PLOT_LEFT = 56;
-const CHART_PLOT_RIGHT = 20;
+const CHART_VIEW_HEIGHT = 280;
+const CHART_PLOT_LEFT = 54;
+const CHART_PLOT_RIGHT = 16;
 const CHART_PLOT_WIDTH = CHART_VIEW_WIDTH - CHART_PLOT_LEFT - CHART_PLOT_RIGHT;
-const CHART_PLOT_TOP = 16;
-const CHART_PLOT_HEIGHT = 176;
+const CHART_PLOT_TOP = 20;
+const CHART_PLOT_HEIGHT = 198;
+const CHART_X_LABEL_Y = 258;
+
+function chartHour(time) {
+  const hour = Number(String(time || "0").split(":")[0]);
+  return Number.isFinite(hour) ? hour : null;
+}
+
+function chartXTicks(points) {
+  const preferred = new Set([0, 3, 6, 9, 12, 15, 18, 21, 23]);
+  const ticks = points
+    .map((point, index) => ({ point, index, hour: chartHour(point.time) }))
+    .filter((tick) => tick.hour != null && preferred.has(tick.hour));
+  if (ticks.length >= 4) return ticks;
+  return points
+    .map((point, index) => ({ point, index }))
+    .filter(({ index }) => index % 3 === 0 || index === points.length - 1);
+}
+
+function smoothLinePath(coords) {
+  if (!coords.length) return "";
+  if (coords.length === 1) return `M ${coords[0].x.toFixed(2)} ${coords[0].y.toFixed(2)}`;
+  let path = `M ${coords[0].x.toFixed(2)} ${coords[0].y.toFixed(2)}`;
+  for (let i = 0; i < coords.length - 1; i += 1) {
+    const p0 = coords[i - 1] || coords[i];
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+    const p3 = coords[i + 2] || p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    path += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+  }
+  return path;
+}
 
 function chartYLabelY(tick, min, max, top, height) {
   const y = yFromValue(tick, min, max, top, height);
   const bottom = top + height;
-  if (Math.abs(y - bottom) <= 6) return y - 8;
-  if (Math.abs(y - top) <= 6) return y + 11;
+  if (Math.abs(y - bottom) <= 10) return y - 13;
+  if (Math.abs(y - top) <= 8) return y + 13;
   return y + 4;
+}
+
+function showChartYLabel(tick, min, max, top, height) {
+  const y = yFromValue(tick, min, max, top, height);
+  const bottom = top + height;
+  return !(Math.abs(tick) < 0.05 && Math.abs(y - bottom) <= 3);
 }
 
 function setTideSourceLabel(data) {
@@ -981,39 +1019,33 @@ function renderTideChart(data) {
   const top = CHART_PLOT_TOP;
   const width = CHART_PLOT_WIDTH;
   const height = CHART_PLOT_HEIGHT;
-  const coords = points.map((point, index) => {
-    const x = xFromIndex(index, points.length, left, width);
-    const y = yFromValue(point.height_ft, min, max, top, height);
-    return `${x.toFixed(2)},${y.toFixed(2)}`;
-  }).join(" ");
-  const xTicks = points
-    .map((point, index) => ({ point, index }))
-    .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
+  const coords = points.map((point, index) => ({
+    x: xFromIndex(index, points.length, left, width),
+    y: yFromValue(point.height_ft, min, max, top, height),
+  }));
+  const xTicks = chartXTicks(points);
   chart.innerHTML = `
     <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly tide height chart">
+      <rect class="chart-plot-fill" x="${left}" y="${top}" width="${width}" height="${height}" rx="6"></rect>
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
       }).join("")}
-      ${xTicks.map(({ index }, tickIndex) => {
-        const x = xFromIndex(index, points.length, left, width);
-        return `<line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${tickIndex % 2 ? "is-soft" : ""}"></line>`;
-      }).join("")}
       <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
       <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
-      <polyline points="${coords}" class="tide-line"></polyline>
-      ${points.map((point, index) => {
-        const x = xFromIndex(index, points.length, left, width);
-        const y = yFromValue(point.height_ft, min, max, top, height);
-        return `<circle cx="${x}" cy="${y}" r="3.5" class="tide-point"><title>${hourLabel(point.time)}: ${point.height_ft.toFixed(2)} ft</title></circle>`;
+      <path d="${smoothLinePath(coords)}" class="tide-line"></path>
+      ${coords.map((coord, index) => {
+        const point = points[index];
+        return `<circle cx="${coord.x.toFixed(2)}" cy="${coord.y.toFixed(2)}" r="2.6" class="tide-point"><title>${hourLabel(point.time)}: ${point.height_ft.toFixed(2)} ft</title></circle>`;
       }).join("")}
       ${yTicks.map((tick) => {
+        if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(1)} ft</text>`;
+        return `<text x="${left - 10}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(1)} ft</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
-        return `<text x="${x}" y="232" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
+        return `<text x="${x}" y="${CHART_X_LABEL_Y}" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
@@ -1035,22 +1067,17 @@ function renderWindChart(data) {
   const top = CHART_PLOT_TOP;
   const width = CHART_PLOT_WIDTH;
   const height = CHART_PLOT_HEIGHT;
-  const gap = 4;
+  const gap = 3;
   const barWidth = points.length > 1
     ? (width - gap * (points.length - 1)) / points.length
     : width;
-  const xTicks = points
-    .map((point, index) => ({ point, index }))
-    .filter(({ index }) => index % 4 === 0 || index === points.length - 1);
+  const xTicks = chartXTicks(points);
   chart.innerHTML = `
     <svg viewBox="0 0 ${CHART_VIEW_WIDTH} ${CHART_VIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hourly wind speed chart">
+      <rect class="chart-plot-fill" x="${left}" y="${top}" width="${width}" height="${height}" rx="6"></rect>
       ${yTicks.map((tick) => {
         const y = yFromValue(tick, min, max, top, height);
         return `<line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>`;
-      }).join("")}
-      ${xTicks.map(({ index }, tickIndex) => {
-        const x = xFromIndex(index, points.length, left, width);
-        return `<line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${tickIndex % 2 ? "is-soft" : ""}"></line>`;
       }).join("")}
       <line x1="${left}" x2="${left}" y1="${top}" y2="${top + height}" class="chart-axis"></line>
       <line x1="${left}" x2="${left + width}" y1="${top + height}" y2="${top + height}" class="chart-axis"></line>
@@ -1058,15 +1085,16 @@ function renderWindChart(data) {
         const speed = point.speed_mph || 0;
         const x = left + index * (barWidth + (points.length > 1 ? gap : 0));
         const y = yFromValue(speed, min, max, top, height);
-        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${(top + height - y).toFixed(2)}" rx="4" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
+        return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(2, top + height - y).toFixed(2)}" rx="3" class="wind-bar ${windGradeClass(speed)}" style="fill: ${windGradeColor(speed)}"><title>${hourLabel(point.time)}: ${speed.toFixed(1)} mph</title></rect>`;
       }).join("")}
       ${yTicks.map((tick) => {
+        if (!showChartYLabel(tick, min, max, top, height)) return "";
         const y = chartYLabelY(tick, min, max, top, height);
-        return `<text x="${left - 8}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(0)} mph</text>`;
+        return `<text x="${left - 10}" y="${y}" class="chart-y-label" text-anchor="end">${tick.toFixed(0)} mph</text>`;
       }).join("")}
       ${xTicks.map(({ point, index }) => {
         const x = xFromIndex(index, points.length, left, width);
-        return `<text x="${x}" y="232" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
+        return `<text x="${x}" y="${CHART_X_LABEL_Y}" class="chart-x-label" text-anchor="${chartXLabelAnchor(index, points.length)}">${hourLabel(point.time)}</text>`;
       }).join("")}
     </svg>
   `;
@@ -1148,36 +1176,61 @@ function meaningfulSwellHeight(value) {
 }
 
 function swellRows(features) {
+  const primaryHeight = finiteNumber(
+    features.ml_p1_height_ft
+    ?? features.primary_swell_height_max_ft
+    ?? features.swell_wave_height_max_ft,
+  );
+  const primaryPeriod = finiteNumber(
+    features.ml_p1_period_s
+    ?? features.primary_swell_period_max_s
+    ?? features.swell_wave_period_max_s,
+  );
+  const primaryDeg = finiteNumber(
+    features.ml_p1_direction_deg
+    ?? features.swell_wave_direction_deg,
+  );
   const rows = [
     {
       label: "Primary",
-      height: features.swell_wave_height_max_ft,
-      period: features.swell_wave_period_max_s,
-      directionLabel: features.swell_direction_label,
-      directionDeg: features.swell_wave_direction_deg,
+      height: primaryHeight,
+      period: primaryPeriod,
+      directionLabel: features.swell_direction_label || directionFromDegrees(primaryDeg),
+      directionDeg: primaryDeg,
       color: swellDirectionColor(0),
     },
   ];
-  const secondaryDir = finiteNumber(features.secondary_swell_direction_deg);
-  const secondaryHeight = finiteNumber(features.secondary_swell_height_ft);
-  const windWaveDir = finiteNumber(features.wind_wave_direction_deg ?? features.wind_direction_deg);
-  const windWaveHeight = finiteNumber(features.wind_wave_height_max_ft);
-  if (secondaryDir != null || secondaryHeight != null) {
+
+  const secondaryHeight = finiteNumber(features.ml_p2_height_ft ?? features.secondary_swell_height_ft);
+  const secondaryPeriod = finiteNumber(features.ml_p2_period_s ?? features.secondary_swell_period_s);
+  const secondaryDeg = finiteNumber(features.ml_p2_direction_deg ?? features.secondary_swell_direction_deg);
+  const secondaryIsClone = primaryDeg != null
+    && secondaryDeg != null
+    && angularDistanceDeg(primaryDeg, secondaryDeg) <= 12;
+  if (secondaryDeg != null && !secondaryIsClone && (secondaryHeight == null || secondaryHeight >= 0.25)) {
     rows.push({
       label: "Secondary",
       height: secondaryHeight,
-      period: features.secondary_swell_period_s,
-      directionLabel: features.secondary_swell_direction_label || directionFromDegrees(secondaryDir),
-      directionDeg: secondaryDir,
+      period: secondaryPeriod,
+      directionLabel: features.secondary_swell_direction_label || directionFromDegrees(secondaryDeg),
+      directionDeg: secondaryDeg,
       color: swellDirectionColor(1),
     });
-  } else if (windWaveDir != null || windWaveHeight != null) {
+    return rows;
+  }
+
+  const windWaveHeight = meaningfulSwellHeight(features.wind_wave_height_max_ft);
+  const windWaveDeg = finiteNumber(features.wind_wave_direction_deg);
+  const windIsClone = primaryDeg != null
+    && windWaveDeg != null
+    && angularDistanceDeg(primaryDeg, windWaveDeg) <= 12;
+  if (windWaveHeight != null && windWaveDeg != null && !windIsClone) {
     rows.push({
       label: "Secondary",
       height: windWaveHeight,
       period: features.wind_wave_period_max_s,
-      directionLabel: features.secondary_swell_direction_label || directionFromDegrees(windWaveDir),
-      directionDeg: windWaveDir,
+      directionLabel: directionFromDegrees(windWaveDeg),
+      directionDeg: windWaveDeg,
       color: swellDirectionColor(1),
     });
   }

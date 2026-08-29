@@ -1966,12 +1966,12 @@ h2::before {
 }
 
 .chart-grid article {
-  padding: 16px 0 0;
+  padding: 16px 18px 14px;
 }
 
 .chart-grid article > h2,
 .chart-grid article > .section-heading {
-  padding: 0 18px;
+  padding: 0;
 }
 
 .chart-grid article > .section-heading {
@@ -1983,7 +1983,7 @@ h2::before {
 }
 
 .chart-grid .tide-meta {
-  padding: 0 18px 8px;
+  padding: 0 0 8px;
 }
 
 .chart {
@@ -1991,9 +1991,8 @@ h2::before {
   display: block;
   height: auto;
   min-height: 0;
-  padding: 8px 14px 12px;
+  padding: 4px 0 0;
   border: 0;
-  border-top: 1px solid var(--line);
   border-radius: 0;
   background: var(--surface);
   overflow: hidden;
@@ -2005,26 +2004,28 @@ h2::before {
   width: 100%;
   max-width: none;
   height: auto;
-  aspect-ratio: 720 / 250;
+  aspect-ratio: 720 / 280;
+}
+
+.chart-plot-fill {
+  fill: #f8fafc;
 }
 
 .chart-axis,
 .axis {
   fill: none;
-  stroke: rgba(10, 10, 10, 0.26);
-  stroke-width: 1.2;
-  vector-effect: non-scaling-stroke;
+  stroke: rgba(10, 10, 10, 0.2);
+  stroke-width: 1;
 }
 
 .chart-gridline,
 .chart-x-grid {
-  stroke: rgba(10, 10, 10, 0.12);
+  stroke: rgba(15, 23, 42, 0.08);
   stroke-width: 1;
-  vector-effect: non-scaling-stroke;
 }
 
 .chart-x-grid.is-soft {
-  stroke: rgba(10, 10, 10, 0.06);
+  stroke: rgba(15, 23, 42, 0.04);
 }
 
 .chart-y-label,
@@ -2050,17 +2051,16 @@ h2::before {
 
 .tide-line {
   fill: none;
-  stroke: var(--primary);
-  stroke-width: 5;
+  stroke: #ee13ba;
+  stroke-width: 2.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
 }
 
 .tide-point {
-  fill: var(--teal);
+  fill: #ee13ba;
   stroke: var(--surface);
-  stroke-width: 1.5;
+  stroke-width: 1.2;
 }
 
 .bars {
@@ -5087,8 +5087,12 @@ ul {
     max-width: none;
   }
 
+  .chart-grid article {
+    padding: 12px 10px 10px;
+  }
+
   .chart {
-    padding: 4px 8px 10px;
+    padding: 2px 0 0;
   }
 
   .chart svg {
