@@ -745,11 +745,11 @@ function updateSpotChrome(spot) {
     }
   }
   if (isMontereySpot(spot)) {
-    document.title = `DiveProSD | ${spot.name} dive visibility (beta)`;
+    document.title = `DiveProCA | ${spot.name} dive visibility (beta)`;
   } else {
     document.title = spot.hasModelForecast
-      ? "DiveProSD | La Jolla Dive Visibility Forecast"
-      : `DiveProSD | ${spot.menuName || spot.name} location preview`;
+      ? "DiveProCA | La Jolla Dive Visibility Forecast"
+      : `DiveProCA | ${spot.menuName || spot.name} location preview`;
   }
 }
 
