@@ -43,7 +43,7 @@
     if (document.querySelector('link[data-divepro-ocean-layers]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "ocean-layers.css?v=pages-20260831landward2";
+    link.href = "ocean-layers.css?v=pages-20260831westofn1";
     link.setAttribute("data-divepro-ocean-layers", "1");
     document.head.appendChild(link);
   }
@@ -75,13 +75,28 @@
     return Number.isFinite(number) ? number : null;
   }
 
-  /* Meteorological coming-from → going-to u (east) / v (north), same as wind particles. */
+  function currentSwellSpot() {
+    return typeof window.spotFromSlug === "function"
+      ? window.spotFromSlug(document.body.dataset.spot)
+      : { slug: document.body.dataset.spot };
+  }
+
+  function clampedTravelDeg(comingFrom) {
+    const source = Number(comingFrom);
+    if (!Number.isFinite(source)) return null;
+    if (typeof window.swellTravelBearingForSpot === "function") {
+      return window.swellTravelBearingForSpot(source, currentSwellSpot());
+    }
+    return (source + 180) % 360;
+  }
+
+  /* Coming-from → drawn going-to UV. Uses the same west-of-north clamp as the rose. */
   function uvFromComingFrom(speed, directionDeg) {
     const magnitude = Number(speed);
-    const direction = Number(directionDeg);
-    if (!Number.isFinite(magnitude) || !Number.isFinite(direction)) return { u: null, v: null };
-    const radians = (direction * Math.PI) / 180;
-    return { u: -magnitude * Math.sin(radians), v: -magnitude * Math.cos(radians) };
+    const travel = clampedTravelDeg(directionDeg);
+    if (!Number.isFinite(magnitude) || !Number.isFinite(travel)) return { u: null, v: null };
+    const radians = (travel * Math.PI) / 180;
+    return { u: magnitude * Math.sin(radians), v: magnitude * Math.cos(radians) };
   }
 
   function readHourlyTrain(hourly, timeIndex, prefixes) {
@@ -698,8 +713,7 @@
   /* Open-Meteo headings are meteorological coming-from. Probe text uses that
      (SW swell = from the southwest). Arrows / particles use going-to. */
   function goingToDegrees(comingFrom) {
-    const degrees = Number(comingFrom);
-    return Number.isFinite(degrees) ? (degrees + 180) % 360 : null;
+    return clampedTravelDeg(comingFrom);
   }
 
   /* Place the swell rose fully over water: skip land from the seed (pin or
@@ -1128,17 +1142,9 @@
     function drawCompassArrow(ctx, cx, cy, comingFrom, color, length, strokeWidth, headSize, hubGap) {
       const source = Number(comingFrom);
       if (!Number.isFinite(source)) return;
-      const spot = typeof window.spotFromSlug === "function"
-        ? window.spotFromSlug(document.body.dataset.spot)
-        : { slug: document.body.dataset.spot };
-      const landBearing = typeof window.swellLandBearingForSpot === "function"
-        ? window.swellLandBearingForSpot(spot)
-        : 70;
-      const travel = typeof window.swellTravelBearingTowardLand === "function"
-        ? window.swellTravelBearingTowardLand(source, landBearing)
-        : (source + 180) % 360;
-      // Same 17ff5d44 shaft: argument is coming-from, tip is opposite (travel).
-      // Feed the coming-from that belongs to landward travel so the head aims landward.
+      const travel = clampedTravelDeg(source);
+      if (!Number.isFinite(travel)) return;
+      // Shaft: tip aims at clamped travel (west of north on west-coast spots).
       const heading = (Number(travel) + 180) % 360;
       const rad = ((heading - 90) * Math.PI) / 180;
       const fromX = Math.cos(rad);

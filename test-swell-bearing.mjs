@@ -1,11 +1,9 @@
 import {
   swellSourceBearingToTravelBearing,
-  swellTravelBearingTowardLand,
+  swellTravelBearingWestOfNorth,
+  swellTravelBearingForSpot,
   swellTravelBearingToArrowRotateDeg,
-  swellLandBearingForSpot,
-  SCRIPPS_SHORE_NORMAL_DEG,
-  ANACAPA_LAND_BEARING_DEG,
-  angularDistanceDeg,
+  isTravelWestOfNorth,
   defaultSwellArrowSpec,
   swellArrowWorldGeometry,
   swellArrowCollision,
@@ -37,63 +35,48 @@ for (const [source, expected] of travelCases) {
   assert(got === expected, `travel ${source} → ${got}, expected ${expected}`);
 }
 
-assert(SCRIPPS_SHORE_NORMAL_DEG === 70, `Scripps shore normal ${SCRIPPS_SHORE_NORMAL_DEG}, expected 70`);
-assert(swellLandBearingForSpot({ slug: "la-jolla" }) === 70, "La Jolla land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey" }) === 70, "Monterey land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-mcabee" }) === 70, "McAbee land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-lovers" }) === 70, "Lovers land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-lobos" }) === 70, "Lobos land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-monastery" }) === 70, "Monastery land bearing");
-assert(swellLandBearingForSpot({ slug: "catalina-wrigley" }) === 70, "Catalina land bearing");
-assert(swellLandBearingForSpot({ slug: "anacapa-ocean" }) === ANACAPA_LAND_BEARING_DEG, "Anacapa land bearing");
+const scripps = { slug: "la-jolla" };
+assert(swellTravelBearingWestOfNorth(202) === 338, `202° → ${swellTravelBearingWestOfNorth(202)}, expected 338`);
+assert(swellTravelBearingWestOfNorth(170) === 350, `170° → ${swellTravelBearingWestOfNorth(170)}, expected 350`);
+assert(swellTravelBearingWestOfNorth(270) === 270, `270° W → ${swellTravelBearingWestOfNorth(270)}, expected 270 (not 90 E)`);
+assert(swellTravelBearingForSpot(202, scripps) === 338, "La Jolla 202 uses west-of-north");
+assert(swellTravelBearingForSpot(170, scripps) === 350, "La Jolla 170 stays 350");
+assert(swellTravelBearingForSpot(270, { slug: "monterey" }) === 270, "Monterey W swell is not due east");
+assert(swellTravelBearingForSpot(270, { slug: "catalina-wrigley" }) === 270, "Catalina W swell is not due east");
+assert(isTravelWestOfNorth(338), "338 is west of north");
+assert(isTravelWestOfNorth(350), "350 is west of north");
+assert(!isTravelWestOfNorth(22), "22 NNE is east of north");
+assert(!isTravelWestOfNorth(90), "90 E is east of north");
 
-const landwardTravelCases = [
-  // Keep Open-Meteo source; only the travel used for the arrow may flip.
-  [203, 70, 23],
-  [170, 70, 350],
-  [270, 70, 90],
-  [90, 70, 90],
-  [225, 45, 45],
-  [45, 45, 45],
-];
-for (const [source, land, expectedTravel] of landwardTravelCases) {
-  const got = swellTravelBearingTowardLand(source, land);
-  assert(got === expectedTravel, `landward travel ${source} toward ${land} → ${got}, expected ${expectedTravel}`);
-  assert(angularDistanceDeg(got, land) <= 90, `arrow travel ${got} is not landward of ${land}`);
-}
-
-// Printed label stays the Open-Meteo coming-from value even when the arrow flips.
-const easterly = swellArrowWorldGeometry({
+const geo202 = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
-  sourceBearing: 90,
-  landBearing: 70,
+  sourceBearing: 202,
+  spot: scripps,
 });
-assert(easterly.sourceBearing === 90, `easterly label flipped to ${easterly.sourceBearing}`);
-assert(easterly.travelBearing === 90, `easterly arrow travel ${easterly.travelBearing}, expected 90`);
+assert(geo202.sourceBearing === 202, `202° label flipped to ${geo202.sourceBearing}`);
+assert(geo202.travelBearing === 338, `202° drawn travel ${geo202.travelBearing}, expected 338`);
 
-const ssw = swellArrowWorldGeometry({
+const geo170 = swellArrowWorldGeometry({
+  ...defaultSwellArrowSpec("secondary"),
+  sourceBearing: 170,
+  spot: scripps,
+});
+assert(geo170.sourceBearing === 170, `170° label flipped to ${geo170.sourceBearing}`);
+assert(geo170.travelBearing === 350, `170° drawn travel ${geo170.travelBearing}, expected 350`);
+
+const geoW = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
-  sourceBearing: 203,
-  landBearing: 70,
+  sourceBearing: 270,
+  spot: scripps,
 });
-assert(ssw.sourceBearing === 203, `SSW label flipped to ${ssw.sourceBearing}`);
-assert(ssw.travelBearing === 23, `SSW arrow travel ${ssw.travelBearing}`);
+assert(geoW.sourceBearing === 270, `W swell label flipped to ${geoW.sourceBearing}`);
+assert(geoW.travelBearing === 270, `W swell drew ${geoW.travelBearing}, must not be 90 E`);
+assert(isTravelWestOfNorth(geoW.travelBearing), "W swell head must sit west of north");
 
-// Nearby alongshore trains must stay nearby. Crude due-east (90°) splits them 147°.
-const alongA = swellTravelBearingTowardLand(170, 90);
-const alongB = swellTravelBearingTowardLand(203, 90);
-assert(alongA === 170 && alongB === 23, `due-east fixture drifted (${alongA}, ${alongB})`);
-assert(
-  Math.round(angularDistanceDeg(alongA, alongB)) === 147,
-  `due-east split ${angularDistanceDeg(alongA, alongB)}, expected 147`,
-);
-const scrippsA = swellTravelBearingTowardLand(170, 70);
-const scrippsB = swellTravelBearingTowardLand(203, 70);
-assert(scrippsA === 350 && scrippsB === 23, `Scripps 70° travels drifted (${scrippsA}, ${scrippsB})`);
-assert(
-  angularDistanceDeg(scrippsA, scrippsB) < 50,
-  `Scripps 70° alongshore split ${angularDistanceDeg(scrippsA, scrippsB)}`,
-);
+const anacapaNe = swellTravelBearingForSpot(225, { slug: "anacapa-ocean" });
+assert(anacapaNe === 45, `Anacapa 225 coming-from should stay 45° NNE toward the island, got ${anacapaNe}`);
+const anacapaEast = swellTravelBearingForSpot(270, { slug: "anacapa-ocean" });
+assert(anacapaEast !== 90, "Anacapa must not draw due east into the Channel");
 
 // East-pointing shaft: travel north (0) must rotate to CSS 270° (up).
 const rotateCases = [
@@ -198,4 +181,4 @@ if (failed) {
   console.error(`FAIL ${failed} assertion(s)`);
   process.exit(1);
 }
-console.log(`ok ${travelCases.length} travel + ${landwardTravelCases.length} landward-travel + ${rotateCases.length} rotate + separation`);
+console.log(`ok ${travelCases.length} travel + west-of-north 202/170/270 + ${rotateCases.length} rotate + separation`);
