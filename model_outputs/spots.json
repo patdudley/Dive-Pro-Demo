@@ -33,6 +33,31 @@
     "thumb": "assets/pier-screenshot.png"
   },
   {
+    "slug": "monterey",
+    "name": "Monterey",
+    "menu_name": "Monterey",
+    "location": "Monterey Bay",
+    "region": "California",
+    "lat": 36.6011,
+    "lon": -121.8946,
+    "timezone": "America/Los_Angeles",
+    "tide_label": "NOAA Monterey 9413450",
+    "description": "Monterey Bay dive visibility beta \u2014 Breakwater / McAbee / Lovers. Not validated for public accuracy claims.",
+    "url": "monterey.html",
+    "grade": "B",
+    "score": 75,
+    "visibility": [16, 32],
+    "is_unavailable": false,
+    "is_beta": true,
+    "cams": [
+      {
+        "title": "Live camera",
+        "url": "https://www.portolahotel.com/our-hotel/webcam",
+        "embed": null
+      }
+    ]
+  },
+  {
     "slug": "catalina-wrigley",
     "name": "Wrigley Reserve",
     "menu_name": "Catalina",
