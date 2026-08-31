@@ -28,7 +28,7 @@ const fallback = {
   },
 };
 
-const PUBLISHED_LA_JOLLA_ORIGIN = "https://diveprosd.com";
+const PUBLISHED_LA_JOLLA_ORIGIN = "https://diveproca.com";
 
 async function fetchJson(path) {
   const absolute = /^https?:/i.test(path);
@@ -1013,7 +1013,7 @@ async function fetchPublishedLaJolla() {
       latest: latest || localLatest,
       tenDay: Array.isArray(tenDay) && tenDay.length ? tenDay : localTen,
       history: Array.isArray(history) && history.length ? history : localHistory,
-      source: "diveprosd.com",
+      source: "diveproca.com",
     };
   } catch {
     if (!localLatest) throw new Error("La Jolla forecast unavailable");
