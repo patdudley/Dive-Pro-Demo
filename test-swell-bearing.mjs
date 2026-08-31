@@ -4,6 +4,7 @@ import {
   swellTravelBearingForSpot,
   swellTravelBearingToArrowRotateDeg,
   isTravelWestOfNorth,
+  isForbiddenWestCoastShaft,
   defaultSwellArrowSpec,
   swellArrowWorldGeometry,
   swellArrowCollision,
@@ -38,15 +39,20 @@ for (const [source, expected] of travelCases) {
 const scripps = { slug: "la-jolla" };
 assert(swellTravelBearingWestOfNorth(202) === 338, `202° → ${swellTravelBearingWestOfNorth(202)}, expected 338`);
 assert(swellTravelBearingWestOfNorth(170) === 350, `170° → ${swellTravelBearingWestOfNorth(170)}, expected 350`);
-assert(swellTravelBearingWestOfNorth(270) === 270, `270° W → ${swellTravelBearingWestOfNorth(270)}, expected 270 (not 90 E)`);
+assert(swellTravelBearingWestOfNorth(180) === 350, `180° S → ${swellTravelBearingWestOfNorth(180)}, expected 350 (not 0 N, not 180 S)`);
+assert(swellTravelBearingWestOfNorth(270) === 350, `270° W → ${swellTravelBearingWestOfNorth(270)}, expected 350 (not 90 E)`);
 assert(swellTravelBearingForSpot(202, scripps) === 338, "La Jolla 202 uses west-of-north");
 assert(swellTravelBearingForSpot(170, scripps) === 350, "La Jolla 170 stays 350");
-assert(swellTravelBearingForSpot(270, { slug: "monterey" }) === 270, "Monterey W swell is not due east");
-assert(swellTravelBearingForSpot(270, { slug: "catalina-wrigley" }) === 270, "Catalina W swell is not due east");
+assert(swellTravelBearingForSpot(180, scripps) === 350, "La Jolla south swell draws 350, not south");
+assert(swellTravelBearingForSpot(270, { slug: "monterey" }) === 350, "Monterey W swell is not due east");
+assert(swellTravelBearingForSpot(270, { slug: "catalina-wrigley" }) === 350, "Catalina W swell is not due east");
 assert(isTravelWestOfNorth(338), "338 is west of north");
 assert(isTravelWestOfNorth(350), "350 is west of north");
+assert(!isTravelWestOfNorth(0), "exact N is not preferred west-of-north");
 assert(!isTravelWestOfNorth(22), "22 NNE is east of north");
 assert(!isTravelWestOfNorth(90), "90 E is east of north");
+assert(!isTravelWestOfNorth(180), "180 S is forbidden");
+assert(!isTravelWestOfNorth(170), "170 S is a forbidden shaft heading");
 
 const geo202 = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
@@ -70,13 +76,25 @@ const geoW = swellArrowWorldGeometry({
   spot: scripps,
 });
 assert(geoW.sourceBearing === 270, `W swell label flipped to ${geoW.sourceBearing}`);
-assert(geoW.travelBearing === 270, `W swell drew ${geoW.travelBearing}, must not be 90 E`);
+assert(geoW.travelBearing === 350, `W swell drew ${geoW.travelBearing}, must not be 90 E`);
 assert(isTravelWestOfNorth(geoW.travelBearing), "W swell head must sit west of north");
 
-const anacapaNe = swellTravelBearingForSpot(225, { slug: "anacapa-ocean" });
-assert(anacapaNe === 45, `Anacapa 225 coming-from should stay 45° NNE toward the island, got ${anacapaNe}`);
+const southGeo = swellArrowWorldGeometry({
+  ...defaultSwellArrowSpec("secondary"),
+  sourceBearing: 180,
+  spot: scripps,
+});
+assert(southGeo.sourceBearing === 180, `180° label flipped to ${southGeo.sourceBearing}`);
+assert(southGeo.travelBearing === 350, `180° S drew ${southGeo.travelBearing}, expected 350 NNW`);
+
+for (const heading of [geo202.travelBearing, geo170.travelBearing, geoW.travelBearing, southGeo.travelBearing]) {
+  assert(!isForbiddenWestCoastShaft(heading), `forbidden shaft heading ${heading}`);
+  assert(heading > 270 && heading <= 360, `shaft ${heading} is not west of north`);
+}
+
 const anacapaEast = swellTravelBearingForSpot(270, { slug: "anacapa-ocean" });
-assert(anacapaEast !== 90, "Anacapa must not draw due east into the Channel");
+assert(anacapaEast !== 90 && anacapaEast !== 45, "Anacapa must not draw east into the Channel");
+assert(anacapaEast > 270 && anacapaEast <= 360, `Anacapa east-origin drew ${anacapaEast}`);
 
 // East-pointing shaft: travel north (0) must rotate to CSS 270° (up).
 const rotateCases = [

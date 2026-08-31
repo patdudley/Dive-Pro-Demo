@@ -13,12 +13,13 @@ export function angularDistanceDeg(a, b) {
 
 /**
  * West-coast CA (ocean west, land east): arrow heads stay west of true north
- * (NW–N), never NNE/NE/E. Label / coming-from is not changed here.
+ * (NW–NNW), never NE/E and never south into the ocean.
  *
  * travel = comingFrom + 180
  * if travel in (0, 90] (east of north): mirror across north → 360 - travel
  * if travel in (90, 270) (south / open ocean): fold to the northern half,
  *   then mirror again if that landed in the NE.
+ * if travel is exact 0° N: nudge to 350° NNW so it cannot read as northeast.
  */
 export function swellTravelBearingWestOfNorth(sourceBearing) {
   let travel = swellSourceBearingToTravelBearing(normalizeBearingDeg(sourceBearing));
@@ -31,35 +32,37 @@ export function swellTravelBearingWestOfNorth(sourceBearing) {
       travel = (360 - travel) % 360;
     }
   }
+  if (!(travel > 270 && travel <= 360)) return 350;
   return travel;
 }
 
 /**
- * Anacapa Ocean: island / mainland is north–NE. Keep a northward shoreward
- * heading. Do not send an east-going shaft into the open Channel.
- * N–NNE toward the island is allowed; due east is not.
+ * Anacapa is not a west-facing mainland beach. Still never invent an
+ * east-going or due-south shaft into the Channel.
  */
 export function swellTravelBearingAnacapa(sourceBearing) {
-  const travel = swellSourceBearingToTravelBearing(normalizeBearingDeg(sourceBearing));
-  if (travel >= 0 && travel <= 45) return travel;
   return swellTravelBearingWestOfNorth(sourceBearing);
 }
 
-export function swellSpotUsesWestOfNorthClamp(spot) {
-  return String(spot?.slug || "") !== "anacapa-ocean";
+export function swellSpotUsesWestOfNorthClamp() {
+  return true;
 }
 
 /** Drawn travel heading for a CA spot. Does not change the printed coming-from. */
-export function swellTravelBearingForSpot(sourceBearing, spot) {
-  if (String(spot?.slug || "") === "anacapa-ocean") {
-    return swellTravelBearingAnacapa(sourceBearing);
-  }
+export function swellTravelBearingForSpot(sourceBearing) {
   return swellTravelBearingWestOfNorth(sourceBearing);
 }
 
 export function isTravelWestOfNorth(deg) {
   const t = normalizeBearingDeg(deg);
-  return t === 0 || (t >= 270 && t <= 360);
+  return t > 270 && t <= 360;
+}
+
+export function isForbiddenWestCoastShaft(deg) {
+  const t = normalizeBearingDeg(deg);
+  if (t > 0 && t <= 90) return true;
+  if (t >= 90 && t <= 270) return true;
+  return false;
 }
 
 /**
