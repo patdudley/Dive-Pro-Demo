@@ -43,7 +43,7 @@
     if (document.querySelector('link[data-divepro-ocean-layers]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "ocean-layers.css?v=pages-20260831westofn1";
+    link.href = "ocean-layers.css?v=pages-20260831headflip1";
     link.setAttribute("data-divepro-ocean-layers", "1");
     document.head.appendChild(link);
   }
@@ -1144,15 +1144,18 @@
       if (!Number.isFinite(source)) return;
       const travel = clampedTravelDeg(source);
       if (!Number.isFinite(travel)) return;
-      // Shaft: tip aims at clamped travel (west of north on west-coast spots).
-      const heading = (Number(travel) + 180) % 360;
-      const rad = ((heading - 90) * Math.PI) / 180;
-      const fromX = Math.cos(rad);
-      const fromY = Math.sin(rad);
-      const tailX = cx + fromX * length;
-      const tailY = cy + fromY * length;
-      const tipX = cx - fromX * hubGap;
-      const tipY = cy - fromY * hubGap;
+      // Tip aims at clamped travel. Do not add 180° here — that used to
+      // reverse the shaft relative to the HTML rose.
+      const unit = typeof window.swellTravelUnitCanvas === "function"
+        ? window.swellTravelUnitCanvas(travel)
+        : (() => {
+          const rad = ((Number(travel) - 90) * Math.PI) / 180;
+          return { x: Math.cos(rad), y: Math.sin(rad) };
+        })();
+      const tailX = cx - unit.x * length;
+      const tailY = cy - unit.y * length;
+      const tipX = cx + unit.x * hubGap;
+      const tipY = cy + unit.y * hubGap;
       const travelX = tipX - tailX;
       const travelY = tipY - tailY;
       const mag = Math.hypot(travelX, travelY) || 1;

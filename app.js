@@ -4,14 +4,16 @@ import {
   swellTravelBearingForSpot,
   swellTravelBearingWestOfNorth,
   swellTravelBearingToArrowRotateDeg,
+  swellTravelUnitCanvas,
   defaultSwellArrowSpec,
   separateSwellArrowPair,
-} from "./swell-bearing.js?v=pages-20260831westofn1";
+} from "./swell-bearing.js?v=pages-20260831headflip1";
 
 window.swellSourceBearingToTravelBearing = swellSourceBearingToTravelBearing;
 window.swellTravelBearingForSpot = swellTravelBearingForSpot;
 window.swellTravelBearingWestOfNorth = swellTravelBearingWestOfNorth;
 window.swellTravelBearingToArrowRotateDeg = swellTravelBearingToArrowRotateDeg;
+window.swellTravelUnitCanvas = swellTravelUnitCanvas;
 
 const DISPLAY_HS_TO_CHAR = 0.625; // 1 / 1.6, display-only Hs to characteristic height.
 const DISPLAY_WAVE_MODERATE_FT = 2 * DISPLAY_HS_TO_CHAR;
@@ -2405,12 +2407,12 @@ function swellArrowMarkup({
   const cx = 117.5;
   const cy = 117.5;
   // Printed label stays the Open-Meteo coming-from value (data-source).
-  // Shaft uses west-of-north travel (or Anacapa shoreward). Never NE/E.
+  // Primary and secondary both use the same clamped travel (NW–NNW). Never
+  // mix travel-away for one shaft and coming-from for the other.
   const travelBearing = swellTravelBearingForSpot(sourceBearing, spot || currentSpot());
   const rotateDeg = swellTravelBearingToArrowRotateDeg(travelBearing);
   // Local shaft points east (+X). rotate(travel+270) aims the head at travel.
-  // Tail stays on the coming-from side; head sits fully on the travel side of
-  // the hub so a south swell does not read as "pointing at S".
+  // No extra 180° — that would send 193° to NNE and 278° west offshore.
   const headBaseR = Number.isFinite(hubGap) ? hubGap : 14;
   const destR = headBaseR + headSize;
   const y = cy + Number(offsetPx || 0);

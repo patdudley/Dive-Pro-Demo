@@ -2133,13 +2133,13 @@
     if (!document.querySelector('link[data-divepro-ocean-layers]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "ocean-layers.css?v=pages-20260831westofn1";
+      link.href = "ocean-layers.css?v=pages-20260831headflip1";
       link.setAttribute("data-divepro-ocean-layers", "1");
       document.head.appendChild(link);
     }
     if (window.__diveProOceanLayersLoaded || document.querySelector("script[data-divepro-ocean-layers]")) return;
     const script = document.createElement("script");
-    script.src = "ocean-layers.js?v=pages-20260831westofn1";
+    script.src = "ocean-layers.js?v=pages-20260831headflip1";
     script.setAttribute("data-divepro-ocean-layers", "1");
     document.head.appendChild(script);
   }

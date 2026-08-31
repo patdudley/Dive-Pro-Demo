@@ -11,15 +11,23 @@ export function angularDistanceDeg(a, b) {
   return Math.abs(((Number(a) - Number(b) + 540) % 360) - 180);
 }
 
+/** Inclusive NW. West of this (W / WNW) is out to sea on a west-coast beach. */
+export const SWELL_NW_NNW_MIN_DEG = 315;
+/** Shoreward NNW when the clamped shaft would be N, E, S, or west-offshore. */
+export const SWELL_NNW_FALLBACK_DEG = 350;
+
 /**
- * West-coast CA (ocean west, land east): arrow heads stay west of true north
- * (NW–NNW), never NE/E and never south into the ocean.
+ * West-coast CA (ocean west, land east): drawn heads sit in NW–NNW only.
+ * Printed coming-from labels are not changed.
  *
  * travel = comingFrom + 180
- * if travel in (0, 90] (east of north): mirror across north → 360 - travel
+ * if travel in (0, 90] (east of north / NE): mirror across north → 360 - travel
+ *   so 193° SSW (true travel 13° NNE) draws at 347° NNW.
  * if travel in (90, 270) (south / open ocean): fold to the northern half,
  *   then mirror again if that landed in the NE.
- * if travel is exact 0° N: nudge to 350° NNW so it cannot read as northeast.
+ * if the result is not NW–NNW (including due west / WNW offshore, due N, and
+ *   anything east or south): fold to 350° NNW. A 278° W coming-from must not
+ *   aim west out to sea and must not aim east at the beach.
  */
 export function swellTravelBearingWestOfNorth(sourceBearing) {
   let travel = swellSourceBearingToTravelBearing(normalizeBearingDeg(sourceBearing));
@@ -32,7 +40,7 @@ export function swellTravelBearingWestOfNorth(sourceBearing) {
       travel = (360 - travel) % 360;
     }
   }
-  if (!(travel > 270 && travel <= 360)) return 350;
+  if (!isTravelWestOfNorth(travel)) return SWELL_NNW_FALLBACK_DEG;
   return travel;
 }
 
@@ -55,23 +63,35 @@ export function swellTravelBearingForSpot(sourceBearing) {
 
 export function isTravelWestOfNorth(deg) {
   const t = normalizeBearingDeg(deg);
-  return t > 270 && t <= 360;
+  return t >= SWELL_NW_NNW_MIN_DEG && t < 360;
 }
 
 export function isForbiddenWestCoastShaft(deg) {
-  const t = normalizeBearingDeg(deg);
-  if (t > 0 && t <= 90) return true;
-  if (t >= 90 && t <= 270) return true;
-  return false;
+  return !isTravelWestOfNorth(deg);
 }
 
 /**
  * CSS/SVG rotate for an east-pointing shaft (local +X / 0°).
  * Compass 0° is north, clockwise; compensate exactly once with +270.
- * Do not add another 180° here — travel already did that.
+ * Do not add another 180° here — the tip already aims at clamped travel.
  */
 export function swellTravelBearingToArrowRotateDeg(travelBearing) {
   return (Number(travelBearing) + 270) % 360;
+}
+
+/**
+ * Unit vector toward `travelDeg` in canvas / SVG space (+X east, +Y down,
+ * 0° = north). Tip = center + unit * hubGap; tail = center - unit * length.
+ * Never add 180° to travel before calling this.
+ */
+export function swellTravelUnitCanvas(travelDeg) {
+  const rad = ((normalizeBearingDeg(travelDeg) - 90) * Math.PI) / 180;
+  return { x: Math.cos(rad), y: Math.sin(rad) };
+}
+
+/** Compass heading of a rose tip (0° north, clockwise) from rose-center. */
+export function swellDrawnHeadBearingFromTip(tip, cx = SWELL_ROSE_CX, cy = SWELL_ROSE_CY) {
+  return normalizeBearingDeg(Math.atan2(tip.x - cx, -(tip.y - cy)) * 180 / Math.PI);
 }
 
 export const SWELL_ROSE_CX = 117.5;

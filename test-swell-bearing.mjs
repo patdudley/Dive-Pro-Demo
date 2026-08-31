@@ -3,6 +3,8 @@ import {
   swellTravelBearingWestOfNorth,
   swellTravelBearingForSpot,
   swellTravelBearingToArrowRotateDeg,
+  swellTravelUnitCanvas,
+  swellDrawnHeadBearingFromTip,
   isTravelWestOfNorth,
   isForbiddenWestCoastShaft,
   defaultSwellArrowSpec,
@@ -11,6 +13,7 @@ import {
   separateSwellArrowPair,
   SWELL_MIN_HEAD_CENTER_GAP,
   SWELL_OUTLINE_GAP,
+  SWELL_NNW_FALLBACK_DEG,
 } from "./swell-bearing.js";
 
 const travelCases = [
@@ -36,23 +39,46 @@ for (const [source, expected] of travelCases) {
   assert(got === expected, `travel ${source} → ${got}, expected ${expected}`);
 }
 
+function assertNear(got, expected, message, tol = 0.51) {
+  const delta = Math.abs(((Number(got) - Number(expected) + 540) % 360) - 180);
+  assert(delta <= tol, message);
+}
+
+function canvasTipHeading(travel) {
+  const { x: ux, y: uy } = swellTravelUnitCanvas(travel);
+  return ((Math.atan2(ux, -uy) * 180) / Math.PI + 360) % 360;
+}
+
 const scripps = { slug: "la-jolla" };
 assert(swellTravelBearingWestOfNorth(202) === 338, `202° → ${swellTravelBearingWestOfNorth(202)}, expected 338`);
 assert(swellTravelBearingWestOfNorth(170) === 350, `170° → ${swellTravelBearingWestOfNorth(170)}, expected 350`);
 assert(swellTravelBearingWestOfNorth(180) === 350, `180° S → ${swellTravelBearingWestOfNorth(180)}, expected 350 (not 0 N, not 180 S)`);
 assert(swellTravelBearingWestOfNorth(270) === 350, `270° W → ${swellTravelBearingWestOfNorth(270)}, expected 350 (not 90 E)`);
+assert(swellTravelBearingWestOfNorth(193) === 347, `193° SSW → ${swellTravelBearingWestOfNorth(193)}, expected 347 NNW (not 13 NNE)`);
+assert(swellTravelBearingWestOfNorth(278) === 350, `278° W → ${swellTravelBearingWestOfNorth(278)}, expected 350 NNW (not 278 west offshore, not 90 E)`);
 assert(swellTravelBearingForSpot(202, scripps) === 338, "La Jolla 202 uses west-of-north");
 assert(swellTravelBearingForSpot(170, scripps) === 350, "La Jolla 170 stays 350");
 assert(swellTravelBearingForSpot(180, scripps) === 350, "La Jolla south swell draws 350, not south");
+assert(swellTravelBearingForSpot(193, scripps) === 347, "La Jolla 193 draws 347, not 13");
+assert(swellTravelBearingForSpot(278, scripps) === 350, "La Jolla 278 draws 350, not west offshore");
 assert(swellTravelBearingForSpot(270, { slug: "monterey" }) === 350, "Monterey W swell is not due east");
 assert(swellTravelBearingForSpot(270, { slug: "catalina-wrigley" }) === 350, "Catalina W swell is not due east");
 assert(isTravelWestOfNorth(338), "338 is west of north");
+assert(isTravelWestOfNorth(347), "347 NNW is west of north");
 assert(isTravelWestOfNorth(350), "350 is west of north");
 assert(!isTravelWestOfNorth(0), "exact N is not preferred west-of-north");
+assert(!isTravelWestOfNorth(13), "13 NNE is east of north");
 assert(!isTravelWestOfNorth(22), "22 NNE is east of north");
 assert(!isTravelWestOfNorth(90), "90 E is east of north");
 assert(!isTravelWestOfNorth(180), "180 S is forbidden");
 assert(!isTravelWestOfNorth(170), "170 S is a forbidden shaft heading");
+assert(!isTravelWestOfNorth(278), "278 W is west-offshore, not NW–NNW");
+assert(isForbiddenWestCoastShaft(13), "13 NNE is a forbidden shaft");
+assert(isForbiddenWestCoastShaft(90), "90 E is a forbidden shaft");
+assert(isForbiddenWestCoastShaft(180), "180 S is a forbidden shaft");
+assert(isForbiddenWestCoastShaft(170), "170 S is a forbidden shaft");
+assert(isForbiddenWestCoastShaft(278), "278 W offshore is a forbidden shaft");
+assert(SWELL_NNW_FALLBACK_DEG === 350, "NNW fallback is 350");
 
 const geo202 = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
@@ -87,9 +113,47 @@ const southGeo = swellArrowWorldGeometry({
 assert(southGeo.sourceBearing === 180, `180° label flipped to ${southGeo.sourceBearing}`);
 assert(southGeo.travelBearing === 350, `180° S drew ${southGeo.travelBearing}, expected 350 NNW`);
 
-for (const heading of [geo202.travelBearing, geo170.travelBearing, geoW.travelBearing, southGeo.travelBearing]) {
+const geo193 = swellArrowWorldGeometry({
+  ...defaultSwellArrowSpec("primary"),
+  sourceBearing: 193,
+  spot: scripps,
+});
+assert(geo193.sourceBearing === 193, `193° label flipped to ${geo193.sourceBearing}`);
+assert(geo193.travelBearing === 347, `193° drawn travel ${geo193.travelBearing}, expected 347`);
+assertNear(
+  swellDrawnHeadBearingFromTip(geo193.tip),
+  347,
+  `193° HTML rose head ${swellDrawnHeadBearingFromTip(geo193.tip)}, expected 347 NNW not 13 NNE`,
+);
+
+const geo278 = swellArrowWorldGeometry({
+  ...defaultSwellArrowSpec("secondary"),
+  sourceBearing: 278,
+  spot: scripps,
+});
+assert(geo278.sourceBearing === 278, `278° label flipped to ${geo278.sourceBearing}`);
+assert(geo278.travelBearing === 350, `278° drawn travel ${geo278.travelBearing}, expected 350`);
+assertNear(
+  swellDrawnHeadBearingFromTip(geo278.tip),
+  350,
+  `278° HTML rose head ${swellDrawnHeadBearingFromTip(geo278.tip)}, expected 350 NNW not 278 W`,
+);
+
+assertNear(canvasTipHeading(347), 347, `canvas tip for 347 aimed at ${canvasTipHeading(347)}`);
+assertNear(canvasTipHeading(350), 350, `canvas tip for 350 aimed at ${canvasTipHeading(350)}`);
+assertNear(canvasTipHeading(swellTravelBearingWestOfNorth(193)), 347, "canvas 193 head is 347, not 13");
+assertNear(canvasTipHeading(swellTravelBearingWestOfNorth(278)), 350, "canvas 278 head is 350, not 278");
+
+for (const heading of [
+  geo202.travelBearing,
+  geo170.travelBearing,
+  geoW.travelBearing,
+  southGeo.travelBearing,
+  geo193.travelBearing,
+  geo278.travelBearing,
+]) {
   assert(!isForbiddenWestCoastShaft(heading), `forbidden shaft heading ${heading}`);
-  assert(heading > 270 && heading <= 360, `shaft ${heading} is not west of north`);
+  assert(isTravelWestOfNorth(heading), `shaft ${heading} is not NW–NNW`);
 }
 
 const anacapaEast = swellTravelBearingForSpot(270, { slug: "anacapa-ocean" });
@@ -199,4 +263,4 @@ if (failed) {
   console.error(`FAIL ${failed} assertion(s)`);
   process.exit(1);
 }
-console.log(`ok ${travelCases.length} travel + west-of-north 202/170/270 + ${rotateCases.length} rotate + separation`);
+console.log(`ok ${travelCases.length} travel + west-of-north 193/278/202/170 + ${rotateCases.length} rotate + separation`);
