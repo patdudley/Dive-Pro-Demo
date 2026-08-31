@@ -1,0 +1,169 @@
+/* Test site only. Grade Guide opens from the letter grade, not a page section. */
+.grade-guide-trigger {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+
+.grade-guide-trigger:focus-visible {
+  outline: 2px solid var(--primary, #13baee);
+  outline-offset: 3px;
+}
+
+.section-heading .grade-guide-trigger--source {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: right;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.grade-guide-trigger--hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 7px 11px;
+  border: 1px solid rgba(19, 186, 238, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--navy, #0a2540);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-align: left;
+  box-shadow: 0 8px 18px rgba(6, 20, 46, 0.08);
+}
+
+.grade-guide-trigger--hero::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent, #7dd8f7), var(--primary, #13baee));
+  box-shadow: 0 0 0 4px rgba(19, 186, 238, 0.13);
+}
+
+.grade-guide-trigger--hero[aria-expanded="true"],
+.grade-guide-trigger--source[aria-expanded="true"] {
+  color: var(--navy, #0a2540);
+}
+
+.grade-guide-letter-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.grade-guide-trigger--letter {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.grade-guide-letter-wrap #grade {
+  display: block;
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid rgba(19, 186, 238, 0.45);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, var(--grade-soft, rgba(19, 186, 238, 0.18)), rgba(125, 216, 247, 0.08));
+  color: var(--grade-color, var(--primary));
+  font-size: clamp(4.2rem, 12vw, 6.8rem);
+  line-height: 0.86;
+  text-align: center;
+}
+
+.grade-guide-letter-wrap #grade.is-unavailable {
+  min-height: 88px;
+  font-size: clamp(2.4rem, 8vw, 3.6rem);
+  line-height: 1;
+  color: rgba(10, 37, 64, 0.55);
+  background: rgba(10, 37, 64, 0.04);
+  border-color: rgba(10, 37, 64, 0.16);
+}
+
+.grade-guide-hint {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.grade-guide-popover {
+  position: fixed;
+  z-index: 80;
+  box-sizing: border-box;
+  min-width: 198px;
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 12px 12px 10px;
+  border: 1px solid rgba(10, 37, 64, 0.14);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(6, 20, 46, 0.18);
+}
+
+.grade-guide-popover-title {
+  margin: 0 0 8px;
+  color: var(--navy, #0a2540);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.grade-guide-popover-table {
+  display: grid;
+  gap: 2px;
+}
+
+.grade-guide-popover-row {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: var(--grade-soft, rgba(19, 186, 238, 0.08));
+}
+
+.grade-guide-popover-row strong {
+  color: var(--grade-color, var(--primary));
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.grade-guide-popover-row span {
+  color: var(--muted, #5b6b7c);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .grade-guide-letter-wrap #grade {
+    min-height: 88px;
+    font-size: clamp(3.2rem, 18vw, 4.8rem);
+  }
+}

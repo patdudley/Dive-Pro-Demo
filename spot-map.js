@@ -1,6 +1,6 @@
 (function () {
   const WIND_MANIFEST_PATH = "data/wind-cropped/wind-san-diego-manifest.json?v=multi-map-timeline-2";
-  const WATER_MASK_PATH = "data/water-mask-san-diego.geojson?v=multi-map-2";
+  const WATER_MASK_PATH = "data/water-mask-san-diego.geojson?v=ca-coast-monterey-1";
   const NOW_FRAME_TOLERANCE_MS = 90 * 60 * 1000;
   const WIND_PARTICLE_COUNT = 360;
   const WIND_COAST_FEATHER_PX = 52;
@@ -39,36 +39,58 @@
     { slug: "anacapa-ocean", label: "Anacapa", detail: "Channel Islands", lngLat: [-119.366, 34.010], href: "anacapa-ocean.html" },
   ];
   const CALIFORNIA_BOUNDS = [
-    [-123.8, 31.2],
-    [-115.4, 38.0],
+    [-129.4, 30.6],
+    [-115.4, 38.4],
   ];
+  const CALIFORNIA_HOME_CENTER = [-121.15, 34.38];
+  const CALIFORNIA_HOME_ZOOM = 6.2;
+  const CALIFORNIA_HOME_ZOOM_MOBILE = 5.5;
 
-  function californiaPinsFromSpots() {
+  function allCaliforniaSpots() {
     const spotsFn = window.californiaSpots;
-    const spots = typeof spotsFn === "function"
+    return typeof spotsFn === "function"
       ? spotsFn()
       : (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
+  }
+
+  function pinFromSpot(spot) {
+    return {
+      slug: spot.slug,
+      label: spot.pinLabel || spot.pickerLabel || spot.name,
+      detail: spot.city || spot.location || "",
+      lngLat: [Number(spot.lon), Number(spot.lat)],
+      href: spot.href,
+    };
+  }
+
+  function californiaPinsFromSpots(spots) {
     return (spots || [])
-      .map((spot) => ({
-        slug: spot.slug,
-        label: spot.pinLabel || spot.pickerLabel || spot.name,
-        detail: spot.city || spot.location || "",
-        lngLat: [Number(spot.lon), Number(spot.lat)],
-        href: spot.href,
-      }))
+      .map(pinFromSpot)
       .filter((pin) => Number.isFinite(pin.lngLat[0]) && Number.isFinite(pin.lngLat[1]));
   }
 
   function californiaPins() {
-    const live = californiaPinsFromSpots();
+    const all = allCaliforniaSpots();
+    const hubs = typeof window.statewideMapSpots === "function"
+      ? window.statewideMapSpots()
+      : all.filter((spot) => !spot.parentSlug);
+    const live = californiaPinsFromSpots(hubs);
     return live.length >= 3 ? live : CALIFORNIA_PIN_FALLBACK;
+  }
+
+  function clusterPins(slug) {
+    const all = allCaliforniaSpots();
+    const current = all.find((spot) => spot.slug === slug);
+    const cluster = current?.regionCluster;
+    if (!cluster) return californiaPins();
+    return californiaPinsFromSpots(all.filter((spot) => spot.regionCluster === cluster));
   }
 
   function californiaMapView() {
     return {
       region: "California",
-      center: [-119.57, 34.73],
-      zoom: 6.05,
+      center: CALIFORNIA_HOME_CENTER,
+      zoom: CALIFORNIA_HOME_ZOOM,
       fitPins: true,
       maxBounds: CALIFORNIA_BOUNDS,
       pins: californiaPins(),
@@ -89,39 +111,68 @@
   }
 
   function localSpotMapView(slug) {
-    const spotsFn = window.californiaSpots;
-    const spots = typeof spotsFn === "function" ? spotsFn() : [];
+    const spots = allCaliforniaSpots();
     const spot = spots.find((item) => item.slug === slug);
     const lon = Number(spot?.lon);
     const lat = Number(spot?.lat);
     const center = Number.isFinite(lon) && Number.isFinite(lat) ? [lon, lat] : [-118.37, 33.443];
+    const cluster = spot?.regionCluster;
     return {
       region: spot?.regionLabel || "California",
       center,
-      zoom: 11.4,
+      zoom: cluster === "monterey" ? 11.8 : 11.4,
       minZoom: 8.8,
       fitPins: false,
       fitLocalBounds: localBoundsForSpot(spot),
       maxBounds: CALIFORNIA_BOUNDS,
-      pins: californiaPins(),
+      pins: cluster ? clusterPins(slug) : californiaPins(),
     };
   }
 
   function slugFromPathname(pathname = window.location.pathname) {
     const parts = String(pathname || "").split("/").filter(Boolean);
     let last = (parts.pop() || "").replace(/\.html$/i, "");
-    if (!last || last === "index") last = (parts.pop() || "").replace(/\.html$/i, "");
+    if (!last || last === "index" || last === "map") last = (parts.pop() || "").replace(/\.html$/i, "");
     if (!last || last === "Dive-Pro-Demo") return "";
     return last;
   }
 
   function currentMapSlug() {
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = String(params.get("spot") || params.get("slug") || "").trim();
+    if (fromQuery) return fromQuery;
+    const hash = String(window.location.hash || "").replace(/^#\/?/, "").trim();
+    const fromHash = hash.replace(/^spot=/i, "").trim();
+    if (fromHash && fromHash !== "home") return fromHash;
+    if (document.body.classList.contains("full-map-page") || document.body.dataset.page === "map") {
+      return document.body.dataset.spot || "home";
+    }
     if (document.body.classList.contains("home-directory") || document.body.dataset.page === "home") {
       return "home";
     }
     const fromBody = document.body.dataset.spot;
     if (fromBody && fromBody !== "home") return fromBody;
     return slugFromPathname() || "home";
+  }
+
+  function fullMapHref(slug = currentMapSlug()) {
+    return (!slug || slug === "home") ? "map.html" : `map.html?spot=${encodeURIComponent(slug)}`;
+  }
+
+  function setupMapExpand(frame) {
+    if (!frame || frame.dataset.mapExpandBound === "1") return;
+    if (document.body.classList.contains("full-map-page") || document.body.dataset.page === "map") return;
+    frame.dataset.mapExpandBound = "1";
+    const graphic = frame.querySelector(".spot-map-graphic") || frame;
+    let control = graphic.querySelector(".map-expand-control");
+    if (!control) {
+      control = document.createElement("a");
+      control.className = "map-expand-control";
+      control.setAttribute("aria-label", "Open full map");
+      control.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+      graphic.appendChild(control);
+    }
+    control.href = fullMapHref();
   }
 
   const DETAIL_MAPS = {
@@ -220,10 +271,37 @@
     return style;
   }
 
+  function rasterFallbackStyle() {
+    return {
+      version: 8,
+      sources: {
+        "carto-dark": {
+          type: "raster",
+          tiles: ["https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"],
+          tileSize: 256,
+          attribution: "© OpenStreetMap contributors © CARTO",
+          maxzoom: 20,
+        },
+      },
+      layers: [
+        {
+          id: "carto-dark",
+          type: "raster",
+          source: "carto-dark",
+        },
+      ],
+    };
+  }
+
   async function getDiveProMapStyle(apiKey) {
-    const response = await fetch(`https://api.maptiler.com/maps/dataviz-dark/style.json?key=${apiKey}`);
-    if (!response.ok) throw new Error("MapTiler style request failed");
-    return tintDiveProMapStyle(await response.json());
+    if (!apiKey) return rasterFallbackStyle();
+    try {
+      const response = await fetch(`https://api.maptiler.com/maps/dataviz-dark/style.json?key=${apiKey}`);
+      if (!response.ok) throw new Error("MapTiler style request failed");
+      return tintDiveProMapStyle(await response.json());
+    } catch {
+      return rasterFallbackStyle();
+    }
   }
 
   function addPins(map, pins) {
@@ -481,13 +559,15 @@
   }
 
   const CA_WIND_BBOX = {
-    west: CALIFORNIA_BOUNDS[0][0] - 1.4,
-    south: CALIFORNIA_BOUNDS[0][1] - 0.8,
-    east: CALIFORNIA_BOUNDS[1][0] + 0.8,
-    north: CALIFORNIA_BOUNDS[1][1] + 0.8,
+    west: -126.8,
+    south: 30.4,
+    east: -114.6,
+    north: 38.8,
   };
-  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v2";
+  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v4";
   const CA_WIND_STEP = 0.7;
+  const WIND_FORECAST_DAYS = 10;
+  const WIND_FORECAST_HOURS = WIND_FORECAST_DAYS * 24;
 
   function uvFromSpeedDir(speedMs, directionDeg) {
     const speed = Number(speedMs);
@@ -521,10 +601,10 @@
     const url = new URL("https://api.open-meteo.com/v1/forecast");
     url.searchParams.set("latitude", points.map((point) => point.lat).join(","));
     url.searchParams.set("longitude", points.map((point) => point.lon).join(","));
-    url.searchParams.set("hourly", "wind_speed_10m,wind_direction_10m");
+    url.searchParams.set("hourly", "wind_speed_10m,wind_direction_10m,cloud_cover");
     url.searchParams.set("wind_speed_unit", "ms");
     url.searchParams.set("timezone", "America/Los_Angeles");
-    url.searchParams.set("forecast_days", "3");
+    url.searchParams.set("forecast_days", String(WIND_FORECAST_DAYS));
     let lastError = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
@@ -561,7 +641,7 @@
       return Number.isFinite(time) && time >= now - NOW_FRAME_TOLERANCE_MS;
     });
     if (start < 0) start = 0;
-    const windowTimes = times.slice(start, start + 48);
+    const windowTimes = times.slice(start, start + WIND_FORECAST_HOURS);
     const nx = lons.length;
     const ny = lats.length;
 
@@ -569,11 +649,14 @@
       const timeIndex = start + index;
       const u = Array.from({ length: ny }, () => Array(nx).fill(null));
       const v = Array.from({ length: ny }, () => Array(nx).fill(null));
+      const cloud = Array.from({ length: ny }, () => Array(nx).fill(null));
       points.forEach((point, pointIndex) => {
         const hourly = results[pointIndex]?.hourly || {};
         const uv = uvFromSpeedDir(hourly.wind_speed_10m?.[timeIndex], hourly.wind_direction_10m?.[timeIndex]);
+        const cover = Number(hourly.cloud_cover?.[timeIndex]);
         u[point.row][point.col] = uv.u;
         v[point.row][point.col] = uv.v;
+        cloud[point.row][point.col] = Number.isFinite(cover) ? cover : null;
       });
       return normalizeWindFrame({
         hour: index,
@@ -591,6 +674,7 @@
           },
           u,
           v,
+          cloud,
         },
       }, index);
     });
@@ -845,23 +929,16 @@
         .flatMap((feature) => geometryToPolygons(feature.geometry));
     }
 
-    function gridCoversCalifornia(nextGrid = grid) {
-      const bbox = nextGrid?.metadata?.bbox || {};
-      return Number(bbox.north) >= 36.5 && Number(bbox.west) <= -121.7 && Number(bbox.east) >= -116.2;
-    }
-
     function drawWaterMask() {
       if (!needsWaterMaskDraw) return;
       const rect = mapContainer.getBoundingClientRect();
       waterMaskCtx.clearRect(0, 0, rect.width, rect.height);
       waterMaskCtx.fillStyle = "#000";
       const renderedOceanPolygons = getRenderedOceanPolygons();
-      if (gridCoversCalifornia()) {
-        waterMaskCtx.fillRect(0, 0, rect.width, rect.height);
-      } else {
-        const polygons = renderedOceanPolygons.length ? renderedOceanPolygons : waterPolygons;
-        polygons.forEach(drawPolygon);
-      }
+      // Home and spot maps: ocean polygons only. Never fillRect the canvas —
+      // a statewide wind grid would paint wind over land.
+      const polygons = renderedOceanPolygons.length ? renderedOceanPolygons : waterPolygons;
+      polygons.forEach(drawPolygon);
       waterMaskData = waterMaskCtx.getImageData(0, 0, waterMaskCanvas.width, waterMaskCanvas.height).data;
       needsWaterMaskDraw = false;
     }
@@ -907,7 +984,8 @@
       drawWaterMask();
       gradientCtx.save();
       gradientCtx.globalCompositeOperation = "destination-in";
-      gradientCtx.filter = `blur(${WIND_COAST_FEATHER_PX}px)`;
+      const feather = currentMapSlug() === "home" ? 10 : WIND_COAST_FEATHER_PX;
+      gradientCtx.filter = `blur(${feather}px)`;
       gradientCtx.drawImage(waterMaskCanvas, 0, 0, rect.width, rect.height);
       gradientCtx.filter = "none";
       gradientCtx.drawImage(waterMaskCanvas, 0, 0, rect.width, rect.height);
@@ -1034,26 +1112,40 @@
 
   function ensureSpotWindTimeline(frame) {
     let timeline = frame.querySelector(".spot-wind-timeline");
-    if (timeline) return timeline;
+    const graphic = frame.querySelector(".spot-map-graphic");
+    if (timeline && (
+      timeline.querySelector(".spot-wind-now")
+      || !timeline.querySelector(".spot-wind-calendar")
+      || !timeline.querySelector(".spot-wind-readout")
+    )) {
+      timeline.remove();
+      timeline = null;
+    }
+    if (timeline) {
+      if (graphic && !graphic.contains(timeline)) graphic.appendChild(timeline);
+      return timeline;
+    }
 
     timeline = document.createElement("div");
     timeline.className = "wind-timeline spot-wind-timeline is-hidden";
-    timeline.setAttribute("aria-label", "Wind forecast timeline");
+    timeline.setAttribute("aria-label", "Forecast timeline");
     timeline.innerHTML = `
-      <div class="spot-wind-control-row">
-        <button class="spot-wind-play" type="button" aria-label="Play wind forecast timeline">▶</button>
-        <output class="spot-wind-readout" aria-live="polite">Now</output>
-        <div class="spot-wind-axis">
-          <div class="spot-wind-slider-wrap">
-            <input class="spot-wind-slider" type="range" min="0" max="0" value="0" aria-label="Wind forecast hour">
-          </div>
-          <div class="wind-time-ticks spot-wind-ticks" aria-hidden="true"></div>
+      <button class="spot-wind-play" type="button" aria-label="Play forecast timeline">▶</button>
+      <output class="spot-wind-readout" aria-live="polite"></output>
+      <div class="spot-wind-axis">
+        <div class="spot-wind-slider-wrap">
+          <input class="spot-wind-slider" type="range" min="0" max="0" value="0" aria-label="Forecast hour">
+          <output class="spot-wind-thumb-tip" aria-hidden="true"></output>
         </div>
+        <div class="wind-time-ticks spot-wind-ticks" aria-hidden="true"></div>
       </div>
-      <div class="spot-wind-days" role="tablist" aria-label="Wind forecast date"></div>
+      <div class="spot-wind-days" role="tablist" aria-label="Forecast date"></div>
+      <button class="spot-wind-calendar" type="button" aria-label="Choose forecast date">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      </button>
+      <input class="spot-wind-date-input" type="date" tabindex="-1" aria-hidden="true">
     `;
-    const graphic = frame.querySelector(".spot-map-graphic");
-    if (graphic) graphic.after(timeline);
+    if (graphic) graphic.appendChild(timeline);
     else frame.appendChild(timeline);
     return timeline;
   }
@@ -1066,7 +1158,10 @@
     const sliderWrap = frame.querySelector(".spot-wind-slider-wrap");
     const ticks = frame.querySelector(".spot-wind-ticks");
     const timeReadout = frame.querySelector(".spot-wind-readout");
+    const thumbTip = frame.querySelector(".spot-wind-thumb-tip");
     const daySelector = frame.querySelector(".spot-wind-days");
+    const calendarButton = frame.querySelector(".spot-wind-calendar");
+    const dateInput = frame.querySelector(".spot-wind-date-input");
     if (!timeline || !playButton || !slider || !ticks || !frames.length) {
       timeline?.classList.add("is-hidden");
       return;
@@ -1230,12 +1325,35 @@
       tickResizeTimer = window.setTimeout(renderTicks, 120);
     }
 
+    function updateThumbTip(label) {
+      if (!thumbTip || !slider) return;
+      thumbTip.textContent = label;
+      const min = Number(slider.min) || 0;
+      const max = Number(slider.max) || 0;
+      const value = Number(slider.value) || 0;
+      const pct = max > min ? (value - min) / (max - min) : 0;
+      const wrapWidth = sliderWrap?.clientWidth || 0;
+      const tipWidth = thumbTip.offsetWidth || 52;
+      if (wrapWidth > tipWidth) {
+        const raw = pct * wrapWidth;
+        const clamped = Math.min(Math.max(raw, tipWidth / 2), wrapWidth - tipWidth / 2);
+        thumbTip.style.left = `${clamped}px`;
+      } else {
+        thumbTip.style.left = `${pct * 100}%`;
+      }
+    }
+
     function updateActiveTime(speedMph = null) {
       activeWindSpeed = speedMph;
       const forecastFrame = frames[activeIndex];
-      const label = activeIndex === nearestCurrentFrameIndex(frames) ? "Now" : fullTimeLabel(forecastFrame);
+      const isNow = activeIndex === nearestCurrentFrameIndex(frames);
+      const label = isNow ? "Now" : fullTimeLabel(forecastFrame);
       const windLabel = Number.isFinite(speedMph) ? `${Math.round(speedMph)} mph` : "…";
-      if (timeReadout) timeReadout.textContent = label;
+      if (timeReadout) {
+        timeReadout.textContent = fullTimeLabel(forecastFrame);
+      }
+      updateThumbTip(fullTimeLabel(forecastFrame));
+      if (dateInput && forecastFrame?.localDate) dateInput.value = forecastFrame.localDate;
       slider.setAttribute("aria-valuetext", `${timelineDateLabel(forecastFrame.localDate)}, ${label}, ${Number.isFinite(speedMph) ? windLabel : "wind loading"}`);
     }
 
@@ -1278,7 +1396,7 @@
       if (!daySelector) return;
       daySelector.innerHTML = timelineDates.map((date) => {
         const parts = timelineDayParts(date);
-        return `<button type="button" role="tab" data-wind-date="${date}" aria-label="${timelineDateLabel(date)}" aria-selected="false"><span>${parts.weekday}</span><b>${parts.day}</b></button>`;
+        return `<button type="button" role="tab" data-wind-date="${date}" aria-label="${timelineDateLabel(date)}" aria-selected="false">${parts.weekday} ${parts.day}</button>`;
       }).join("");
 
       daySelector.addEventListener("click", (event) => {
@@ -1335,11 +1453,22 @@
       try {
         const nextGrid = await fetchWindFrame(forecastFrame, frameCache);
         if (token !== requestToken) return;
-        if (map) map.__diveProSpotWindGrid = nextGrid;
-        layer.setGrid(nextGrid);
+        if (map) {
+          map.__diveProSpotWindGrid = nextGrid;
+          map.__diveProActiveFrameIso = forecastFrame.valid_utc || forecastFrame.label;
+        }
+        if ((map?.__diveProActiveLayer || "wind") === "wind") layer.setGrid(nextGrid);
+        else layer.setGrid(null);
         const timelineWind = windAtLngLat(nextGrid, timelineCoordinates);
         updateActiveTime(timelineWind?.speedMph);
         if (map) updateSpotProbe(map);
+        window.dispatchEvent(new CustomEvent("divepro:oceanLayerFrame", {
+          detail: {
+            iso: forecastFrame.valid_utc || forecastFrame.label,
+            index: activeIndex,
+            map,
+          },
+        }));
       } catch (error) {
         stopPlayback();
       }
@@ -1383,6 +1512,21 @@
       if (playTimer) stopPlayback();
       else startPlayback();
     });
+    if (dateInput && timelineDates.length) {
+      dateInput.min = timelineDates[0];
+      dateInput.max = timelineDates[timelineDates.length - 1];
+      dateInput.value = activeWindowDate();
+      dateInput.addEventListener("change", () => {
+        if (!dateInput.value) return;
+        stopPlayback();
+        moveToTimelineDate(dateInput.value, true);
+      });
+    }
+    calendarButton?.addEventListener("click", () => {
+      if (!dateInput) return;
+      if (typeof dateInput.showPicker === "function") dateInput.showPicker();
+      else dateInput.focus();
+    });
     window.addEventListener("divepro:forecastDateSelected", (event) => {
       const date = event.detail?.date;
       if (!date) return;
@@ -1420,13 +1564,89 @@
     const grid = map.__diveProSpotWindGrid;
     if (!probe?.element || !probe.lngLat) return;
 
-    const markerLabel = probe.element.querySelector("span");
+    const titleEl = probe.element.querySelector(".map-ocean-probe-title") || probe.element.querySelector("span");
+    const valueEl = probe.element.querySelector(".map-ocean-probe-value");
+    const metaEl = probe.element.querySelector(".map-ocean-probe-meta");
+    const layer = map.__diveProActiveLayer || "wind";
+    const oceanSample = typeof window.__diveProOceanSample === "function"
+      ? window.__diveProOceanSample(map, probe.lngLat)
+      : null;
+
+    /* Meteorological coming-from → going-to, then +270 so the east-pointing
+       shaft glyph matches map north. Same convention as wind particles. */
+    function flowRotationCss(directionDegrees) {
+      const flowBearing = (Number(directionDegrees) + 180) % 360;
+      return (flowBearing + 270) % 360;
+    }
+
+    function renderWaveTrains(trains) {
+      if (!metaEl) return;
+      metaEl.replaceChildren();
+      trains.forEach((train) => {
+        const token = document.createElement("span");
+        token.className = "map-ocean-probe-train";
+        if (Number.isFinite(train.direction)) {
+          const arrow = document.createElement("i");
+          arrow.className = "map-wind-probe-arrow";
+          arrow.setAttribute("aria-hidden", "true");
+          arrow.style.setProperty("--wind-flow-rotation", `${Math.round(flowRotationCss(train.direction))}deg`);
+          token.appendChild(arrow);
+        }
+        const label = document.createElement("span");
+        label.className = "map-ocean-probe-train-label";
+        label.textContent = train.label;
+        token.appendChild(label);
+        metaEl.appendChild(token);
+      });
+    }
+
+    function setCallout(title, value, meta, directionDegrees, trains) {
+      if (titleEl) titleEl.textContent = title;
+      const waveTrains = layer === "waves" && Array.isArray(trains)
+        ? trains.filter((train) => train?.label)
+        : [];
+      if (valueEl) valueEl.textContent = value;
+      else if (titleEl) titleEl.textContent = value;
+      if (waveTrains.length) {
+        renderWaveTrains(waveTrains);
+      } else if (metaEl) {
+        metaEl.textContent = meta || "";
+      }
+      delete probe.element.dataset.trainCount;
+      if (waveTrains.length) {
+        probe.element.style.removeProperty("--wind-flow-rotation");
+        probe.element.dataset.hasDir = "false";
+        probe.element.dataset.trainCount = String(waveTrains.length);
+      } else if (Number.isFinite(directionDegrees)) {
+        probe.element.style.setProperty("--wind-flow-rotation", `${Math.round(flowRotationCss(directionDegrees))}deg`);
+        probe.element.dataset.hasDir = "true";
+      } else {
+        probe.element.style.removeProperty("--wind-flow-rotation");
+        probe.element.dataset.hasDir = "false";
+      }
+      probe.element.dataset.layer = layer;
+      const trainText = waveTrains.map((train) => train.label).join(" · ");
+      probe.element.setAttribute(
+        "aria-label",
+        `Dropped map pin: ${title} ${value}${trainText ? ` ${trainText}` : meta ? ` ${meta}` : ""}`,
+      );
+      probe.element.title = [title, value, trainText || meta, `${probe.lngLat.lat.toFixed(3)}, ${probe.lngLat.lng.toFixed(3)}`]
+        .filter(Boolean)
+        .join(" · ");
+    }
+
+    if (layer === "waves" || layer === "clouds") {
+      if (oceanSample) {
+        setCallout(oceanSample.title, oceanSample.value, oceanSample.meta, oceanSample.direction, oceanSample.trains);
+      } else {
+        setCallout(layer === "waves" ? "Waves" : "Clouds", "Loading", "");
+      }
+      positionSpotProbe(map);
+      return;
+    }
+
     if (!grid) {
-      markerLabel.textContent = "Loading";
-      probe.element.style.removeProperty("--wind-flow-rotation");
-      probe.element.dataset.layer = "wind";
-      probe.element.setAttribute("aria-label", "Dropped map pin: wind loading");
-      probe.element.title = "Wind forecast loading";
+      setCallout("Wind", "Loading", "");
       positionSpotProbe(map);
       return;
     }
@@ -1436,23 +1656,8 @@
     const windLabel = wind ? `${wind.speedMph.toFixed(1)} mph` : "No wind";
     const visibilityLabelText = visibility
       ? (visibility.calibrated ? visibility.calibratedRange : visibility.label)
-      : "No viz";
-
-    markerLabel.textContent = windLabel;
-    if (wind?.directionDegrees !== undefined) {
-      const flowBearing = (wind.directionDegrees + 180) % 360;
-      const cssRotation = (flowBearing + 270) % 360;
-      probe.element.style.setProperty("--wind-flow-rotation", `${Math.round(cssRotation)}deg`);
-    } else {
-      probe.element.style.removeProperty("--wind-flow-rotation");
-    }
-    probe.element.dataset.layer = "wind";
-    probe.element.setAttribute("aria-label", `Dropped map pin: ${windLabel}, visibility ${visibilityLabelText}`);
-    probe.element.title = [
-      `Wind: ${windLabel}${wind?.direction ? ` ${wind.direction}` : ""}`,
-      `Visibility: ${visibilityLabelText}${visibility && !visibility.calibrated ? ` (${Math.round(visibility.index)}/100 relative)` : ""}`,
-      `${probe.lngLat.lat.toFixed(3)}, ${probe.lngLat.lng.toFixed(3)}`,
-    ].join(" · ");
+      : "";
+    setCallout("Wind", windLabel, [wind?.direction, visibilityLabelText].filter(Boolean).join(" · "), wind?.directionDegrees);
     positionSpotProbe(map);
   }
 
@@ -1463,9 +1668,9 @@
 
     if (!probe) {
       const marker = document.createElement("button");
-      marker.className = "map-wind-probe-pin";
+      marker.className = "map-wind-probe-pin map-ocean-probe";
       marker.type = "button";
-      marker.innerHTML = '<span>Wind</span><i class="map-wind-probe-arrow" aria-hidden="true"></i>';
+      marker.innerHTML = '<span class="map-ocean-probe-body"><span class="map-ocean-probe-title">Wind</span><strong class="map-ocean-probe-value">…</strong><em class="map-ocean-probe-meta"></em></span><i class="map-wind-probe-arrow" aria-hidden="true"></i><b class="map-ocean-probe-join" aria-hidden="true"></b>';
       marker.addEventListener("click", (event) => event.stopPropagation());
       map.getContainer().appendChild(marker);
       probe = { element: marker, lngLat: normalized };
@@ -1478,7 +1683,7 @@
   }
 
   function setupSpotProbe(map) {
-    const ignoredClickSelector = ".wind-timeline, .wind-legend, .depth-legend, .map-layer-toggle, .visibility-legend, .maplibregl-ctrl, .map-spot-pin, .map-wind-probe-pin";
+    const ignoredClickSelector = ".wind-timeline, .wind-legend, .depth-legend, .ocean-legend, .map-layer-toggle, .visibility-legend, .maplibregl-ctrl, .map-spot-pin, .map-wind-probe-pin, .map-expand-control";
     const container = map.getContainer();
     let lastMapLibreProbeAt = 0;
 
@@ -1541,30 +1746,71 @@
     });
   }
 
+  function ensureOceanLayerButtons(frame) {
+    const toggle = frame?.querySelector(".map-layer-toggle");
+    if (!toggle) return toggle;
+    const needed = [
+      { layer: "wind", label: "Wind" },
+      { layer: "waves", label: "Waves" },
+      { layer: "clouds", label: "Clouds" },
+      { layer: "depth", label: "Depth" },
+    ];
+    const existing = new Map(
+      Array.from(toggle.querySelectorAll("[data-map-layer]")).map((button) => [button.dataset.mapLayer, button]),
+    );
+    needed.forEach(({ layer, label }) => {
+      if (existing.has(layer)) return;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.mapLayer = layer;
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = label;
+      const depth = existing.get("depth");
+      if (depth && (layer === "waves" || layer === "clouds")) toggle.insertBefore(button, depth);
+      else toggle.appendChild(button);
+      existing.set(layer, button);
+    });
+    return toggle;
+  }
+
   function setupMapLayerToggle(map, frame) {
     if (!frame || frame.__diveProLayerToggleReady) return;
     frame.__diveProLayerToggleReady = true;
     frame.classList.add("is-wind-mode");
+    map.__diveProActiveLayer = "wind";
+    const toggle = ensureOceanLayerButtons(frame);
 
-    const buttons = Array.from(frame.querySelectorAll("[data-map-layer]"));
-    const setLayer = (layer) => {
-      const isDepth = layer === "depth";
-      frame.classList.toggle("is-depth-mode", isDepth);
-      frame.classList.toggle("is-wind-mode", !isDepth);
+    const setLayer = (layerName) => {
+      const layer = layerName || "wind";
+      map.__diveProActiveLayer = layer;
+      frame.classList.toggle("is-wind-mode", layer === "wind");
+      frame.classList.toggle("is-waves-mode", layer === "waves");
+      frame.classList.toggle("is-clouds-mode", layer === "clouds");
+      frame.classList.toggle("is-depth-mode", layer === "depth");
       if (map.getLayer(DEPTH_LAYER_ID)) {
-        map.setLayoutProperty(DEPTH_LAYER_ID, "visibility", isDepth ? "visible" : "none");
+        map.setLayoutProperty(DEPTH_LAYER_ID, "visibility", layer === "depth" ? "visible" : "none");
       }
       if (map.getLayer(DEPTH_REFERENCE_LAYER_ID)) {
-        map.setLayoutProperty(DEPTH_REFERENCE_LAYER_ID, "visibility", isDepth ? "visible" : "none");
+        map.setLayoutProperty(DEPTH_REFERENCE_LAYER_ID, "visibility", layer === "depth" ? "visible" : "none");
       }
-      buttons.forEach((button) => {
+      const windLayer = map.__diveProWindLayer;
+      if (windLayer) {
+        if (layer === "wind") windLayer.setGrid(map.__diveProSpotWindGrid);
+        else windLayer.setGrid(null);
+      }
+      frame.querySelectorAll("[data-map-layer]").forEach((button) => {
         button.setAttribute("aria-pressed", button.dataset.mapLayer === layer ? "true" : "false");
       });
+      updateSpotProbe(map);
+      window.dispatchEvent(new CustomEvent("divepro:mapLayer", { detail: { layer, map } }));
     };
 
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => setLayer(button.dataset.mapLayer || "wind"));
+    toggle?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-map-layer]");
+      if (!button) return;
+      setLayer(button.dataset.mapLayer || "wind");
     });
+    map.__diveProSetMapLayer = setLayer;
     setLayer("wind");
   }
 
@@ -1582,6 +1828,7 @@
     frame?.querySelector(".spot-wind-legend")?.classList.remove("is-hidden");
     map.__diveProSpotWindGrid = grid;
     const layer = createWindCanvasLayer(map, grid, waterMask);
+    map.__diveProWindLayer = layer;
     const timelineCoordinates = config?.pins?.find((pin) => pin.slug === "la-jolla" || pin.href === "la-jolla.html")?.lngLat
       || config?.center
       || [-117.257, 32.867];
@@ -1606,6 +1853,8 @@
           <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive region map for ${config.region}"></div>
           <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
             <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
+            <button type="button" data-map-layer="waves" aria-pressed="false">Waves</button>
+            <button type="button" data-map-layer="clouds" aria-pressed="false">Clouds</button>
             <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
           </div>
           <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
@@ -1613,10 +1862,15 @@
             <div class="wind-legend-gradient"></div>
             <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
           </div>
-          <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
-            <span>Depth</span>
-            <div class="depth-legend-gradient"></div>
-            <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
+          <div class="ocean-legend wave-legend" aria-label="Wave height legend">
+            <span>Waves ft</span>
+            <div class="ocean-legend-gradient wave-legend-gradient"></div>
+            <div class="ocean-legend-labels"><b>0</b><b>3</b><b>6</b><b>10+</b></div>
+          </div>
+          <div class="ocean-legend cloud-legend" aria-label="Cloud cover legend">
+            <span>Clouds</span>
+            <div class="ocean-legend-gradient cloud-legend-gradient"></div>
+            <div class="ocean-legend-labels"><b>0%</b><b>50%</b><b>100%</b></div>
           </div>
         </div>
       </div>
@@ -1633,14 +1887,16 @@
 
   function regionMapFitPadding(map) {
     const container = map.getContainer();
+    const width = container?.clientWidth || 960;
     const height = container?.clientHeight || 440;
     const top = 44;
-    const side = 32;
     const bottom = 40;
+    const right = 28;
+    const left = Math.max(64, Math.round(width * 0.22));
     if (height - top - bottom < 140) {
-      return { top: 24, right: 24, bottom: 28, left: 24 };
+      return { top: 22, right: 22, bottom: 26, left: Math.max(48, Math.round(width * 0.16)) };
     }
-    return { top, right: side, bottom, left: side };
+    return { top, right, bottom, left };
   }
 
   function pinsAreOnScreen(map, pins) {
@@ -1685,14 +1941,34 @@
     }
   }
 
-  function fallbackCaliforniaCamera(map) {
+  function californiaHomeCamera(map) {
     const mobile = (map.getContainer()?.clientWidth || window.innerWidth) <= 640;
-    map.jumpTo({
-      center: [-119.57, 34.73],
-      zoom: mobile ? 5.35 : 6.05,
+    return {
+      center: CALIFORNIA_HOME_CENTER,
+      zoom: mobile ? CALIFORNIA_HOME_ZOOM_MOBILE : CALIFORNIA_HOME_ZOOM,
       bearing: 0,
       pitch: 0,
-    });
+    };
+  }
+
+  function fallbackCaliforniaCamera(map) {
+    map.jumpTo(californiaHomeCamera(map));
+  }
+
+  function shiftCaliforniaCameraWest(map, pins, westDegrees = 0.45) {
+    if (!map || !westDegrees) return false;
+    const before = map.getCenter();
+    const zoom = map.getZoom();
+    const candidates = [
+      [before.lng - westDegrees, before.lat - 0.12],
+      [before.lng - westDegrees * 0.55, before.lat],
+    ];
+    for (const center of candidates) {
+      map.jumpTo({ center, zoom, bearing: 0, pitch: 0 });
+      if (pinsAreOnScreen(map, pins)) return true;
+    }
+    map.jumpTo({ center: before, zoom, bearing: 0, pitch: 0 });
+    return pinsAreOnScreen(map, pins);
   }
 
   function fitCaliforniaRegionMap(map, pins, maplibre) {
@@ -1715,21 +1991,36 @@
       } else {
         map.fitBounds(bounds, { padding, maxZoom: 7.35, duration: 0 });
       }
+      if (pinsAreOnScreen(map, pins)) {
+        shiftCaliforniaCameraWest(map, pins);
+        return;
+      }
+    } catch {
+      /* use ocean-first fallback */
+    }
+    fallbackCaliforniaCamera(map);
+    if (pinsAreOnScreen(map, pins)) return;
+    try {
+      const bounds = pinLngLatBounds(maplibre, pins);
+      map.fitBounds(bounds, {
+        padding: { top: 36, right: 20, bottom: 36, left: 96 },
+        maxZoom: 7.35,
+        duration: 0,
+      });
     } catch {
       fallbackCaliforniaCamera(map);
     }
-    if (!pinsAreOnScreen(map, pins)) fallbackCaliforniaCamera(map);
   }
 
   async function initSpotMap() {
     const slug = currentMapSlug();
-    const localSlugs = ["la-jolla", "monterey", "catalina-wrigley", "anacapa-ocean"];
-    const isSpotPage = localSlugs.includes(slug);
+    const knownSpot = allCaliforniaSpots().some((spot) => spot.slug === slug);
+    const isSpotPage = knownSpot || ["la-jolla", "monterey", "catalina-wrigley", "anacapa-ocean"].includes(slug);
     const config = isSpotPage
       ? localSpotMapView(slug)
       : { ...(DETAIL_MAPS[slug] || DETAIL_MAPS.home || californiaMapView()) };
     if (!config) return;
-    config.pins = californiaPins();
+    config.pins = isSpotPage ? (config.pins || clusterPins(slug)) : californiaPins();
     if (config.fitPins) config.region = "California";
     if (isSpotPage) {
       config.fitPins = false;
@@ -1737,11 +2028,12 @@
     }
 
     const mapEl = document.getElementById("spotRegionMap") || insertMapCard(config);
+    setupMapExpand(mapEl?.closest(".spot-map-frame"));
     const apiKey = window.MAPTILER_API_KEY;
     const maplibre = window.maplibregl || globalThis.maplibregl;
     if (!mapEl) return;
     mapEl.setAttribute("aria-label", `Interactive ${config.region} dive region map`);
-    if (!apiKey || !maplibre) {
+    if (!maplibre) {
       mapEl.classList.add("is-unavailable");
       mapEl.textContent = "Region map unavailable.";
       return;
@@ -1793,6 +2085,10 @@
         } catch (error) {
           mapEl.closest(".spot-map-frame")?.querySelector(".spot-wind-legend")?.classList.add("is-hidden");
         }
+        window.dispatchEvent(new CustomEvent("divepro:spotMapReady", { detail: { map } }));
+        window.dispatchEvent(new CustomEvent("divepro:oceanLayerFrame", {
+          detail: { iso: map.__diveProActiveFrameIso, map },
+        }));
         applyInitialCamera();
         map.resize();
         map._diveProInitialFitDone = true;
@@ -1800,12 +2096,47 @@
           if (!userMoved) applyInitialCamera();
         });
       });
+      map.__diveProSpotLngLat = Array.isArray(config.center) ? config.center : null;
+      const isFullMapPage = document.body.classList.contains("full-map-page")
+        || document.body.classList.contains("full-map")
+        || document.body.dataset.page === "map";
+      map.__diveProHideSwellCompass = Boolean(isSpotPage)
+        || Boolean(mapEl.closest(".home-map-card"))
+        || isFullMapPage
+        || (mapEl.id === "spotRegionMap" && isFullMapPage);
       window.__diveProSpotRegionMap = map;
     } catch (error) {
+      console.error("Dive Pro region map failed", error);
       mapEl.classList.add("is-unavailable");
       mapEl.textContent = "Region map unavailable.";
     }
   }
 
+  function loadCompactPlayerAssets() {
+    if (document.querySelector('link[data-divepro-map-time-player]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "map-time-player.css?v=no-now-2";
+    link.setAttribute("data-divepro-map-time-player", "1");
+    document.head.appendChild(link);
+  }
+
+  function loadOceanLayersAssets() {
+    if (!document.querySelector('link[data-divepro-ocean-layers]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "ocean-layers.css?v=no-fullmap-rose-1";
+      link.setAttribute("data-divepro-ocean-layers", "1");
+      document.head.appendChild(link);
+    }
+    if (window.__diveProOceanLayersLoaded || document.querySelector("script[data-divepro-ocean-layers]")) return;
+    const script = document.createElement("script");
+    script.src = "ocean-layers.js?v=no-fullmap-rose-1";
+    script.setAttribute("data-divepro-ocean-layers", "1");
+    document.head.appendChild(script);
+  }
+
+  loadCompactPlayerAssets();
+  loadOceanLayersAssets();
   initSpotMap();
 }());

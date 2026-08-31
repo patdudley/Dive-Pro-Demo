@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DiveProSD | Wrigley Reserve, Catalina Island</title>
-    <meta name="description" content="Catalina Island Wrigley Reserve location preview. Dive Pro vis grades are unavailable here — the frozen model is trained on La Jolla only.">
+    <meta name="description" content="Catalina Island Wrigley Reserve location preview with live swell, tide, wind, and weather.">
     <meta name="robots" content="noindex,nofollow">
     <meta name="theme-color" content="#13baee">
     <link rel="canonical" href="https://patdudley.github.io/Dive-Pro-Demo/catalina-wrigley.html">
@@ -16,7 +16,7 @@
     <meta property="og:site_name" content="DiveProSD">
     <meta property="og:type" content="website">
     <meta property="og:title" content="DiveProSD | Wrigley Reserve, Catalina Island">
-    <meta property="og:description" content="Catalina Island Wrigley Reserve location preview. Dive Pro vis grades are unavailable here — the frozen model is trained on La Jolla only.">
+    <meta property="og:description" content="Catalina Island Wrigley Reserve location preview with live swell, tide, wind, and weather.">
     <meta property="og:url" content="https://patdudley.github.io/Dive-Pro-Demo/catalina-wrigley.html">
     <meta property="og:image" content="https://patdudley.github.io/Dive-Pro-Demo/divepro-social-card.png">
     <meta property="og:image:type" content="image/png">
@@ -25,7 +25,7 @@
     <meta property="og:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="DiveProSD | Wrigley Reserve, Catalina Island">
-    <meta name="twitter:description" content="Catalina Island Wrigley Reserve location preview. Dive Pro vis grades are unavailable here — the frozen model is trained on La Jolla only.">
+    <meta name="twitter:description" content="Catalina Island Wrigley Reserve location preview with live swell, tide, wind, and weather.">
     <meta name="twitter:image" content="https://patdudley.github.io/Dive-Pro-Demo/divepro-social-card.png">
     <meta name="twitter:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
     <script type="application/ld+json">
@@ -48,8 +48,36 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829ax">
+    <link rel="stylesheet" href="styles.css?v=pages-20260830swelldir1">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
+    <link rel="stylesheet" href="map-time-player.css?v=expand-only-1">
+    <style>
+      .hero-content:not(:has(.daily-report-card)) { grid-template-columns: minmax(0, 1fr); }
+      .forecast-panel.is-name-only {
+        padding: 20px 22px 24px;
+        gap: 16px;
+        grid-template-rows: none;
+        align-content: start;
+      }
+      .island-hero-briefing {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.75rem;
+        width: 100%;
+        min-width: 0;
+      }
+      .island-hero-briefing p {
+        margin: 0;
+        max-width: none;
+        color: #0a2540;
+        font-size: 0.98rem;
+        line-height: 1.58;
+      }
+      @media (max-width: 720px) {
+        .forecast-panel.is-name-only { padding: 16px 16px 20px; }
+        .island-hero-briefing p { font-size: 0.94rem; line-height: 1.5; }
+      }
+    </style>
   </head>
   <body data-spot="catalina-wrigley">
     <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
@@ -59,7 +87,8 @@
           <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
         </a>
         <nav class="site-nav" aria-label="Site">
-          <a href="blog/">Blog</a>
+          <a class="site-nav-link" href="blog/">Blog</a>
+          <a class="site-nav-link" href="feedback.html">Feedback</a>
         </nav>
       </div>
     </header>
@@ -74,21 +103,14 @@
         </figure>
 
         <div class="hero-content">
-          <section class="forecast-panel">
+          <section class="forecast-panel is-name-only">
             <div class="forecast-meta">
-              <label class="spot-picker">
-                <span class="spot-picker-kicker">California location</span>
-                <div class="spot-picker-row">
-                  <button type="button" id="heroPrevSpot" class="spot-picker-nav" aria-label="Previous California location">‹</button>
-                  <select id="spotPicker" aria-label="California dive location">
-                    <option value="la-jolla">La Jolla</option>
-                    <option value="monterey">Monterey</option>
-                    <option value="catalina-wrigley">Wrigley</option>
-                    <option value="anacapa-ocean">Anacapa</option>
-                  </select>
-                  <button type="button" id="heroNextSpot" class="spot-picker-nav" aria-label="Next California location">›</button>
-                </div>
-              </label>
+              <div class="spot-heading">
+                <p class="spot-heading-name" id="spotHeading">Catalina Wrigley</p>
+              </div>
+            </div>
+            <div class="island-hero-briefing" id="islandHeroBriefing" data-count="1">
+              <p data-island-brief="swell">Catalina Wrigley is a boat-access reserve on Catalina Island, facing open Pacific water.</p>
             </div>
           </section>
         </div>
@@ -97,21 +119,20 @@
       <section class="model-card wave-card swell-card">
         <div class="section-heading">
           <h2>Swell</h2>
-          <span id="swellSource">Open-Meteo / NDBC</span>
         </div>
-        <div class="swell-stage">
+        <div class="swell-stage swell-visualization">
           <div class="wave-components" id="waveComponents"></div>
           <div class="swell-map-panel">
             <div id="swellMap" class="swell-map" role="img" aria-label="La Jolla coastline map"></div>
             <div class="swell-map-scrim" aria-hidden="true"></div>
-            <figure class="swell-rose-wrap" aria-label="Swell compass rose">
-              <div id="swellRose" class="swell-rose"></div>
-            </figure>
           </div>
+          <figure class="swell-compass-overlay swell-rose-wrap" aria-label="Swell compass rose">
+            <div id="swellRose" class="swell-rose"></div>
+          </figure>
         </div>
       </section>
 
-      <section class="model-card">
+      <section class="model-card weather-card">
         <h2>Weather</h2>
         <div class="feature-rows" id="featureRows"></div>
       </section>
@@ -152,11 +173,6 @@
               <div class="wind-legend-gradient"></div>
               <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
             </div>
-            <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
-              <span>Depth</span>
-              <div class="depth-legend-gradient"></div>
-              <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
-            </div>
           </div>
         </div>
       </section>
@@ -164,7 +180,7 @@
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829ax"></script>
+    <script src="spots-config.js?v=pages-20260831hero1"></script>
     <script>
       (function applySpotFromPath() {
         const parts = (window.location.pathname || "").split("/").filter(Boolean);
@@ -176,11 +192,11 @@
         document.body.dataset.spot = spot?.slug || requested || "catalina-wrigley";
       })();
     </script>
-    <script type="module" src="app.js?v=pages-20260829ax"></script>
+    <script type="module" src="app.js?v=pages-20260831live1"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829ax"></script>
+    <script src="spot-map.js?v=pages-20260830expandonly1"></script>
   </body>
 </html>

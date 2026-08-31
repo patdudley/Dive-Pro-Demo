@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DiveProSD | Map</title>
+    <meta name="description" content="Full-screen California dive map. Preview only.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="favicon.ico?v=fish-icon-4" sizes="any">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
+    <link rel="stylesheet" href="styles.css?v=pages-20260830player">
+    <link rel="stylesheet" href="map-time-player.css?v=white-header-1">
+    <style>
+      /* White header so the existing dark DivePro logo stays readable. */
+      .full-map-chrome {
+        background: #ffffff;
+        border-bottom: 1px solid rgba(10, 37, 64, 0.12);
+      }
+      .full-map-back {
+        color: #0a2540;
+      }
+      .full-map-back:hover,
+      .full-map-back:focus-visible {
+        background: rgba(10, 37, 64, 0.08);
+      }
+    </style>
+  </head>
+  <body class="full-map-page" data-page="map">
+    <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
+    <header class="full-map-chrome">
+      <a class="site-logo" href="./">
+        <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
+      </a>
+      <a class="full-map-back" href="./" aria-label="Close map">✕</a>
+    </header>
+    <div class="map-frame spot-map-frame">
+      <div class="spot-map-graphic">
+        <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive California dive region map"></div>
+        <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
+          <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
+          <button type="button" data-map-layer="waves" aria-pressed="false">Waves</button>
+          <button type="button" data-map-layer="clouds" aria-pressed="false">Clouds</button>
+          <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
+        </div>
+        <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
+          <span>Wind MPH</span>
+          <div class="wind-legend-gradient"></div>
+          <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function applySpotFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const hash = (window.location.hash || "").replace(/^#\/?/, "");
+        const spot = (params.get("spot") || params.get("slug") || hash.replace(/^spot=/i, "") || "").trim();
+        if (spot) document.body.dataset.spot = spot;
+      })();
+    </script>
+    <script src="analytics-config.js?v=analytics-2"></script>
+    <script src="analytics.js?v=analytics-2"></script>
+    <script src="spots-config.js?v=pages-20260829bd"></script>
+    <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
+    <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
+    <script src="map-config.js?v=map-1"></script>
+    <script src="spot-map.js?v=pages-20260830nofullrose1"></script>
+  </body>
+</html>

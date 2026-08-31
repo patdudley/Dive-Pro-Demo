@@ -1,0 +1,485 @@
+/* Home-only hero + condition slider. Do not load on location pages.
+   Never set display:contents on .map-frame. */
+
+.home-directory .site-chrome-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.home-directory .site-chrome,
+.home-directory .site-chrome-bar {
+  overflow: visible;
+}
+
+.home-directory .home-search {
+  position: relative;
+  width: min(560px, 100%);
+  margin: 0 auto;
+}
+
+.home-directory .home-search-field {
+  position: relative;
+}
+
+.home-directory .home-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(10, 37, 64, 0.42);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.home-directory .home-search-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 90;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid rgba(13, 122, 140, 0.16);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(10, 37, 64, 0.12);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.home-directory .home-search-suggest[hidden] {
+  display: none;
+}
+
+.home-directory .home-search-suggest-link,
+.home-directory .home-search-suggest-empty {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #0a2540;
+  text-decoration: none;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.home-directory .home-search-suggest-link strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.home-directory .home-search-suggest-link span {
+  color: rgba(10, 37, 64, 0.5);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.home-directory .home-search-suggest [role="option"].is-active .home-search-suggest-link,
+.home-directory .home-search-suggest-link:hover {
+  background: #f3f6fb;
+}
+
+.home-directory .home-search-suggest-empty {
+  color: rgba(10, 37, 64, 0.55);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.home-directory .home-search input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid rgba(13, 122, 140, 0.14);
+  border-radius: 999px;
+  padding: 0 18px 0 42px;
+  background: #f3f5f8;
+  color: var(--navy);
+  box-shadow: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.home-directory .home-search input:focus {
+  background: #fff;
+  outline: 2px solid rgba(31, 111, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.home-directory-shell {
+  padding-top: 22px;
+  padding-bottom: 48px;
+}
+
+.home-directory .home-hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.28fr);
+  align-items: stretch;
+  gap: 28px;
+  /* Drop leftover marketing-hero chrome from styles.css (#eff8ff wash,
+     circular ::before/::after blobs, padded rounded card). The map card
+     has a large radius, so any parent fill shows as a sky-blue halo. */
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.home-directory .home-hero::before,
+.home-directory .home-hero::after {
+  content: none;
+  display: none;
+}
+
+.home-directory .home-hero-copy {
+  padding-top: 8px;
+}
+
+.home-directory .home-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: #1f6fff;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-directory .home-live-badge span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1f6fff;
+  box-shadow: 0 0 0 4px rgba(31, 111, 255, 0.16);
+}
+
+.home-directory .home-hero h1,
+.home-directory .home-hero-title {
+  margin: 0 0 12px;
+  color: #0a2540;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(2.25rem, 3.8vw, 3.45rem);
+  font-weight: 550;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
+}
+
+.home-directory .home-hero-sub {
+  max-width: 34rem;
+  margin: 0 0 22px;
+  color: rgba(10, 37, 64, 0.62);
+  font-size: 1.02rem;
+  font-weight: 550;
+  line-height: 1.45;
+}
+
+.home-directory .home-cond-slider {
+  border: 1px solid rgba(13, 122, 140, 0.12);
+  border-radius: 18px;
+  padding: 14px 14px 12px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(10, 37, 64, 0.06);
+}
+
+.home-directory .home-cond-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.home-directory .home-cond-kicker {
+  margin: 0;
+  color: rgba(10, 37, 64, 0.5);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-directory .home-cond-arrows {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.home-directory .home-cond-arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(10, 37, 64, 0.12);
+  border-radius: 50%;
+  background: #fff;
+  color: #0a2540;
+  cursor: pointer;
+}
+
+.home-directory .home-cond-arrow:hover,
+.home-directory .home-cond-arrow:focus-visible {
+  border-color: #1f6fff;
+  color: #1f6fff;
+  outline: none;
+}
+
+.home-directory .home-cond-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  outline: none;
+}
+
+.home-directory .home-cond-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.home-directory .home-cond-pages {
+  display: flex;
+  width: 100%;
+}
+
+.home-directory .home-cond-page {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  scroll-snap-align: start;
+}
+
+.home-directory .home-cond-spot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.home-directory .home-cond-slider .home-cond-spot h3 {
+  margin: 0;
+  color: #0a2540;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.home-directory .home-cond-spot p {
+  display: none;
+}
+
+.home-directory .home-cond-grade {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--grade-color, #1f6fff);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.home-directory .home-cond-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.home-directory .home-cond-metric {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 4px 2px;
+}
+
+.home-directory .home-cond-icon {
+  color: #1f6fff;
+}
+
+.home-directory .home-cond-label {
+  color: rgba(10, 37, 64, 0.5);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.home-directory .home-cond-metric strong {
+  color: #0a2540;
+  font-size: 0.98rem;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.home-directory .home-cond-metric.is-empty strong {
+  color: rgba(10, 37, 64, 0.42);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.home-directory .home-cond-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.home-directory .home-cond-dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(10, 37, 64, 0.16);
+  cursor: pointer;
+}
+
+.home-directory .home-cond-dots button[aria-selected="true"] {
+  width: 18px;
+  border-radius: 999px;
+  background: #1f6fff;
+}
+
+.home-directory .home-map-card {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.home-directory .home-map-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.home-directory .home-map-card.model-card::before {
+  content: none;
+  display: none;
+}
+
+.home-directory .home-map-card .map-frame.spot-map-frame {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: none;
+  border: 0;
+}
+
+.home-directory .home-map-card .spot-map-graphic {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.home-directory .home-featured {
+  margin-top: 36px;
+}
+
+.home-directory .home-featured-heading {
+  margin-bottom: 16px;
+}
+
+.home-directory .home-featured-heading h2 {
+  margin: 0;
+  color: #0a2540;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 979px) {
+  .home-directory .site-chrome-bar {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "logo nav"
+      "search search";
+  }
+
+  .home-directory .site-logo { grid-area: logo; }
+  .home-directory .site-nav { grid-area: nav; justify-self: end; }
+  .home-directory .home-search {
+    grid-area: search;
+    width: 100%;
+  }
+
+  .home-directory .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 22px;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .home-directory .home-map-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  .home-directory .home-map-card .map-frame.spot-map-frame {
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .home-directory .home-hero h1,
+  .home-directory .home-hero-title {
+    font-size: 2.25rem;
+  }
+
+  /* Stacked hero: hide the slider so copy sits above the map. Desktop two-column keeps it. */
+  .home-directory .home-cond-slider {
+    display: none;
+  }
+
+  /* Stacked hero: hide the subtitle. Desktop two-column keeps it. */
+  .home-directory .home-hero-sub {
+    display: none;
+  }
+
+  .home-directory .home-map-card .spot-map-graphic {
+    height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-directory .home-hero h1,
+  .home-directory .home-hero-title {
+    font-size: 1.9rem;
+  }
+}

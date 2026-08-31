@@ -1,0 +1,508 @@
+/* Open-ocean Waves + Clouds overlays. Test site only.
+   Do not merge into DivePro-site / diveprosd.com.
+   Clouds are soft marine stratus (blurred / organic), not a diamond heatmap. */
+
+.map-layer-toggle.spot-map-layer-toggle {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: min(280px, calc(100% - 76px));
+  row-gap: 3px;
+}
+
+.map-layer-toggle.spot-map-layer-toggle button {
+  padding: 5px 8px;
+  font-size: 0.62rem;
+}
+
+.ocean-overlay-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.spot-map-graphic.is-map-moving .ocean-overlay-canvas {
+  opacity: 0;
+}
+
+.map-frame.is-wind-mode .ocean-overlay-canvas:not(.swell-compass-canvas),
+.map-frame.is-depth-mode .ocean-overlay-canvas:not(.swell-compass-canvas),
+.map-frame:not(.is-waves-mode) .wave-overlay-canvas,
+.map-frame:not(.is-waves-mode) .wave-particle-canvas,
+.map-frame:not(.is-clouds-mode) .cloud-overlay-canvas {
+  display: none;
+}
+
+.swell-compass-canvas {
+  z-index: 14;
+  display: block;
+}
+
+.map-frame.is-waves-mode .wind-gradient-canvas,
+.map-frame.is-waves-mode .wind-particle-canvas,
+.map-frame.is-waves-mode .spot-wind-legend,
+.map-frame.is-clouds-mode .wind-gradient-canvas,
+.map-frame.is-clouds-mode .wind-particle-canvas,
+.map-frame.is-clouds-mode .spot-wind-legend {
+  display: none;
+}
+
+.map-frame.is-waves-mode .spot-wind-timeline,
+.map-frame.is-clouds-mode .spot-wind-timeline {
+  display: block;
+}
+
+.ocean-legend {
+  position: absolute;
+  z-index: 40;
+  right: 12px;
+  bottom: 12px;
+  display: none;
+  width: min(210px, calc(100% - 24px));
+  border: 1px solid rgba(125, 216, 247, 0.28);
+  border-radius: 12px;
+  padding: 10px 12px 9px;
+  background: rgba(5, 22, 37, 0.78);
+  color: #d8f5ff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(14px);
+}
+
+.map-frame.is-waves-mode .wave-legend,
+.map-frame.is-clouds-mode .cloud-legend {
+  display: block;
+}
+
+.ocean-legend span {
+  display: block;
+  margin: 0 0 7px;
+  color: rgba(216, 245, 255, 0.72);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.ocean-legend-gradient {
+  height: 9px;
+  border-radius: 999px;
+}
+
+/* Same cyan→magenta family as .wind-legend-gradient, mapped to feet. */
+.wave-legend-gradient {
+  background: linear-gradient(90deg, #0075df 0%, #13baee 30%, #a64bd8 60%, #ee13ba 100%);
+}
+
+.wave-legend .ocean-legend-labels {
+  position: relative;
+  display: block;
+  height: 0.82rem;
+}
+
+.wave-legend .ocean-legend-labels b {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.wave-legend .ocean-legend-labels b:nth-child(1) {
+  left: 0;
+  transform: none;
+}
+
+.wave-legend .ocean-legend-labels b:nth-child(2) {
+  left: 30%;
+}
+
+.wave-legend .ocean-legend-labels b:nth-child(3) {
+  left: 60%;
+}
+
+.wave-legend .ocean-legend-labels b:nth-child(4) {
+  left: 100%;
+  transform: translateX(-100%);
+}
+
+.cloud-legend-gradient {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(214, 220, 228, 0.55) 50%, rgba(255, 255, 255, 0.92) 100%);
+}
+
+.ocean-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: rgba(216, 245, 255, 0.78);
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.map-wind-probe-pin.map-ocean-probe {
+  --probe-fill: #0b1628;
+  --probe-stroke: #f4f7fb;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  grid-template-areas: "body arrow";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 0;
+  box-sizing: border-box;
+  min-width: 108px;
+  max-width: min(280px, calc(100% - 24px));
+  width: max-content;
+  height: auto;
+  min-height: 0;
+  padding: 10px 12px 12px;
+  border: 2px solid var(--probe-stroke);
+  border-radius: 12px;
+  background: var(--probe-fill);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
+  overflow: visible;
+}
+
+.map-wind-probe-pin.map-ocean-probe[data-layer="waves"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "body";
+  column-gap: 0;
+  max-width: min(280px, calc(100% - 24px));
+}
+
+/* Kill the leftover 10×10 rotated diamond from .map-wind-probe-pin::after
+   (styles.css). That filled box sat on the card and covered the height text.
+   Rebuild the tail as zero-size CSS triangles only, below the card. */
+.map-wind-probe-pin.map-ocean-probe::before,
+.map-wind-probe-pin.map-ocean-probe::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%;
+  right: auto;
+  top: auto;
+  box-sizing: content-box;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+  pointer-events: none;
+}
+
+.map-wind-probe-pin.map-ocean-probe::before {
+  bottom: -9px;
+  border: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 11px solid var(--probe-stroke);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.map-wind-probe-pin.map-ocean-probe::after {
+  bottom: -7px;
+  border: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 10px solid var(--probe-fill);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.map-ocean-probe-join {
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  display: block;
+  width: 16px;
+  height: 3px;
+  overflow: hidden;
+  font-size: 0;
+  line-height: 0;
+  font-weight: 400;
+  color: transparent;
+  background: var(--probe-fill);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.map-ocean-probe-body {
+  grid-area: body;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding-right: 0;
+  background: transparent;
+}
+
+.map-wind-probe-pin.map-ocean-probe span,
+.map-wind-probe-pin.map-ocean-probe strong,
+.map-wind-probe-pin.map-ocean-probe em {
+  position: static;
+  z-index: auto;
+  text-transform: none;
+  white-space: normal;
+  background: transparent;
+}
+
+.map-ocean-probe-title {
+  color: rgba(216, 245, 255, 0.7);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.map-ocean-probe-value {
+  display: block;
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.map-wind-probe-pin.map-ocean-probe[data-layer="waves"] .map-ocean-probe-value {
+  display: block;
+  font-size: 1.08rem;
+  line-height: 1.15;
+}
+
+.map-ocean-probe-train {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  background: transparent;
+}
+
+.map-ocean-probe-train-label {
+  color: rgba(226, 242, 255, 0.94);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.map-ocean-probe-train-sep {
+  color: rgba(226, 242, 255, 0.55);
+  font-weight: 700;
+}
+
+.map-ocean-probe-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  color: rgba(226, 242, 255, 0.86);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.25;
+  white-space: normal;
+  background: transparent;
+}
+
+.map-ocean-probe-meta:empty {
+  display: none;
+}
+
+.map-wind-probe-pin.map-ocean-probe > .map-wind-probe-arrow {
+  grid-area: arrow;
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  align-self: center;
+  justify-self: end;
+}
+
+.map-ocean-probe-train .map-wind-probe-arrow {
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background: transparent;
+}
+
+.map-wind-probe-pin.map-ocean-probe[data-layer="clouds"],
+.map-wind-probe-pin.map-ocean-probe:not([data-has-dir="true"]) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "body";
+  min-width: 92px;
+}
+
+.map-wind-probe-pin.map-ocean-probe[data-layer="clouds"] > .map-wind-probe-arrow,
+.map-wind-probe-pin.map-ocean-probe[data-layer="waves"] > .map-wind-probe-arrow,
+.map-wind-probe-pin.map-ocean-probe:not([data-has-dir="true"]) > .map-wind-probe-arrow {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .map-layer-toggle.spot-map-layer-toggle {
+    top: 8px;
+    right: 56px;
+    max-width: calc(100% - 66px);
+    padding: 3px;
+  }
+
+  .map-layer-toggle.spot-map-layer-toggle button {
+    padding: 4px 7px;
+    font-size: 0.56rem;
+  }
+
+  .ocean-legend {
+    right: 10px;
+    bottom: 86px;
+    width: 146px;
+    padding: 7px 9px 6px;
+    border-radius: 10px;
+  }
+
+  .map-wind-probe-pin.map-ocean-probe {
+    min-width: 100px;
+    padding: 12px;
+  }
+
+  .map-ocean-probe-value {
+    font-size: 0.96rem;
+  }
+}
+
+/* Depth layer no longer shows a Shallow/Deep key. Toggle is unchanged. */
+.depth-legend,
+.spot-depth-legend {
+  display: none !important;
+}
+
+/* Wind MPH scale: full legend on desktop; compact chip + popup on mobile. */
+.wind-legend-chip,
+.wind-legend-close {
+  display: none;
+}
+
+.wind-legend-panel {
+  display: block;
+}
+
+@media (max-width: 979px) {
+  .spot-map-frame .spot-wind-legend:not(.is-hidden) {
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .spot-map-frame .wind-legend-chip {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 1px 10px 0;
+    width: auto;
+    height: 28px;
+    min-width: 44px;
+    min-height: 28px;
+    border: 1px solid rgba(232, 247, 255, 0.62);
+    border-radius: 999px;
+    background: transparent;
+    color: #f4fbff;
+    font: inherit;
+    font-size: 0.62rem;
+    font-weight: 850;
+    letter-spacing: 0;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    cursor: pointer;
+  }
+
+  .spot-map-frame .wind-legend-chip span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    letter-spacing: 0;
+    color: inherit;
+    font: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    text-transform: inherit;
+  }
+
+  .spot-map-frame .wind-legend-chip[aria-expanded="true"] {
+    background: rgba(9, 25, 45, 0.42);
+    border-color: rgba(232, 247, 255, 0.78);
+  }
+
+  .spot-map-frame .spot-wind-legend .wind-legend-panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 60;
+    box-sizing: border-box;
+    width: min(168px, calc(100vw - 32px));
+    padding: 10px 28px 9px 12px;
+    border: 1px solid rgba(125, 216, 247, 0.28);
+    border-radius: 12px;
+    background: rgba(5, 22, 37, 0.92);
+    color: #d8f5ff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .spot-map-frame .spot-wind-legend.is-open .wind-legend-panel {
+    display: block;
+  }
+
+  .spot-map-frame .spot-wind-legend.is-open .wind-legend-close {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(216, 245, 255, 0.82);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+}

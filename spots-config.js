@@ -1,3 +1,24 @@
+const MONTEREY_SWELL_BOUNDS = [
+  [-122.12, 36.48],
+  [-121.58, 36.84],
+];
+
+const MONTEREY_TIDE = {
+  id: "9413450",
+  label: "NOAA Monterey 9413450",
+};
+
+const MONTEREY_FORECAST = {
+  sport: "dive",
+  sportLabel: "DIVE",
+  regionGroup: "California",
+  regionCluster: "monterey",
+  hasModelForecast: true,
+  isBeta: true,
+  swellBounds: MONTEREY_SWELL_BOUNDS,
+  tideStation: MONTEREY_TIDE,
+};
+
 window.outdoorSpots = [
   {
     slug: "la-jolla",
@@ -12,6 +33,8 @@ window.outdoorSpots = [
     location: "La Jolla / Scripps Pier",
     lat: 32.873,
     lon: -117.253,
+    marineLat: 32.86,
+    marineLon: -117.32,
     hasModelForecast: true,
     cameraLabel: "Scripps Pier cam",
     cameraUrl: "https://coollab.ucsd.edu/pierviz/",
@@ -39,21 +62,20 @@ window.outdoorSpots = [
     ],
   },
   {
+    ...MONTEREY_FORECAST,
     slug: "monterey",
-    sport: "dive",
-    sportLabel: "DIVE",
-    regionGroup: "California",
     href: "monterey.html",
     city: "Monterey",
-    name: "Monterey",
-    pickerLabel: "Monterey",
-    pinLabel: "Monterey",
-    location: "Monterey Bay",
-    lat: 36.6011,
-    lon: -121.8946,
+    name: "Breakwater / San Carlos",
+    pickerGroup: "Monterey",
+    pickerLabel: "Breakwater",
+    pinLabel: "Breakwater",
+    location: "San Carlos Beach, Monterey",
+    lat: 36.6097,
+    lon: -121.8936,
     marineLat: 36.64,
     marineLon: -121.80,
-    hasModelForecast: false,
+    forecastPath: "model_outputs/spots/monterey.json",
     cameraLabel: "Live camera",
     cameraUrl: "https://www.portolahotel.com/our-hotel/webcam",
     liveEmbedUrl: "https://portal.hdontap.com/s/embed/?stream=portola_ttv-DMS&ratio=16:9",
@@ -61,24 +83,128 @@ window.outdoorSpots = [
     image: "https://portal.hdontap.com/snapshot/portola_ttv-DMS",
     imageAlt: "Monterey marina / Custom House Plaza live camera from Portola Hotel",
     imageLabel: "Live camera",
-    swellBounds: [
-      [-122.12, 36.50],
-      [-121.58, 36.84],
-    ],
-    tideStation: {
-      id: "9413450",
-      label: "NOAA Monterey 9413450",
-    },
-    regionLabel: "Monterey Bay",
-    grade: null,
-    gradeClass: "",
-    primaryText: "Vis grade unavailable",
-    fill: 0,
+    regionLabel: "Monterey Harbor",
+    grade: "B",
+    gradeClass: "grade-b",
+    primaryText: "16-32 ft",
+    fill: 75,
     metrics: [
-      ["Visibility", "Unavailable"],
-      ["Water", "—"],
-      ["Wind", "—"],
-      ["Window", "—"],
+      ["Visibility", "16-32 ft"],
+      ["Water", "60 F"],
+      ["Wind", "10 mph"],
+      ["Window", "Morning"],
+    ],
+  },
+  {
+    ...MONTEREY_FORECAST,
+    slug: "monterey-mcabee",
+    parentSlug: "monterey",
+    href: "monterey-mcabee.html",
+    city: "Monterey",
+    name: "McAbee",
+    pickerGroup: "Monterey",
+    pickerLabel: "McAbee",
+    pinLabel: "McAbee",
+    location: "McAbee Beach, Cannery Row",
+    lat: 36.6172,
+    lon: -121.8997,
+    marineLat: 36.64,
+    marineLon: -121.80,
+    forecastPath: "model_outputs/spots/monterey-mcabee.json",
+    regionLabel: "Cannery Row",
+    grade: "B",
+    gradeClass: "grade-b",
+    primaryText: "16-32 ft",
+    fill: 75,
+    metrics: [
+      ["Visibility", "16-32 ft"],
+      ["Water", "60 F"],
+      ["Wind", "10 mph"],
+      ["Window", "Morning"],
+    ],
+  },
+  {
+    ...MONTEREY_FORECAST,
+    slug: "monterey-lovers",
+    parentSlug: "monterey",
+    href: "monterey-lovers.html",
+    city: "Pacific Grove",
+    name: "Lovers Point",
+    pickerGroup: "Monterey",
+    pickerLabel: "Lovers Point",
+    pinLabel: "Lovers Point",
+    location: "Lovers Point, Pacific Grove",
+    lat: 36.6263,
+    lon: -121.9165,
+    marineLat: 36.64,
+    marineLon: -121.80,
+    forecastPath: "model_outputs/spots/monterey-lovers.json",
+    regionLabel: "Pacific Grove",
+    grade: "B",
+    gradeClass: "grade-b",
+    primaryText: "16-32 ft",
+    fill: 75,
+    metrics: [
+      ["Visibility", "16-32 ft"],
+      ["Water", "60 F"],
+      ["Wind", "10 mph"],
+      ["Window", "Morning"],
+    ],
+  },
+  {
+    ...MONTEREY_FORECAST,
+    slug: "monterey-lobos",
+    parentSlug: "monterey",
+    href: "monterey-lobos.html",
+    city: "Carmel",
+    name: "Point Lobos",
+    pickerGroup: "Monterey",
+    pickerLabel: "Point Lobos",
+    pinLabel: "Point Lobos",
+    location: "Whaler's Cove, Point Lobos",
+    lat: 36.5197,
+    lon: -121.9402,
+    marineLat: 36.52,
+    marineLon: -121.94,
+    forecastPath: "model_outputs/spots/monterey-lobos.json",
+    regionLabel: "Point Lobos",
+    grade: "A",
+    gradeClass: "grade-a",
+    primaryText: "25-41 ft",
+    fill: 88,
+    metrics: [
+      ["Visibility", "25-41 ft"],
+      ["Water", "60 F"],
+      ["Wind", "10 mph"],
+      ["Window", "Morning"],
+    ],
+  },
+  {
+    ...MONTEREY_FORECAST,
+    slug: "monterey-monastery",
+    parentSlug: "monterey",
+    href: "monterey-monastery.html",
+    city: "Carmel",
+    name: "Monastery",
+    pickerGroup: "Monterey",
+    pickerLabel: "Monastery",
+    pinLabel: "Monastery",
+    location: "Monastery Beach, Carmel",
+    lat: 36.5258,
+    lon: -121.9264,
+    marineLat: 36.53,
+    marineLon: -121.93,
+    forecastPath: "model_outputs/spots/monterey-monastery.json",
+    regionLabel: "Carmel",
+    grade: "A+",
+    gradeClass: "grade-a-plus",
+    primaryText: "38-54 ft",
+    fill: 94,
+    metrics: [
+      ["Visibility", "38-54 ft"],
+      ["Water", "60 F"],
+      ["Wind", "10 mph"],
+      ["Window", "Morning"],
     ],
   },
   {
@@ -89,16 +215,18 @@ window.outdoorSpots = [
     href: "catalina-wrigley.html",
     city: "Catalina Island",
     name: "Wrigley Reserve",
-    pickerLabel: "Wrigley",
+    pickerLabel: "Catalina Wrigley",
     pinLabel: "Catalina Wrigley",
     location: "Wrigley Reserve, Catalina Island",
     lat: 33.438,
     lon: -118.492,
+    marineLat: 33.43,
+    marineLon: -118.55,
     hasModelForecast: false,
     cameraLabel: "Live Catalina reserve cam",
     cameraUrl: "https://www.youtube.com/watch?v=JH_NzhSsqis",
     liveEmbedUrl: "https://www.youtube.com/embed/JH_NzhSsqis?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1",
-    image: "",
+    image: "camera-snapshots/catalina-wrigley.jpg?v=20260828-2329",
     imageAlt: "Catalina Wrigley reserve camera",
     imageLabel: "Live camera",
     swellBounds: [
@@ -112,13 +240,11 @@ window.outdoorSpots = [
     regionLabel: "Catalina Island",
     grade: null,
     gradeClass: "",
-    primaryText: "Vis grade unavailable",
+    primaryText: "",
     fill: 0,
     metrics: [
-      ["Visibility", "Unavailable"],
       ["Water", "—"],
       ["Wind", "—"],
-      ["Window", "—"],
     ],
   },
   {
@@ -134,11 +260,13 @@ window.outdoorSpots = [
     location: "Anacapa Ocean, Channel Islands",
     lat: 34.010,
     lon: -119.366,
+    marineLat: 34.00,
+    marineLon: -119.42,
     hasModelForecast: false,
     cameraLabel: "Live Anacapa cam",
     cameraUrl: "https://www.youtube.com/watch?v=OAJF1Ie1m_Q",
     liveEmbedUrl: "https://www.youtube.com/embed/OAJF1Ie1m_Q?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1",
-    image: "",
+    image: "camera-snapshots/anacapa-ocean.jpg?v=20260828-2329",
     imageAlt: "Anacapa Ocean camera",
     imageLabel: "Live camera",
     swellBounds: [
@@ -154,13 +282,11 @@ window.outdoorSpots = [
     regionLabel: "Channel Islands",
     grade: null,
     gradeClass: "",
-    primaryText: "Vis grade unavailable",
+    primaryText: "",
     fill: 0,
     metrics: [
-      ["Visibility", "Unavailable"],
       ["Water", "—"],
       ["Wind", "—"],
-      ["Window", "—"],
     ],
   },
 ];
@@ -169,7 +295,27 @@ window.californiaSpots = function californiaSpots() {
   return (window.outdoorSpots || []).filter((spot) => spot.regionGroup === "California");
 };
 
+window.homeDirectorySpots = function homeDirectorySpots() {
+  return window.californiaSpots().filter((spot) => !spot.parentSlug);
+};
+
+window.statewideMapSpots = function statewideMapSpots() {
+  return window.californiaSpots().filter((spot) => !spot.parentSlug);
+};
+
 window.spotFromSlug = function spotFromSlug(slug) {
   const spots = window.californiaSpots();
   return spots.find((spot) => spot.slug === slug) || spots[0] || null;
+};
+
+window.isMontereySpot = function isMontereySpot(spot) {
+  return Boolean(spot && (spot.regionCluster === "monterey" || spot.slug === "monterey" || spot.parentSlug === "monterey"));
+};
+
+window.spotPublishesVisGrades = function spotPublishesVisGrades(spot) {
+  const slug = String(spot?.slug || "");
+  if (slug === "catalina-wrigley" || slug === "anacapa-ocean") return false;
+  if (spot && spot.hasModelForecast === false) return false;
+  if (spot && !spot.forecastPath && slug !== "la-jolla" && !window.isMontereySpot(spot)) return false;
+  return Boolean(spot?.hasModelForecast || slug === "la-jolla" || window.isMontereySpot(spot));
 };

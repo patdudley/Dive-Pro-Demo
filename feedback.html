@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Feedback | Dive Pro</title>
+    <meta name="description" content="Send Dive Pro feedback about the forecast, cameras, or the app.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#13baee">
+    <link rel="canonical" href="https://patdudley.github.io/Dive-Pro-Demo/feedback.html">
+    <link rel="icon" href="favicon.ico?v=fish-icon-4" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=fish-icon-4">
+    <link rel="stylesheet" href="styles.css?v=pages-20260830nav1">
+  </head>
+  <body class="publication">
+    <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
+    <header class="site-chrome">
+      <div class="site-chrome-bar">
+        <a class="site-logo" href="./">
+          <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
+        </a>
+        <nav class="site-nav" aria-label="Site">
+          <a class="site-nav-link" href="blog/">Blog</a>
+          <a class="site-nav-link" href="feedback.html" aria-current="page">Feedback</a>
+        </nav>
+      </div>
+    </header>
+    <main class="shell article-shell">
+      <section class="feedback-card">
+        <p class="post-kicker">Tell us what to fix</p>
+        <h1>Feedback</h1>
+        <p class="feedback-lede">Grades, cameras, maps, copy — send whatever is off. This opens your email app and goes to Patrick.</p>
+        <form id="feedbackForm" class="feedback-form">
+          <label>
+            <span>Your name</span>
+            <input id="feedbackName" name="name" type="text" autocomplete="name" maxlength="80">
+          </label>
+          <label>
+            <span>Your email</span>
+            <input id="feedbackEmail" name="email" type="email" autocomplete="email" maxlength="120">
+          </label>
+          <label>
+            <span>What should we know?</span>
+            <textarea id="feedbackMessage" name="message" required rows="7" maxlength="4000" placeholder="The Breakwater grade looked high, the wind chips overlapped, a camera was stale…"></textarea>
+          </label>
+          <button type="submit">Send feedback</button>
+          <p class="feedback-status" id="feedbackStatus" hidden></p>
+        </form>
+      </section>
+    </main>
+    <script src="analytics-config.js?v=analytics-2"></script>
+    <script src="analytics.js?v=analytics-2"></script>
+    <script>
+      (function () {
+        const form = document.getElementById("feedbackForm");
+        const status = document.getElementById("feedbackStatus");
+        if (!form) return;
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const name = document.getElementById("feedbackName").value.trim();
+          const email = document.getElementById("feedbackEmail").value.trim();
+          const message = document.getElementById("feedbackMessage").value.trim();
+          if (!message) return;
+          const lines = [
+            message,
+            "",
+            name ? `From: ${name}` : "",
+            email ? `Email: ${email}` : "",
+            `Page: ${window.location.href}`,
+          ].filter(Boolean);
+          const mailto = new URL("mailto:patduds@gmail.com");
+          mailto.searchParams.set("subject", "Dive Pro feedback");
+          mailto.searchParams.set("body", lines.join("\n"));
+          window.location.href = mailto.toString();
+          status.hidden = false;
+          status.textContent = "Your email app should open with the note ready to send.";
+        });
+      }());
+    </script>
+  </body>
+</html>

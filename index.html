@@ -48,8 +48,14 @@
         }
       }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829ax">
+    <link rel="stylesheet" href="styles.css?v=pages-20260830nav1">
+    <link rel="stylesheet" href="home-hero.css?v=pages-20260830mapht">
+    <link rel="stylesheet" href="home-cards.css?v=pages-20260830novis1">
+    <link rel="stylesheet" href="map-time-player.css?v=expand-only-1">
   </head>
   <body class="home-directory" data-page="home">
     <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
@@ -58,20 +64,50 @@
         <a class="site-logo" href="./">
           <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
         </a>
+        <form class="home-search" id="spotSearchForm" role="search">
+          <label class="home-search-label" for="spotSearch">Search dive spots</label>
+          <div class="home-search-field">
+            <span class="home-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input id="spotSearch" type="search" name="q" placeholder="Search dive spots, regions, or conditions." autocomplete="off" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-controls="spotSearchSuggest" aria-expanded="false">
+            <ul class="home-search-suggest" id="spotSearchSuggest" role="listbox" hidden></ul>
+          </div>
+        </form>
         <nav class="site-nav" aria-label="Site">
-          <a href="blog/">Blog</a>
+          <a class="site-nav-link" href="blog/">Blog</a>
+          <a class="site-nav-link" href="feedback.html">Feedback</a>
         </nav>
       </div>
     </header>
     <main class="shell home-directory-shell">
-      <form class="home-search" id="spotSearchForm" role="search">
-        <label class="home-search-label" for="spotSearch">Search spots</label>
-        <input id="spotSearch" type="search" name="q" placeholder="Search spots" autocomplete="off" enterkeyhint="search">
-      </form>
+      <div class="home-hero">
+        <section class="home-hero-copy" aria-label="Live dive conditions">
+          <p class="home-live-badge"><span aria-hidden="true"></span> Live conditions</p>
+          <h1 class="home-hero-title">Find the best conditions to dive Across California</h1>
+          <p class="home-hero-sub">Live forecasts, real-time data, and published visibility reports for California’s top dive spots</p>
 
-      <div class="home-spot-layout">
-        <section class="model-card region-map-card home-map-card">
-          <div class="section-heading">
+          <div class="home-cond-slider" id="spotConditionSlider">
+            <div class="home-cond-toolbar">
+              <p class="home-cond-kicker">Spot conditions</p>
+              <div class="home-cond-arrows">
+                <button type="button" class="home-cond-arrow" id="spotCondPrev" aria-label="Previous spot">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+                </button>
+                <button type="button" class="home-cond-arrow" id="spotCondNext" aria-label="Next spot">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="home-cond-viewport" id="spotCondTrack" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Conditions by dive spot">
+              <div class="home-cond-pages" id="spotCondPages"></div>
+            </div>
+            <div class="home-cond-dots" id="spotCondDots" role="tablist" aria-label="Choose a dive spot"></div>
+          </div>
+        </section>
+
+        <section class="model-card region-map-card home-map-card" aria-label="California map">
+          <div class="section-heading home-map-heading">
             <h2>California</h2>
             <span id="regionMapLabel">Four dive spots</span>
           </div>
@@ -87,53 +123,26 @@
                 <div class="wind-legend-gradient"></div>
                 <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
               </div>
-              <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
-                <span>Depth</span>
-                <div class="depth-legend-gradient"></div>
-                <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
-              </div>
             </div>
           </div>
         </section>
-
-        <section class="home-bubbles-card" aria-label="California locations">
-          <div id="spotBubbles" class="home-bubbles">
-            <a class="spot-bubble" href="la-jolla.html" data-slug="la-jolla" aria-label="Open La Jolla">
-              <div class="spot-bubble-copy">
-                <h2>La Jolla</h2>
-                <p>San Diego</p>
-              </div>
-            </a>
-            <a class="spot-bubble" href="monterey.html" data-slug="monterey" aria-label="Open Monterey">
-              <div class="spot-bubble-copy">
-                <h2>Monterey</h2>
-                <p>Monterey Bay</p>
-              </div>
-            </a>
-            <a class="spot-bubble" href="catalina-wrigley.html" data-slug="catalina-wrigley" aria-label="Open Catalina Wrigley">
-              <div class="spot-bubble-copy">
-                <h2>Catalina Wrigley</h2>
-                <p>Catalina Island</p>
-              </div>
-            </a>
-            <a class="spot-bubble" href="anacapa-ocean.html" data-slug="anacapa-ocean" aria-label="Open Anacapa">
-              <div class="spot-bubble-copy">
-                <h2>Anacapa</h2>
-                <p>Channel Islands</p>
-              </div>
-            </a>
-          </div>
-          <p class="home-search-empty" id="spotSearchEmpty" hidden>No spots match that search.</p>
-        </section>
       </div>
+
+      <section class="home-featured" id="featuredSpots" aria-label="Featured dive spots">
+        <div class="home-featured-heading">
+          <h2>Featured Dive Spots</h2>
+        </div>
+        <div id="spotBubbles" class="home-featured-grid"></div>
+        <p class="home-search-empty" id="spotSearchEmpty" hidden>No spots match that search.</p>
+      </section>
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829ax"></script>
-    <script src="home-directory.js?v=pages-20260829ax"></script>
+    <script src="spots-config.js?v=pages-20260830novis1"></script>
+    <script src="home-directory.js?v=pages-20260831live1"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829ax"></script>
+    <script src="spot-map.js?v=pages-20260830expandonly1"></script>
   </body>
 </html>

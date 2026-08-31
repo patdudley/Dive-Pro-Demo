@@ -48,8 +48,10 @@
       }
     </script>
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
-    <link rel="stylesheet" href="styles.css?v=pages-20260829ax">
+    <link rel="stylesheet" href="styles.css?v=pages-20260830swelldir1">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
+    <link rel="stylesheet" href="grade-guide-popup.css?v=gg-1">
+    <link rel="stylesheet" href="map-time-player.css?v=expand-only-1">
   </head>
   <body data-spot="la-jolla">
     <p class="preview-banner">Preview — not production. Live site is <a href="https://diveprosd.com">diveprosd.com</a></p>
@@ -59,7 +61,8 @@
           <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
         </a>
         <nav class="site-nav" aria-label="Site">
-          <a href="blog/">Blog</a>
+          <a class="site-nav-link" href="blog/">Blog</a>
+          <a class="site-nav-link" href="feedback.html">Feedback</a>
         </nav>
       </div>
     </header>
@@ -76,19 +79,9 @@
         <div class="hero-content">
           <section class="forecast-panel">
             <div class="forecast-meta">
-              <label class="spot-picker">
-                <span class="spot-picker-kicker">California location</span>
-                <div class="spot-picker-row">
-                  <button type="button" id="heroPrevSpot" class="spot-picker-nav" aria-label="Previous California location">‹</button>
-                  <select id="spotPicker" aria-label="California dive location">
-                    <option value="la-jolla">La Jolla</option>
-                    <option value="monterey">Monterey</option>
-                    <option value="catalina-wrigley">Wrigley</option>
-                    <option value="anacapa-ocean">Anacapa</option>
-                  </select>
-                  <button type="button" id="heroNextSpot" class="spot-picker-nav" aria-label="Next California location">›</button>
-                </div>
-              </label>
+              <div class="spot-heading">
+                <p class="spot-heading-name" id="spotHeading">La Jolla</p>
+              </div>
             </div>
             <div class="forecast-main">
               <strong id="grade">--</strong>
@@ -122,21 +115,20 @@
       <section class="model-card wave-card swell-card">
         <div class="section-heading">
           <h2>Swell</h2>
-          <span id="swellSource">Open-Meteo / NDBC</span>
         </div>
-        <div class="swell-stage">
+        <div class="swell-stage swell-visualization">
           <div class="wave-components" id="waveComponents"></div>
           <div class="swell-map-panel">
             <div id="swellMap" class="swell-map" role="img" aria-label="La Jolla coastline map"></div>
             <div class="swell-map-scrim" aria-hidden="true"></div>
-            <figure class="swell-rose-wrap" aria-label="Swell compass rose">
-              <div id="swellRose" class="swell-rose"></div>
-            </figure>
           </div>
+          <figure class="swell-compass-overlay swell-rose-wrap" aria-label="Swell compass rose">
+            <div id="swellRose" class="swell-rose"></div>
+          </figure>
         </div>
       </section>
 
-      <section class="model-card">
+      <section class="model-card weather-card">
         <h2>Weather</h2>
         <div class="feature-rows" id="featureRows"></div>
       </section>
@@ -177,11 +169,6 @@
               <div class="wind-legend-gradient"></div>
               <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
             </div>
-            <div class="depth-legend spot-depth-legend" aria-label="Ocean depth legend">
-              <span>Depth</span>
-              <div class="depth-legend-gradient"></div>
-              <div class="depth-legend-labels"><b>Shallow</b><b>Deep</b></div>
-            </div>
           </div>
         </div>
       </section>
@@ -194,14 +181,10 @@
         <div class="forecast-strip" id="forecastStrip" aria-label="10 day visibility forecast"></div>
       </section>
 
-      <section class="model-card">
-        <h2>Grade Guide</h2>
-        <div class="grade-guide" id="gradeGuide"></div>
-      </section>
     </main>
     <script src="analytics-config.js?v=analytics-2"></script>
     <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829ax"></script>
+    <script src="spots-config.js?v=pages-20260829az"></script>
     <script>
       (function applySpotFromPath() {
         const parts = (window.location.pathname || "").split("/").filter(Boolean);
@@ -213,11 +196,11 @@
         document.body.dataset.spot = spot?.slug || requested || "la-jolla";
       })();
     </script>
-    <script type="module" src="app.js?v=pages-20260829ax"></script>
+    <script type="module" src="app.js?v=pages-20260831live1"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>
-    <script src="spot-map.js?v=pages-20260829ax"></script>
+    <script src="spot-map.js?v=pages-20260830expandonly1"></script>
   </body>
 </html>

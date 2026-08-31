@@ -1,0 +1,524 @@
+/* Thin Windy-style in-map time dock (Option 1). Test site only.
+   Overlay inside .spot-map-graphic — never a panel under the map.
+   Play, time readout, slider, date chips, and calendar each have a reserved flex slot.
+   No NOW control — hide leftovers so they cannot sit on the thumb / time pill.
+   Beats leftover styles.css rules (min-height:174px, in-flow mobile, crushed chips).
+   Never set display:contents on .map-frame. */
+
+.spot-map-graphic {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-directory .home-map-card .map-frame.spot-map-frame,
+.home-directory .home-map-card .spot-map-frame {
+  /* Fill the stretched hero row. Player stays an overlay inside the graphic. */
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.spot-map-frame .spot-map-graphic > .wind-timeline.spot-wind-timeline,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline {
+  position: absolute !important;
+  z-index: 46;
+  top: auto !important;
+  right: 14px !important;
+  bottom: 12px !important;
+  left: 14px !important;
+  inset: auto 14px 12px 14px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  align-content: center !important;
+  gap: 8px !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  max-width: calc(100% - 28px) !important;
+  height: 72px !important;
+  min-height: 0 !important;
+  max-height: 76px !important;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(125, 216, 247, 0.14) !important;
+  border-radius: 22px !important;
+  background-color: rgba(9, 25, 45, 0.90) !important;
+  background-image: none !important;
+  color: #e8f7ff !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.30) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+
+.spot-map-frame .spot-map-graphic > .wind-timeline.spot-wind-timeline.is-hidden,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline.is-hidden {
+  display: none !important;
+}
+
+.map-frame.is-waves-mode .spot-map-graphic > .spot-wind-timeline:not(.is-hidden),
+.map-frame.is-clouds-mode .spot-map-graphic > .spot-wind-timeline:not(.is-hidden),
+.map-frame.is-depth-mode .spot-map-graphic > .spot-wind-timeline:not(.is-hidden) {
+  display: flex !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-play {
+  order: 1;
+  flex: 0 0 44px !important;
+  display: grid !important;
+  place-items: center;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  margin: 0 !important;
+  padding: 0 0 0 2px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  background-image: none !important;
+  color: #0a1630 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22) !important;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-play:hover,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-play:focus-visible {
+  background: #f4fbff !important;
+  color: #0a1630 !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline > .spot-wind-now,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-now {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline > .spot-wind-readout {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 1;
+  order: 3;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 58px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(6, 10, 22, 0.92) !important;
+  background-image: none !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: default;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: none;
+  white-space: nowrap;
+  pointer-events: none;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-axis {
+  order: 4;
+  position: relative !important;
+  flex: 1 1 0 !important;
+  display: flex !important;
+  align-items: center;
+  min-width: 0 !important;
+  width: auto !important;
+  overflow: hidden !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center;
+  width: 100%;
+  min-width: 0 !important;
+  height: 44px;
+  overflow: hidden !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider {
+  width: 100%;
+  min-width: 0 !important;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider::-webkit-slider-runnable-track,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider::-moz-range-track {
+  height: 3px !important;
+  border: 0 !important;
+  border-radius: 999px;
+  background: rgba(216, 245, 255, 0.26) !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider::-webkit-slider-thumb,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider::-moz-range-thumb {
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -5.5px;
+  border: 2px solid #fff !important;
+  border-radius: 999px;
+  background: #13baee !important;
+  box-shadow: 0 0 0 3px rgba(19, 186, 238, 0.22) !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-thumb-tip {
+  /* Time lives in the reserved .spot-wind-readout slot — never overlay the thumb. */
+  display: none !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-ticks,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .wind-time-ticks {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days {
+  order: 5;
+  position: relative !important;
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  max-width: min(400px, 52%) !important;
+  min-width: 0 !important;
+  height: 34px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  scrollbar-width: none;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button:last-child {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 58px !important;
+  max-width: none !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-right: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: none !important;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  white-space: nowrap !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button b,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button span {
+  font: inherit;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button.is-active,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button:first-child.is-active,
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button:last-child.is-active {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #13baee !important;
+  background-image: none !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-calendar {
+  order: 6;
+  position: relative !important;
+  flex: 0 0 28px !important;
+  display: grid !important;
+  place-items: center;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #e8f7ff !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-date-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  opacity: 0;
+}
+
+.spot-map-frame .spot-wind-legend,
+.spot-map-frame .ocean-legend,
+.spot-map-frame .wave-legend,
+.spot-map-frame .cloud-legend {
+  left: 12px !important;
+  right: auto !important;
+  bottom: 92px !important;
+}
+
+.map-expand-control {
+  position: absolute;
+  z-index: 50;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(125, 216, 247, 0.28);
+  border-radius: 10px;
+  background: rgba(9, 25, 45, 0.88);
+  color: #e8f7ff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-decoration: none;
+}
+
+@media (max-width: 979px) {
+  .home-directory .home-map-card .map-frame.spot-map-frame,
+  .home-directory .home-map-card .spot-map-frame {
+    height: auto !important;
+  }
+
+  /* Spot-page Region Map only — 280px mobile clamp + 60px. Home hero and /map.html stay put. */
+  .region-map-card:not(.home-map-card) .spot-map-graphic {
+    height: 340px;
+  }
+
+  .spot-map-frame .spot-map-graphic > .wind-timeline.spot-wind-timeline,
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline {
+    flex-wrap: wrap !important;
+    align-content: center !important;
+    row-gap: 4px !important;
+    column-gap: 6px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    inset: auto 8px 8px 8px !important;
+    height: auto !important;
+    max-height: 115px !important;
+    min-height: 0 !important;
+    max-width: calc(100% - 16px) !important;
+    padding: 8px 10px !important;
+    border-radius: 20px !important;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-play {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+  }
+
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline > .spot-wind-readout {
+    min-width: 52px !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-axis {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-slider-wrap {
+    height: 36px;
+    overflow: hidden !important;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days {
+    flex: 1 1 calc(100% - 36px) !important;
+    order: 8;
+    width: auto !important;
+    max-width: none !important;
+    height: 36px !important;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-calendar {
+    order: 9;
+  }
+
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button,
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline .spot-wind-days button:last-child {
+    min-width: 56px !important;
+    height: 32px !important;
+  }
+
+  .spot-map-frame .spot-wind-legend,
+  .spot-map-frame .ocean-legend,
+  .spot-map-frame .wave-legend,
+  .spot-map-frame .cloud-legend {
+    bottom: 128px !important;
+  }
+
+  .spot-map-frame .maplibregl-ctrl-bottom-right,
+  .spot-map-frame .maplibregl-ctrl-bottom-left {
+    bottom: 124px;
+  }
+}
+
+@media (max-width: 360px) {
+  .spot-map-frame .spot-map-graphic > .spot-wind-timeline > .spot-wind-readout {
+    display: none !important;
+  }
+}
+
+.full-map-page .map-expand-control {
+  display: none;
+}
+
+body.full-map-page {
+  --full-map-header-h: 48px;
+  min-height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: #0a1024;
+}
+
+body.full-map-page .preview-banner {
+  display: none;
+}
+
+.full-map-chrome {
+  position: relative;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  height: var(--full-map-header-h);
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(10, 37, 64, 0.12);
+}
+
+.full-map-chrome .site-logo img {
+  display: block;
+  height: 28px;
+  width: auto;
+}
+
+.full-map-back {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #0a2540;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.full-map-back:hover,
+.full-map-back:focus-visible {
+  background: rgba(10, 37, 64, 0.08);
+}
+
+.full-map-page .map-frame.spot-map-frame,
+.full-map-page .spot-map-frame {
+  position: relative !important;
+  inset: auto !important;
+  display: flex;
+  height: calc(100dvh - var(--full-map-header-h)) !important;
+  min-height: 0 !important;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #0a1024;
+}
+
+.full-map-page .spot-map-graphic {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.full-map-page .spot-map-graphic .spot-region-map {
+  inset: 0;
+}
+
+/* Hard hide leftover NOW so a sibling restore cannot cover the time pill. */
+.spot-map-frame .spot-wind-now,
+.spot-wind-timeline .spot-wind-now,
+button.spot-wind-now {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
