@@ -3,95 +3,13 @@ export function swellSourceBearingToTravelBearing(sourceBearing) {
   return (Number(sourceBearing) + 180) % 360;
 }
 
-export function normalizeBearingDeg(deg) {
-  return ((Number(deg) % 360) + 360) % 360;
-}
-
-export function angularDistanceDeg(a, b) {
-  return Math.abs(((Number(a) - Number(b) + 540) % 360) - 180);
-}
-
-/** Inclusive NW. West of this (W / WNW) is out to sea on a west-coast beach. */
-export const SWELL_NW_NNW_MIN_DEG = 315;
-/** Shoreward NNW when the clamped shaft would be N, E, S, or west-offshore. */
-export const SWELL_NNW_FALLBACK_DEG = 350;
-
-/**
- * West-coast CA (ocean west, land east): drawn heads sit in NW–NNW only.
- * Printed coming-from labels are not changed.
- *
- * travel = comingFrom + 180
- * if travel in (0, 90] (east of north / NE): mirror across north → 360 - travel
- *   so 193° SSW (true travel 13° NNE) draws at 347° NNW.
- * if travel in (90, 270) (south / open ocean): fold to the northern half,
- *   then mirror again if that landed in the NE.
- * if the result is not NW–NNW (including due west / WNW offshore, due N, and
- *   anything east or south): fold to 350° NNW. A 278° W coming-from must not
- *   aim west out to sea and must not aim east at the beach.
- */
-export function swellTravelBearingWestOfNorth(sourceBearing) {
-  let travel = swellSourceBearingToTravelBearing(normalizeBearingDeg(sourceBearing));
-  if (travel > 0 && travel <= 90) {
-    travel = (360 - travel) % 360;
-  }
-  if (travel > 90 && travel < 270) {
-    travel = (180 - travel + 360) % 360;
-    if (travel > 0 && travel <= 90) {
-      travel = (360 - travel) % 360;
-    }
-  }
-  if (!isTravelWestOfNorth(travel)) return SWELL_NNW_FALLBACK_DEG;
-  return travel;
-}
-
-/**
- * Anacapa is not a west-facing mainland beach. Still never invent an
- * east-going or due-south shaft into the Channel.
- */
-export function swellTravelBearingAnacapa(sourceBearing) {
-  return swellTravelBearingWestOfNorth(sourceBearing);
-}
-
-export function swellSpotUsesWestOfNorthClamp() {
-  return true;
-}
-
-/** Drawn travel heading for a CA spot. Does not change the printed coming-from. */
-export function swellTravelBearingForSpot(sourceBearing) {
-  return swellTravelBearingWestOfNorth(sourceBearing);
-}
-
-export function isTravelWestOfNorth(deg) {
-  const t = normalizeBearingDeg(deg);
-  return t >= SWELL_NW_NNW_MIN_DEG && t < 360;
-}
-
-export function isForbiddenWestCoastShaft(deg) {
-  return !isTravelWestOfNorth(deg);
-}
-
 /**
  * CSS/SVG rotate for an east-pointing shaft (local +X / 0°).
  * Compass 0° is north, clockwise; compensate exactly once with +270.
- * Do not add another 180° here — the tip already aims at clamped travel.
+ * Do not add another 180° here — travel already did that.
  */
 export function swellTravelBearingToArrowRotateDeg(travelBearing) {
   return (Number(travelBearing) + 270) % 360;
-}
-
-/**
- * Unit vector toward `travelDeg` in canvas / SVG space (+X east, +Y down,
- * 0° = north). Tip = center + unit * hubGap; tail = center - unit * length.
- * Never add 180° to travel before calling this.
- */
-export function swellTravelUnitCanvas(travelDeg) {
-  const rad = ((normalizeBearingDeg(travelDeg) - 90) * Math.PI) / 180;
-  return { x: Math.cos(rad), y: Math.sin(rad) };
-}
-
-/** Compass heading of a rose tip (0° north, clockwise) from rose-center. */
-export function swellDrawnHeadBearingFromTip(tip, cx = SWELL_ROSE_CX, cy = SWELL_ROSE_CY) {
-  return normalizeBearingDeg(Math.atan2(tip.x - cx, -(tip.y - cy)) * 180 / Math.PI);
 }
 
 export const SWELL_ROSE_CX = 117.5;
@@ -157,8 +75,8 @@ function unitBisector(travelA, travelB) {
 
 export function swellArrowWorldGeometry(spec) {
   const sourceBearing = Number(spec.sourceBearing);
-  const travelBearing = spec.spot || spec.spotSlug || spec.clampTravel
-    ? swellTravelBearingForSpot(sourceBearing, spec.spot || { slug: spec.spotSlug })
+  const travelBearing = Number.isFinite(Number(spec.travelBearing))
+    ? ((Number(spec.travelBearing) % 360) + 360) % 360
     : swellSourceBearingToTravelBearing(sourceBearing);
   const rotateDeg = swellTravelBearingToArrowRotateDeg(travelBearing);
   const headSize = Number(spec.headSize);
@@ -359,59 +277,39 @@ export function swellArrowCollision(primary, secondary, {
   };
 }
 
-function applyPairOffsets(primarySpec, secondarySpec, perp, bisector, perpSign, bisSign, bisU, sharedWest = 0) {
+function applyPairOffsets(primarySpec, secondarySpec, perp, bisector, perpSign, bisSign, bisU) {
   const primary = {
     ...primarySpec,
     offsetPx: perpSign * perp,
-    worldX: bisSign * bisector * bisU.x + sharedWest,
+    worldX: bisSign * bisector * bisU.x,
     worldY: bisSign * bisector * bisU.y,
   };
   const secondary = {
     ...secondarySpec,
     offsetPx: -perpSign * perp,
-    worldX: -bisSign * bisector * bisU.x + sharedWest,
+    worldX: -bisSign * bisector * bisU.x,
     worldY: -bisSign * bisector * bisU.y,
   };
   return { primary, secondary };
 }
 
-function tipHeadingAllowed(geo, clampTips) {
-  if (!clampTips) return true;
-  const heading = swellDrawnHeadBearingFromTip(geo.tip);
-  // Keep triangles in NW–NNW, at least 5° west of N so they cannot read as NNE.
-  return heading >= SWELL_NW_NNW_MIN_DEG && heading <= 355;
-}
-
 /**
  * Equal-and-opposite perpendicular offsets (local +Y / -Y), then a shared
  * travel-bisector shift if a fat head still clips the other shaft.
- * West-coast clamped pairs also share a westward shift so both heads stay
- * west of N (perp alone would park one triangle at NNE).
- * Does not rotate or shrink heads. Shaft travel headings stay put.
+ * Does not rotate or shrink heads.
  */
 export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
   const scale = Number.isFinite(Number(opts.scale)) ? Number(opts.scale) : 1;
+  const minHeadCenter = (opts.minHeadCenterGap ?? SWELL_MIN_HEAD_CENTER_GAP) * scale;
   const outlineGap = (opts.outlineGap ?? SWELL_OUTLINE_GAP) * scale;
   const maxPerp = (opts.maxPerp ?? SWELL_MAX_PERP_OFFSET) * scale;
   const maxBisector = (opts.maxBisector ?? SWELL_MAX_BISECTOR_OFFSET) * scale;
-  const spotA = primarySpec.spot || (primarySpec.spotSlug ? { slug: primarySpec.spotSlug } : null);
-  const spotB = secondarySpec.spot || (secondarySpec.spotSlug ? { slug: secondarySpec.spotSlug } : spotA);
-  const clampTips = Boolean(spotA || spotB || primarySpec.clampTravel || secondarySpec.clampTravel);
-  const minHeadCenter = (
-    opts.minHeadCenterGap
-    ?? (clampTips ? 28 : SWELL_MIN_HEAD_CENTER_GAP)
-  ) * scale;
-  const travelA = spotA
-    ? swellTravelBearingForSpot(primarySpec.sourceBearing, spotA)
-    : swellSourceBearingToTravelBearing(primarySpec.sourceBearing);
-  const travelB = spotB
-    ? swellTravelBearingForSpot(secondarySpec.sourceBearing, spotB)
-    : swellSourceBearingToTravelBearing(secondarySpec.sourceBearing);
+  const travelA = swellSourceBearingToTravelBearing(primarySpec.sourceBearing);
+  const travelB = swellSourceBearingToTravelBearing(secondarySpec.sourceBearing);
   const bisU = unitBisector(travelA, travelB);
   const collisionOpts = { outlineGap, minHeadCenter };
-  const westShifts = clampTips ? [0, -4, -8, -12, -16, -20, -24] : [0];
 
-  const score = (perp, bisector, perpSign, bisSign, sharedWest) => {
+  const score = (perp, bisector, perpSign, bisSign) => {
     const placed = applyPairOffsets(
       primarySpec,
       secondarySpec,
@@ -420,70 +318,55 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
       perpSign,
       bisSign,
       bisU,
-      sharedWest,
     );
     const geoA = swellArrowWorldGeometry(placed.primary);
     const geoB = swellArrowWorldGeometry(placed.secondary);
     const hit = swellArrowCollision(geoA, geoB, collisionOpts);
-    return {
-      ...placed,
-      geoA,
-      geoB,
-      hit,
-      perp,
-      bisector,
-      perpSign,
-      bisSign,
-      sharedWest,
-      tipsOk: tipHeadingAllowed(geoA, clampTips) && tipHeadingAllowed(geoB, clampTips),
-    };
+    return { ...placed, geoA, geoB, hit, perp, bisector, perpSign, bisSign };
   };
 
   let best = null;
   const consider = (candidate) => {
-    if (candidate.hit.collide || !candidate.tipsOk) return;
-    const cost = candidate.perp + candidate.bisector + Math.abs(candidate.sharedWest);
-    const bestCost = best ? best.perp + best.bisector + Math.abs(best.sharedWest) : Infinity;
+    if (candidate.hit.collide) return;
+    const cost = candidate.perp + candidate.bisector;
     if (
       !best
-      || cost < bestCost
-      || (cost === bestCost && candidate.bisector < best.bisector)
+      || cost < best.perp + best.bisector
+      || (cost === best.perp + best.bisector && candidate.bisector < best.bisector)
     ) {
       best = candidate;
     }
   };
 
-  for (const sharedWest of westShifts) {
-    for (const perpSign of [1, -1]) {
-      for (const bisSign of [1, -1]) {
-        let resolved = false;
+  for (const perpSign of [1, -1]) {
+    for (const bisSign of [1, -1]) {
+      let resolved = false;
+      for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
+        const onlyPerp = score(perp, 0, perpSign, bisSign);
+        if (!onlyPerp.hit.collide) {
+          consider(onlyPerp);
+          resolved = true;
+          break;
+        }
+      }
+      if (resolved) continue;
+      for (let bisector = 1; bisector <= maxBisector + 1e-6; bisector += 1) {
+        let found = false;
         for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
-          const onlyPerp = score(perp, 0, perpSign, bisSign, sharedWest);
-          if (!onlyPerp.hit.collide && onlyPerp.tipsOk) {
-            consider(onlyPerp);
-            resolved = true;
+          const candidate = score(perp, bisector, perpSign, bisSign);
+          if (!candidate.hit.collide) {
+            consider(candidate);
+            found = true;
             break;
           }
         }
-        if (resolved) continue;
-        for (let bisector = 1; bisector <= maxBisector + 1e-6; bisector += 1) {
-          let found = false;
-          for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
-            const candidate = score(perp, bisector, perpSign, bisSign, sharedWest);
-            if (!candidate.hit.collide && candidate.tipsOk) {
-              consider(candidate);
-              found = true;
-              break;
-            }
-          }
-          if (found) break;
-        }
+        if (found) break;
       }
     }
   }
 
   if (!best) {
-    best = score(maxPerp, maxBisector, 1, 1, clampTips ? -12 : 0);
+    best = score(maxPerp, maxBisector, 1, 1);
   }
 
   return {
@@ -497,7 +380,6 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
     bisectorPx: best.bisector,
     perpSign: best.perpSign,
     bisSign: best.bisSign,
-    sharedWest: best.sharedWest,
     headCenterDist: best.hit.headCenterDist,
     collision: best.hit,
     usedHeadVsShaft: true,
