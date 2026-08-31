@@ -1,11 +1,6 @@
 import {
   swellSourceBearingToTravelBearing,
-  swellTravelBearingTowardLand,
   swellTravelBearingToArrowRotateDeg,
-  swellLandBearingForSpot,
-  SCRIPPS_SHORE_NORMAL_DEG,
-  ANACAPA_LAND_BEARING_DEG,
-  angularDistanceDeg,
   defaultSwellArrowSpec,
   swellArrowWorldGeometry,
   swellArrowCollision,
@@ -37,63 +32,29 @@ for (const [source, expected] of travelCases) {
   assert(got === expected, `travel ${source} → ${got}, expected ${expected}`);
 }
 
-assert(SCRIPPS_SHORE_NORMAL_DEG === 70, `Scripps shore normal ${SCRIPPS_SHORE_NORMAL_DEG}, expected 70`);
-assert(swellLandBearingForSpot({ slug: "la-jolla" }) === 70, "La Jolla land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey" }) === 70, "Monterey land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-mcabee" }) === 70, "McAbee land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-lovers" }) === 70, "Lovers land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-lobos" }) === 70, "Lobos land bearing");
-assert(swellLandBearingForSpot({ slug: "monterey-monastery" }) === 70, "Monastery land bearing");
-assert(swellLandBearingForSpot({ slug: "catalina-wrigley" }) === 70, "Catalina land bearing");
-assert(swellLandBearingForSpot({ slug: "anacapa-ocean" }) === ANACAPA_LAND_BEARING_DEG, "Anacapa land bearing");
-
-const landwardTravelCases = [
-  // Keep Open-Meteo source; only the travel used for the arrow may flip.
-  [203, 70, 23],
-  [170, 70, 350],
-  [270, 70, 90],
-  [90, 70, 90],
-  [225, 45, 45],
-  [45, 45, 45],
-];
-for (const [source, land, expectedTravel] of landwardTravelCases) {
-  const got = swellTravelBearingTowardLand(source, land);
-  assert(got === expectedTravel, `landward travel ${source} toward ${land} → ${got}, expected ${expectedTravel}`);
-  assert(angularDistanceDeg(got, land) <= 90, `arrow travel ${got} is not landward of ${land}`);
-}
-
-// Printed label stays the Open-Meteo coming-from value even when the arrow flips.
-const easterly = swellArrowWorldGeometry({
+// Tonight Scripps: 202° / 170° coming-from → travel 22° NNE / 350° N. Not east.
+const scripps202 = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
-  sourceBearing: 90,
-  landBearing: 70,
+  sourceBearing: 202,
 });
-assert(easterly.sourceBearing === 90, `easterly label flipped to ${easterly.sourceBearing}`);
-assert(easterly.travelBearing === 90, `easterly arrow travel ${easterly.travelBearing}, expected 90`);
+assert(scripps202.sourceBearing === 202, `202° label flipped to ${scripps202.sourceBearing}`);
+assert(scripps202.travelBearing === 22, `202° travel ${scripps202.travelBearing}, expected 22`);
+assert(scripps202.rotateDeg === 292, `202° rotate ${scripps202.rotateDeg}, expected 292 (NNE, not east)`);
 
-const ssw = swellArrowWorldGeometry({
+const scripps170 = swellArrowWorldGeometry({
+  ...defaultSwellArrowSpec("secondary"),
+  sourceBearing: 170,
+});
+assert(scripps170.sourceBearing === 170, `170° label flipped to ${scripps170.sourceBearing}`);
+assert(scripps170.travelBearing === 350, `170° travel ${scripps170.travelBearing}, expected 350`);
+assert(scripps170.rotateDeg === 260, `170° rotate ${scripps170.rotateDeg}, expected 260 (N, not east)`);
+
+const westSwell = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
-  sourceBearing: 203,
-  landBearing: 70,
+  sourceBearing: 270,
 });
-assert(ssw.sourceBearing === 203, `SSW label flipped to ${ssw.sourceBearing}`);
-assert(ssw.travelBearing === 23, `SSW arrow travel ${ssw.travelBearing}`);
-
-// Nearby alongshore trains must stay nearby. Crude due-east (90°) splits them 147°.
-const alongA = swellTravelBearingTowardLand(170, 90);
-const alongB = swellTravelBearingTowardLand(203, 90);
-assert(alongA === 170 && alongB === 23, `due-east fixture drifted (${alongA}, ${alongB})`);
-assert(
-  Math.round(angularDistanceDeg(alongA, alongB)) === 147,
-  `due-east split ${angularDistanceDeg(alongA, alongB)}, expected 147`,
-);
-const scrippsA = swellTravelBearingTowardLand(170, 70);
-const scrippsB = swellTravelBearingTowardLand(203, 70);
-assert(scrippsA === 350 && scrippsB === 23, `Scripps 70° travels drifted (${scrippsA}, ${scrippsB})`);
-assert(
-  angularDistanceDeg(scrippsA, scrippsB) < 50,
-  `Scripps 70° alongshore split ${angularDistanceDeg(scrippsA, scrippsB)}`,
-);
+assert(westSwell.sourceBearing === 270, `W swell label flipped to ${westSwell.sourceBearing}`);
+assert(westSwell.travelBearing === 90, `W swell travel ${westSwell.travelBearing}, expected true 90`);
 
 // East-pointing shaft: travel north (0) must rotate to CSS 270° (up).
 const rotateCases = [
@@ -198,4 +159,4 @@ if (failed) {
   console.error(`FAIL ${failed} assertion(s)`);
   process.exit(1);
 }
-console.log(`ok ${travelCases.length} travel + ${landwardTravelCases.length} landward-travel + ${rotateCases.length} rotate + separation`);
+console.log(`ok ${travelCases.length} travel + ${rotateCases.length} rotate + scripps 202/170 + separation`);

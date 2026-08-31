@@ -43,7 +43,7 @@
     if (document.querySelector('link[data-divepro-ocean-layers]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "ocean-layers.css?v=no-region-rose-1";
+    link.href = "ocean-layers.css?v=pages-20260831truetravel1";
     link.setAttribute("data-divepro-ocean-layers", "1");
     document.head.appendChild(link);
   }
@@ -1126,20 +1126,20 @@
     }
 
     function drawCompassArrow(ctx, cx, cy, comingFrom, color, length, strokeWidth, headSize, hubGap) {
-      const heading = Number(comingFrom);
-      if (!Number.isFinite(heading)) return;
-      const rad = ((heading - 90) * Math.PI) / 180;
-      const fromX = Math.cos(rad);
-      const fromY = Math.sin(rad);
-      const tailX = cx + fromX * length;
-      const tailY = cy + fromY * length;
-      const tipX = cx - fromX * hubGap;
-      const tipY = cy - fromY * hubGap;
-      const travelX = tipX - tailX;
-      const travelY = tipY - tailY;
-      const mag = Math.hypot(travelX, travelY) || 1;
-      const ux = travelX / mag;
-      const uy = travelY / mag;
+      const source = Number(comingFrom);
+      if (!Number.isFinite(source)) return;
+      // True travel only: coming-from + 180. Do not aim shore-normal / east.
+      const travel = (source + 180) % 360;
+      const rad = ((travel - 90) * Math.PI) / 180;
+      const travelX = Math.cos(rad);
+      const travelY = Math.sin(rad);
+      const tailX = cx - travelX * length;
+      const tailY = cy - travelY * length;
+      const tipX = cx + travelX * hubGap;
+      const tipY = cy + travelY * hubGap;
+      const mag = Math.hypot(tipX - tailX, tipY - tailY) || 1;
+      const ux = (tipX - tailX) / mag;
+      const uy = (tipY - tailY) / mag;
       const px = -uy;
       const py = ux;
       const baseX = tipX - ux * headSize;

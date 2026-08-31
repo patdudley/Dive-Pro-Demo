@@ -1,17 +1,13 @@
 import { forecastFromFeatures } from "./visibilityModel.js";
 import {
   swellSourceBearingToTravelBearing,
-  swellTravelBearingTowardLand,
   swellTravelBearingToArrowRotateDeg,
-  swellLandBearingForSpot,
   defaultSwellArrowSpec,
   separateSwellArrowPair,
-} from "./swell-bearing.js?v=pages-20260831arrowland1";
+} from "./swell-bearing.js?v=pages-20260831truetravel1";
 
 window.swellSourceBearingToTravelBearing = swellSourceBearingToTravelBearing;
-window.swellTravelBearingTowardLand = swellTravelBearingTowardLand;
 window.swellTravelBearingToArrowRotateDeg = swellTravelBearingToArrowRotateDeg;
-window.swellLandBearingForSpot = swellLandBearingForSpot;
 
 const DISPLAY_HS_TO_CHAR = 0.625; // 1 / 1.6, display-only Hs to characteristic height.
 const DISPLAY_WAVE_MODERATE_FT = 2 * DISPLAY_HS_TO_CHAR;
@@ -2392,7 +2388,6 @@ function swellRoseSeparationScale() {
 
 function swellArrowMarkup({
   sourceBearing,
-  landBearing,
   color,
   length,
   strokeWidth,
@@ -2404,9 +2399,9 @@ function swellArrowMarkup({
 }) {
   const cx = 117.5;
   const cy = 117.5;
-  // Printed label stays the Open-Meteo coming-from value (data-source).
-  // Only the shaft rotate uses landward travel so the head aims at land.
-  const travelBearing = swellTravelBearingTowardLand(sourceBearing, landBearing);
+  // Label stays Open-Meteo coming-from. Arrow uses true travel only — never
+  // a shore-normal / east onshore default.
+  const travelBearing = swellSourceBearingToTravelBearing(sourceBearing);
   const rotateDeg = swellTravelBearingToArrowRotateDeg(travelBearing);
   // Local shaft points east (+X). rotate(travel+270) aims the head at travel.
   // Tail stays on the coming-from side; head sits fully on the travel side of
@@ -2424,7 +2419,7 @@ function swellArrowMarkup({
   const wy = Number(worldY || 0);
   const shift = (wx || wy) ? `translate(${fmt(wx)} ${fmt(wy)}) ` : "";
   return `
-    <g class="swell-arrow" data-source="${fmt(Number(sourceBearing))}" data-travel="${fmt(travelBearing)}" data-land="${fmt(Number(landBearing))}" data-rotate="${fmt(rotateDeg)}" transform="${shift}rotate(${fmt(rotateDeg)} ${fmt(cx)} ${fmt(cy)})">
+    <g class="swell-arrow" data-source="${fmt(Number(sourceBearing))}" data-travel="${fmt(travelBearing)}" data-rotate="${fmt(rotateDeg)}" transform="${shift}rotate(${fmt(rotateDeg)} ${fmt(cx)} ${fmt(cy)})">
       <line x1="${fmt(tailX)}" y1="${fmt(y)}" x2="${fmt(baseX)}" y2="${fmt(y)}" stroke="#04101f" stroke-width="${halo}" stroke-linecap="round"></line>
       <line x1="${fmt(tailX)}" y1="${fmt(y)}" x2="${fmt(baseX)}" y2="${fmt(y)}" stroke="#ffffff" stroke-width="${strokeWidth + 1.4}" stroke-linecap="round"></line>
       <line x1="${fmt(tailX)}" y1="${fmt(y)}" x2="${fmt(baseX)}" y2="${fmt(y)}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
@@ -2440,12 +2435,11 @@ function renderSwellCompassRose(rows) {
   const primary = directed.find((row) => String(row.label).toLowerCase() === "primary") || directed[0];
   const secondary = directed.find((row) => String(row.label).toLowerCase() === "secondary")
     || (directed.length > 1 ? directed[1] : null);
-  const landBearing = swellLandBearingForSpot(currentSpot());
   const primarySpec = primary
-    ? { ...defaultSwellArrowSpec("primary"), sourceBearing: Number(primary.directionDeg), landBearing }
+    ? { ...defaultSwellArrowSpec("primary"), sourceBearing: Number(primary.directionDeg) }
     : null;
   const secondarySpec = secondary
-    ? { ...defaultSwellArrowSpec("secondary"), sourceBearing: Number(secondary.directionDeg), landBearing }
+    ? { ...defaultSwellArrowSpec("secondary"), sourceBearing: Number(secondary.directionDeg) }
     : null;
   const sep = primarySpec && secondarySpec
     ? separateSwellArrowPair(primarySpec, secondarySpec, { scale: swellRoseSeparationScale() })
@@ -2596,14 +2590,9 @@ function renderWaveComponents(data, { fromGrid = false } = {}) {
         period: row.period,
         comingFrom: row.directionDeg,
         goingTo: Number.isFinite(row.directionDeg) ? swellSourceBearingToTravelBearing(row.directionDeg) : null,
-        landBearing: swellLandBearingForSpot(currentSpot()),
-        arrowTravel: Number.isFinite(row.directionDeg)
-          ? swellTravelBearingTowardLand(row.directionDeg, swellLandBearingForSpot(currentSpot()))
-          : null,
+        arrowTravel: Number.isFinite(row.directionDeg) ? swellSourceBearingToTravelBearing(row.directionDeg) : null,
         arrowRotate: Number.isFinite(row.directionDeg)
-          ? swellTravelBearingToArrowRotateDeg(
-            swellTravelBearingTowardLand(row.directionDeg, swellLandBearingForSpot(currentSpot())),
-          )
+          ? swellTravelBearingToArrowRotateDeg(swellSourceBearingToTravelBearing(row.directionDeg))
           : null,
         labelText: row.directionLabel,
       })),
