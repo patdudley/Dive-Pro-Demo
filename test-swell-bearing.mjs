@@ -252,6 +252,50 @@ const mobile = separatedCollision(200, 250, 1);
 assert(!mobile.hit.collide, "mobile SSW/WSW still collides");
 assert(mobile.sep.minHeadCenter === SWELL_MIN_HEAD_CENTER_GAP, "app keeps the desktop SVG gap at every size");
 
+function separatedClamped(primaryFrom, secondaryFrom) {
+  const primary = { ...defaultSwellArrowSpec("primary"), sourceBearing: primaryFrom, spot: scripps };
+  const secondary = { ...defaultSwellArrowSpec("secondary"), sourceBearing: secondaryFrom, spot: scripps };
+  const sep = separateSwellArrowPair(primary, secondary);
+  const geoA = swellArrowWorldGeometry({
+    ...primary,
+    offsetPx: sep.primaryOffsetPx,
+    worldX: sep.primaryWorldX,
+    worldY: sep.primaryWorldY,
+  });
+  const geoB = swellArrowWorldGeometry({
+    ...secondary,
+    offsetPx: sep.secondaryOffsetPx,
+    worldX: sep.secondaryWorldX,
+    worldY: sep.secondaryWorldY,
+  });
+  const hit = swellArrowCollision(geoA, geoB, {
+    outlineGap: sep.outlineGap,
+    minHeadCenter: sep.minHeadCenter,
+  });
+  return { primary, secondary, sep, geoA, geoB, hit };
+}
+
+const monday = separatedClamped(193, 278);
+assert(monday.geoA.sourceBearing === 193, `Monday primary label ${monday.geoA.sourceBearing}`);
+assert(monday.geoB.sourceBearing === 278, `Monday secondary label ${monday.geoB.sourceBearing}`);
+assert(monday.geoA.travelBearing === 347, `Monday primary shaft ${monday.geoA.travelBearing}, expected 347`);
+assert(monday.geoB.travelBearing === 350, `Monday secondary shaft ${monday.geoB.travelBearing}, expected 350`);
+assert(!monday.hit.collide, `Monday 193/278 still collides ${JSON.stringify(monday.hit)}`);
+const mondayTipA = swellDrawnHeadBearingFromTip(monday.geoA.tip);
+const mondayTipB = swellDrawnHeadBearingFromTip(monday.geoB.tip);
+assert(isTravelWestOfNorth(mondayTipA), `Monday primary tip ${mondayTipA.toFixed(1)} is not west of N`);
+assert(isTravelWestOfNorth(mondayTipB), `Monday secondary tip ${mondayTipB.toFixed(1)} is not west of N`);
+assert(!isForbiddenWestCoastShaft(mondayTipA), `Monday primary tip ${mondayTipA.toFixed(1)} forbidden`);
+assert(!isForbiddenWestCoastShaft(mondayTipB), `Monday secondary tip ${mondayTipB.toFixed(1)} forbidden`);
+assert(mondayTipA >= 315 && mondayTipA <= 355, `Monday cyan tip ${mondayTipA.toFixed(1)} too close to N or east`);
+assert(mondayTipB >= 315 && mondayTipB <= 355, `Monday magenta tip ${mondayTipB.toFixed(1)} not in NW–NNW`);
+
+const overnight = separatedClamped(202, 170);
+assert(overnight.geoA.travelBearing === 338, `overnight 202 shaft ${overnight.geoA.travelBearing}`);
+assert(overnight.geoB.travelBearing === 350, `overnight 170 shaft ${overnight.geoB.travelBearing}`);
+assert(isTravelWestOfNorth(swellDrawnHeadBearingFromTip(overnight.geoA.tip)), "overnight 202 tip east of N");
+assert(isTravelWestOfNorth(swellDrawnHeadBearingFromTip(overnight.geoB.tip)), "overnight 170 tip east of N");
+
 const single = swellArrowWorldGeometry({
   ...defaultSwellArrowSpec("primary"),
   sourceBearing: 182,

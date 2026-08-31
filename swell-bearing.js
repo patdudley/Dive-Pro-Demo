@@ -359,35 +359,48 @@ export function swellArrowCollision(primary, secondary, {
   };
 }
 
-function applyPairOffsets(primarySpec, secondarySpec, perp, bisector, perpSign, bisSign, bisU) {
+function applyPairOffsets(primarySpec, secondarySpec, perp, bisector, perpSign, bisSign, bisU, sharedWest = 0) {
   const primary = {
     ...primarySpec,
     offsetPx: perpSign * perp,
-    worldX: bisSign * bisector * bisU.x,
+    worldX: bisSign * bisector * bisU.x + sharedWest,
     worldY: bisSign * bisector * bisU.y,
   };
   const secondary = {
     ...secondarySpec,
     offsetPx: -perpSign * perp,
-    worldX: -bisSign * bisector * bisU.x,
+    worldX: -bisSign * bisector * bisU.x + sharedWest,
     worldY: -bisSign * bisector * bisU.y,
   };
   return { primary, secondary };
 }
 
+function tipHeadingAllowed(geo, clampTips) {
+  if (!clampTips) return true;
+  const heading = swellDrawnHeadBearingFromTip(geo.tip);
+  // Keep triangles in NW–NNW, at least 5° west of N so they cannot read as NNE.
+  return heading >= SWELL_NW_NNW_MIN_DEG && heading <= 355;
+}
+
 /**
  * Equal-and-opposite perpendicular offsets (local +Y / -Y), then a shared
  * travel-bisector shift if a fat head still clips the other shaft.
- * Does not rotate or shrink heads.
+ * West-coast clamped pairs also share a westward shift so both heads stay
+ * west of N (perp alone would park one triangle at NNE).
+ * Does not rotate or shrink heads. Shaft travel headings stay put.
  */
 export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
   const scale = Number.isFinite(Number(opts.scale)) ? Number(opts.scale) : 1;
-  const minHeadCenter = (opts.minHeadCenterGap ?? SWELL_MIN_HEAD_CENTER_GAP) * scale;
   const outlineGap = (opts.outlineGap ?? SWELL_OUTLINE_GAP) * scale;
   const maxPerp = (opts.maxPerp ?? SWELL_MAX_PERP_OFFSET) * scale;
   const maxBisector = (opts.maxBisector ?? SWELL_MAX_BISECTOR_OFFSET) * scale;
   const spotA = primarySpec.spot || (primarySpec.spotSlug ? { slug: primarySpec.spotSlug } : null);
   const spotB = secondarySpec.spot || (secondarySpec.spotSlug ? { slug: secondarySpec.spotSlug } : spotA);
+  const clampTips = Boolean(spotA || spotB || primarySpec.clampTravel || secondarySpec.clampTravel);
+  const minHeadCenter = (
+    opts.minHeadCenterGap
+    ?? (clampTips ? 28 : SWELL_MIN_HEAD_CENTER_GAP)
+  ) * scale;
   const travelA = spotA
     ? swellTravelBearingForSpot(primarySpec.sourceBearing, spotA)
     : swellSourceBearingToTravelBearing(primarySpec.sourceBearing);
@@ -396,8 +409,9 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
     : swellSourceBearingToTravelBearing(secondarySpec.sourceBearing);
   const bisU = unitBisector(travelA, travelB);
   const collisionOpts = { outlineGap, minHeadCenter };
+  const westShifts = clampTips ? [0, -4, -8, -12, -16, -20, -24] : [0];
 
-  const score = (perp, bisector, perpSign, bisSign) => {
+  const score = (perp, bisector, perpSign, bisSign, sharedWest) => {
     const placed = applyPairOffsets(
       primarySpec,
       secondarySpec,
@@ -406,55 +420,70 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
       perpSign,
       bisSign,
       bisU,
+      sharedWest,
     );
     const geoA = swellArrowWorldGeometry(placed.primary);
     const geoB = swellArrowWorldGeometry(placed.secondary);
     const hit = swellArrowCollision(geoA, geoB, collisionOpts);
-    return { ...placed, geoA, geoB, hit, perp, bisector, perpSign, bisSign };
+    return {
+      ...placed,
+      geoA,
+      geoB,
+      hit,
+      perp,
+      bisector,
+      perpSign,
+      bisSign,
+      sharedWest,
+      tipsOk: tipHeadingAllowed(geoA, clampTips) && tipHeadingAllowed(geoB, clampTips),
+    };
   };
 
   let best = null;
   const consider = (candidate) => {
-    if (candidate.hit.collide) return;
-    const cost = candidate.perp + candidate.bisector;
+    if (candidate.hit.collide || !candidate.tipsOk) return;
+    const cost = candidate.perp + candidate.bisector + Math.abs(candidate.sharedWest);
+    const bestCost = best ? best.perp + best.bisector + Math.abs(best.sharedWest) : Infinity;
     if (
       !best
-      || cost < best.perp + best.bisector
-      || (cost === best.perp + best.bisector && candidate.bisector < best.bisector)
+      || cost < bestCost
+      || (cost === bestCost && candidate.bisector < best.bisector)
     ) {
       best = candidate;
     }
   };
 
-  for (const perpSign of [1, -1]) {
-    for (const bisSign of [1, -1]) {
-      let resolved = false;
-      for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
-        const onlyPerp = score(perp, 0, perpSign, bisSign);
-        if (!onlyPerp.hit.collide) {
-          consider(onlyPerp);
-          resolved = true;
-          break;
-        }
-      }
-      if (resolved) continue;
-      for (let bisector = 1; bisector <= maxBisector + 1e-6; bisector += 1) {
-        let found = false;
+  for (const sharedWest of westShifts) {
+    for (const perpSign of [1, -1]) {
+      for (const bisSign of [1, -1]) {
+        let resolved = false;
         for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
-          const candidate = score(perp, bisector, perpSign, bisSign);
-          if (!candidate.hit.collide) {
-            consider(candidate);
-            found = true;
+          const onlyPerp = score(perp, 0, perpSign, bisSign, sharedWest);
+          if (!onlyPerp.hit.collide && onlyPerp.tipsOk) {
+            consider(onlyPerp);
+            resolved = true;
             break;
           }
         }
-        if (found) break;
+        if (resolved) continue;
+        for (let bisector = 1; bisector <= maxBisector + 1e-6; bisector += 1) {
+          let found = false;
+          for (let perp = 0; perp <= maxPerp + 1e-6; perp += 1) {
+            const candidate = score(perp, bisector, perpSign, bisSign, sharedWest);
+            if (!candidate.hit.collide && candidate.tipsOk) {
+              consider(candidate);
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
       }
     }
   }
 
   if (!best) {
-    best = score(maxPerp, maxBisector, 1, 1);
+    best = score(maxPerp, maxBisector, 1, 1, clampTips ? -12 : 0);
   }
 
   return {
@@ -468,6 +497,7 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
     bisectorPx: best.bisector,
     perpSign: best.perpSign,
     bisSign: best.bisSign,
+    sharedWest: best.sharedWest,
     headCenterDist: best.hit.headCenterDist,
     collision: best.hit,
     usedHeadVsShaft: true,
