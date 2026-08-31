@@ -12,7 +12,7 @@
   "grader_version": "openai-scripps-pylon-v3",
   "grading_failure_code": "RuntimeError",
   "image_sha256": "5aaf3a7e32d7e92ac1bb24103083a949d8e92bd176f15929875d7cd8cc10a744",
-  "image_url": "https://diveprosd.com/camera-snapshot-history/scripps-pier/2026-08-30/scripps-pier-233121-5aaf3a7e32d7.jpg?v=5aaf3a7e32d7",
+  "image_url": "https://diveproca.com/camera-snapshot-history/scripps-pier/2026-08-30/scripps-pier-233121-5aaf3a7e32d7.jpg?v=5aaf3a7e32d7",
   "live_edge_lag_seconds": 5.74,
   "observation_date": "2026-08-30",
   "prompt_version": "openai-scripps-pylon-reference-v3",
