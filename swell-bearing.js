@@ -3,9 +3,17 @@ export function swellSourceBearingToTravelBearing(sourceBearing) {
   return (Number(sourceBearing) + 180) % 360;
 }
 
-/** Direct the visual arrow at the shore side shown on each location map. */
-export function swellTravelBearingForSpot(_sourceBearing, spot = {}) {
-  return String(spot?.slug || "") === "anacapa-ocean" ? 45 : 90;
+/** Preserve each train's angle, but keep it within 45° of the shore normal. */
+export function swellTravelBearingForSpot(sourceBearing, spot = {}) {
+  const shoreBearing = String(spot?.slug || "") === "anacapa-ocean" ? 45 : 90;
+  let travel = swellSourceBearingToTravelBearing(sourceBearing);
+  let delta = ((travel - shoreBearing + 540) % 360) - 180;
+  if (Math.abs(delta) > 90) {
+    travel = (travel + 180) % 360;
+    delta = ((travel - shoreBearing + 540) % 360) - 180;
+  }
+  const clampedDelta = Math.max(-45, Math.min(45, delta));
+  return (shoreBearing + clampedDelta + 360) % 360;
 }
 
 /** Compatibility helper retained for the previous renderer. */
