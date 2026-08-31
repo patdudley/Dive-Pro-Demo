@@ -3,6 +3,22 @@ export function swellSourceBearingToTravelBearing(sourceBearing) {
   return (Number(sourceBearing) + 180) % 360;
 }
 
+/** Direct the visual arrow at the shore side shown on each location map. */
+export function swellTravelBearingForSpot(_sourceBearing, spot = {}) {
+  return String(spot?.slug || "") === "anacapa-ocean" ? 45 : 90;
+}
+
+/** Compatibility helper retained for the previous renderer. */
+export function swellTravelBearingWestOfNorth(travelBearing) {
+  return ((Number(travelBearing) % 360) + 360) % 360;
+}
+
+/** Unit vector in screen coordinates for a compass travel bearing. */
+export function swellTravelUnitCanvas(travelBearing) {
+  const radians = (Number(travelBearing) * Math.PI) / 180;
+  return { x: Math.sin(radians), y: -Math.cos(radians) };
+}
+
 /**
  * CSS/SVG rotate for an east-pointing shaft (local +X / 0°).
  * Compass 0° is north, clockwise; compensate exactly once with +270.
@@ -75,7 +91,9 @@ function unitBisector(travelA, travelB) {
 
 export function swellArrowWorldGeometry(spec) {
   const sourceBearing = Number(spec.sourceBearing);
-  const travelBearing = Number.isFinite(Number(spec.travelBearing))
+  const travelBearing = spec.spot
+    ? swellTravelBearingForSpot(sourceBearing, spec.spot)
+    : Number.isFinite(Number(spec.travelBearing))
     ? ((Number(spec.travelBearing) % 360) + 360) % 360
     : swellSourceBearingToTravelBearing(sourceBearing);
   const rotateDeg = swellTravelBearingToArrowRotateDeg(travelBearing);
