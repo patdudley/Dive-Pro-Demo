@@ -1,0 +1,13 @@
+{
+  "schema_version": "monterey-vis-beta-v1",
+  "n_labeled": 723,
+  "n_train": 503,
+  "n_test": 220,
+  "train_mae_ft": 6.02,
+  "test_mae_ft": 10.68,
+  "date_start": "2017-05-26",
+  "date_end": "2026-08-24",
+  "inference_site_bucket": "bay_shore",
+  "la_jolla_pickle_touched": false,
+  "generated_at": "2026-08-29T16:47:05.598337+00:00"
+}

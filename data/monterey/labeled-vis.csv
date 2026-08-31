@@ -1,0 +1,725 @@
+date,date_approx,site_group,site_bucket,vis_ft_low,vis_ft_high,vis_ft_mid
+2026-08-22,1,McAbee,bay_shore,10,15,12.5
+2026-08-22,0,South Monastery,carmel_shore,40,40,40
+2026-08-23,0,Point Lobos,lobos,60,60,60
+2026-08-24,1,McAbee,bay_shore,20,30,25
+2026-08-24,1,Otter Cove,boat,20,20,20
+2026-08-23,1,South Monastery,carmel_shore,20,45,32.5
+2026-08-22,0,McAbee,bay_shore,15,30,22.5
+2026-08-20,1,Lovers Cove,bay_shore,15,20,17.5
+2026-08-20,1,Great Pinnacle,boat,15,50,32.5
+2026-08-20,1,North Monastery,carmel_shore,39,39,39
+2026-08-22,1,Point Lobos / Beto's,lobos,20,70,45
+2026-08-22,0,Point Pinos,boat,20,25,22.5
+2026-08-20,1,Butterfly House / Carmel River,carmel_shore,33,33,33
+2026-08-19,0,McAbee,bay_shore,10,15,12.5
+2026-08-16,1,Point Lobos,lobos,40,50,45
+2026-08-15,1,Point Lobos / Montana,lobos,50,50,50
+2026-08-15,1,South Monastery,carmel_shore,20,20,20
+2026-08-15,1,Point Lobos / Montana,lobos,40,50,45
+2026-08-15,1,North Monastery,carmel_shore,20,20,20
+2026-08-15,1,Point Lobos,lobos,40,60,50
+2026-08-15,1,Point Lobos / Beto's,lobos,15,50,32.5
+2026-08-15,1,Point Lobos / Montana,lobos,60,60,60
+2026-08-15,1,Point Lobos,lobos,30,30,30
+2026-08-15,1,Breakwater,bay_shore,15,25,20
+2026-08-11,0,Breakwater,bay_shore,10,10,10
+2026-08-09,1,Point Lobos / Whaler's Cove,lobos,15,20,17.5
+2026-08-08,0,Metridium Mountain,boat,10,10,10
+2026-08-08,0,Point Lobos / Beto's,lobos,5,10,7.5
+2026-08-08,1,Breakwater,bay_shore,15,15,15
+2026-08-07,0,Mt Chetron,boat,5,7,6
+2026-08-07,1,San Carlos / Breakwater,bay_shore,6,10,8
+2026-08-06,0,Mile Marker Buoy,boat,5,15,10
+2026-08-06,0,North Monastery,carmel_shore,4,4,4
+2026-08-06,0,San Carlos / Breakwater,bay_shore,5,5,5
+2026-08-05,0,Kawika's Garden,boat,3,20,11.5
+2026-08-04,1,Deep Shale Island,boat,5,20,12.5
+2026-08-01,1,South Monastery,carmel_shore,30,30,30
+2026-08-01,1,McAbee,bay_shore,30,30,30
+2026-07-30,1,Metridium Mountain,boat,35,35,35
+2026-07-29,0,Breakwater,bay_shore,7,15,11
+2026-07-25,0,South Monastery,carmel_shore,10,40,25
+2026-07-27,1,Del Monte,boat,20,20,20
+2026-07-25,1,McAbee,bay_shore,20,20,20
+2026-07-24,1,Breakwater,bay_shore,10,25,17.5
+2026-07-24,0,Breakwater,bay_shore,15,15,15
+2026-07-23,0,Breakwater,bay_shore,15,25,20
+2026-07-22,0,Breakwater,bay_shore,5,15,10
+2026-07-22,0,Breakwater,bay_shore,15,20,17.5
+2026-07-22,0,Point Lobos,lobos,10,20,15
+2026-07-22,0,Point Lobos,lobos,10,20,15
+2026-07-20,0,Point Lobos,lobos,15,20,17.5
+2026-07-18,0,North Monastery,carmel_shore,25,25,25
+2026-07-18,0,Breakwater,bay_shore,10,18,14
+2026-07-18,1,Point Lobos,lobos,40,40,40
+2026-07-15,1,Point Lobos / Beto's,lobos,15,50,32.5
+2026-07-15,1,Cannery Row,boat,10,25,17.5
+2026-07-15,1,Hopkins,boat,5,20,12.5
+2026-07-15,1,Lovers Point,bay_shore,10,10,10
+2026-07-13,1,North of Ribera,boat,15,25,20
+2026-07-13,1,Breakwater,bay_shore,15,30,22.5
+2026-07-12,0,Point Lobos / Beto's,lobos,10,30,20
+2026-07-12,1,Point Lobos,lobos,10,60,35
+2026-07-11,0,Hopkins,boat,20,60,40
+2026-07-11,1,Breakwater,bay_shore,30,30,30
+2026-07-11,1,San Carlos / Breakwater,bay_shore,20,30,25
+2026-07-11,1,South Monastery,carmel_shore,30,30,30
+2026-07-10,1,Breakwater,bay_shore,15,30,22.5
+2026-07-10,1,Point Lobos,lobos,20,60,40
+2026-07-04,0,Mr. Ed,boat,20,20,20
+2026-07-04,0,Hopkins,boat,15,15,15
+2026-07-06,0,North Monastery,carmel_shore,20,20,20
+2026-07-03,0,Shale Island,boat,15,20,17.5
+2026-07-03,0,VT 3,boat,15,20,17.5
+2026-07-03,0,Point Lobos,lobos,30,30,30
+2026-07-04,0,Mr. Ed,boat,15,15,15
+2026-07-04,0,Cabrillo Point,boat,15,15,15
+2026-06-27,0,Russian Gulch (outside Monterey),boat,15,20,17.5
+2026-06-29,0,Point Lobos / Beto's,lobos,30,40,35
+2026-06-27,0,Point Lobos,lobos,20,20,20
+2026-06-27,0,North Monastery,carmel_shore,10,15,12.5
+2026-06-26,0,Lovers Point,bay_shore,15,25,20
+2026-06-23,0,McAbee,bay_shore,25,35,30
+2026-06-22,0,McAbee,bay_shore,30,30,30
+2026-06-21,0,Point Lobos / Beto's,lobos,30,40,35
+2026-06-20,0,North Monastery,carmel_shore,30,35,32.5
+2026-06-20,0,Point Lobos / Montana,lobos,30,40,35
+2026-06-19,0,Point Lobos / Montana,lobos,50,50,50
+2026-06-19,0,Point Lobos / Beto's,lobos,40,40,40
+2026-06-17,0,McAbee,bay_shore,30,40,35
+2026-06-18,0,Breakwater,bay_shore,25,25,25
+2026-06-14,0,Ribera Beach,boat,5,5,5
+2026-06-15,0,Big Sur,boat,25,25,25
+2026-06-14,0,Point Lobos,lobos,3,5,4
+2026-06-06,0,Breakwater,bay_shore,10,15,12.5
+2026-06-05,0,Point Lobos / Whaler's Cove,lobos,5,5,5
+2026-06-05,0,Point Lobos / Sea Mount,lobos,30,30,30
+2026-06-01,0,Mr. Ed,boat,25,25,25
+2026-06-01,0,McAbee,bay_shore,25,25,25
+2026-05-21,0,unknown,boat,20,20,20
+2026-03-15,0,Mr. Ed,boat,15,15,15
+2026-03-15,0,VT 3,boat,15,15,15
+2026-03-04,0,McAbee,bay_shore,15,20,17.5
+2026-02-23,0,Tanker's Reef,boat,3,3,3
+2026-02-22,0,North Monastery,carmel_shore,60,75,67.5
+2026-02-07,0,Mr. Ed,boat,20,20,20
+2026-02-07,0,Mt Chetron,boat,20,20,20
+2026-01-19,0,Point Lobos,lobos,30,40,35
+2025-09-05,0,Metridium Mountain,boat,10,15,12.5
+2025-09-05,0,McAbee,bay_shore,10,15,12.5
+2025-08-09,0,South Monastery,carmel_shore,40,40,40
+2025-06-21,0,Point Lobos,lobos,20,20,20
+2025-05-28,0,South Monastery,carmel_shore,30,30,30
+2024-09-29,0,Stillwater Cove,carmel_shore,0,1,0.5
+2024-08-10,0,Breakwater,bay_shore,0,10,5
+2024-08-11,0,Wharf,bay_shore,0,10,5
+2023-10-05,0,Breakwater,bay_shore,15,25,20
+2023-10-05,0,Breakwater,bay_shore,10,15,12.5
+2022-09-14,0,Metridium Mountain,boat,30,30,30
+2021-11-22,0,unknown,boat,20,30,25
+2021-06-09,0,Tanker's Reef,boat,15,15,15
+2021-06-04,0,Tanker's Reef,boat,10,15,12.5
+2020-06-14,0,Copper Roof,boat,50,50,50
+2019-12-08,0,McAbee,bay_shore,20,30,25
+2019-12-08,0,Metridium Mountain,boat,20,30,25
+2019-11-10,1,North Monastery,carmel_shore,40,40,40
+2019-11-03,0,North Monastery,carmel_shore,30,30,30
+2019-09-02,0,South Monastery,carmel_shore,30,30,30
+2019-05-05,0,Ball Buster,boat,70,100,85
+2019-05-04,0,Pescadero Pinnacles,boat,50,50,50
+2018-09-22,1,Stillwater Cove,carmel_shore,1,10,5.5
+2018-08-15,0,Breakwater,bay_shore,5,20,12.5
+2018-03-11,0,South Monastery,carmel_shore,40,40,40
+2018-02-03,0,Stillwater Cove,carmel_shore,60,70,65
+2018-02-03,0,Stillwater Cove,carmel_shore,45,45,45
+2017-11-29,0,South Monastery,carmel_shore,60,60,60
+2017-11-18,0,Outer Pinnacles (Carmel),boat,40,40,40
+2017-11-18,0,Joe's Point,boat,30,30,30
+2025-10-04,0,Point Lobos / Montana,lobos,60,60,60
+2025-10-04,0,Point Lobos,lobos,20,20,20
+2025-10-04,0,Point Lobos / Whaler's Cove,lobos,5,10,7.5
+2025-09-19,0,Lovers Point,bay_shore,5,7,6
+2025-09-06,0,South Monastery,carmel_shore,30,50,40
+2025-06-14,0,Point Lobos,lobos,50,50,50
+2025-11-29,0,Breakwater,bay_shore,10,40,25
+2025-05-31,0,Metridium Mountain,boat,30,30,30
+2024-09-16,0,Point Lobos / Whaler's Cove,lobos,6,10,8
+2024-09-16,0,Point Lobos,lobos,10,20,15
+2024-06-29,0,Breakwater,bay_shore,40,40,40
+2024-06-29,0,Breakwater,bay_shore,20,20,20
+2023-06-25,0,Outer Pinnacles (Carmel),boat,70,70,70
+2023-05-20,0,Butterfly House / Carmel River,carmel_shore,50,50,50
+2019-12-01,0,San Carlos / Breakwater,bay_shore,30,40,35
+2019-08-02,0,McAbee,bay_shore,30,30,30
+2019-08-02,0,North Monastery,carmel_shore,30,50,40
+2019-05-04,0,Ball Buster,boat,70,70,70
+2018-06-09,0,Shale Island,boat,0.25,0.25,0.25
+2018-06-09,0,Eric's Pinnacle,boat,5,5,5
+2026-05-20,0,Metridium Mountain,boat,2,8,5
+2026-04-26,0,San Carlos / Breakwater,bay_shore,20,20,20
+2026-04-05,0,Boat / Monterey,boat,30,30,30
+2020-01-26,0,Point Lobos,lobos,30,40,35
+2020-01-26,0,Point Lobos,lobos,30,40,35
+2020-01-26,0,Point Lobos,lobos,30,40,35
+2020-01-26,0,Point Lobos,lobos,30,40,35
+2020-01-26,0,Point Lobos / Whaler's Cove,lobos,30,40,35
+2020-01-26,0,Point Lobos,lobos,30,30,30
+2020-01-27,0,Breakwater,bay_shore,20,20,20
+2020-02-13,0,Breakwater,bay_shore,20,30,25
+2020-02-11,0,Breakwater,bay_shore,5,10,7.5
+2020-05-16,0,McAbee,bay_shore,15,20,17.5
+2020-05-16,0,McAbee,bay_shore,10,15,12.5
+2020-05-27,0,Breakwater,bay_shore,20,25,22.5
+2020-06-27,0,Wharf,bay_shore,10,15,12.5
+2020-07-11,0,Butterfly House / Carmel River,carmel_shore,40,40,40
+2020-07-26,0,Wharf,bay_shore,20,20,20
+2020-08-09,0,McAbee,bay_shore,6,45,25.5
+2020-08-15,0,Point Lobos,lobos,5,30,17.5
+2020-08-15,0,South Monastery,carmel_shore,25,30,27.5
+2020-08-17,0,North Monastery,carmel_shore,30,40,35
+2020-09-04,0,Lovers Point,bay_shore,21,21,21
+2020-09-11,0,Shale Island,boat,40,40,40
+2020-09-13,0,Breakwater,bay_shore,40,40,40
+2020-09-18,0,Breakwater,bay_shore,20,30,25
+2020-09-18,0,Breakwater,bay_shore,10,15,12.5
+2020-10-03,0,Monastery,carmel_shore,25,25,25
+2020-10-31,0,Breakwater,bay_shore,10,15,12.5
+2020-12-23,0,Breakwater,bay_shore,30,30,30
+2021-01-24,0,Breakwater,bay_shore,20,20,20
+2021-01-31,0,Breakwater,bay_shore,30,30,30
+2021-02-12,0,Soberanes,boat,25,30,27.5
+2021-02-27,0,Breakwater,bay_shore,5,10,7.5
+2021-03-06,0,Breakwater,bay_shore,5,8,6.5
+2021-04-25,0,San Carlos / Breakwater,bay_shore,10,15,12.5
+2021-04-26,0,Wharf,bay_shore,20,20,20
+2021-04-26,0,Breakwater,bay_shore,20,20,20
+2021-06-19,0,San Carlos / Breakwater,bay_shore,3,3,3
+2021-08-11,0,Lovers Point,bay_shore,40,40,40
+2021-08-13,0,Aumentos,boat,20,20,20
+2021-08-13,0,Cabrillo Point,boat,20,20,20
+2021-12-19,0,North Monastery,carmel_shore,60,60,60
+2022-02-25,0,Eric's Pinnacle,boat,12,12,12
+2022-02-25,0,VT 3,boat,12,12,12
+2022-03-03,0,Point Lobos / Beto's,lobos,15,15,15
+2022-10-02,0,Breakwater,bay_shore,30,30,30
+2022-10-29,0,Santa Cruz (outside Monterey),boat,1,1,1
+2022-11-05,0,Lovers Point,bay_shore,20,40,30
+2022-11-06,0,Breakwater,bay_shore,10,20,15
+2023-09-17,0,Lovers Point,bay_shore,25,25,25
+2023-09-17,0,Otter Cove,boat,25,30,27.5
+2020-10-23,0,Breakwater,bay_shore,3,5,4
+2020-10-16,0,Breakwater,bay_shore,10,15,12.5
+2020-10-09,0,Breakwater,bay_shore,10,15,12.5
+2020-10-09,0,Breakwater,bay_shore,10,15,12.5
+2020-10-02,0,Breakwater,bay_shore,10,15,12.5
+2020-08-29,0,Metridium Mountain,boat,5,35,20
+2020-08-29,0,Breakwater,bay_shore,30,30,30
+2020-03-21,0,Butterfly House / Carmel River,carmel_shore,30,40,35
+2020-09-06,0,Metridium Mountain,boat,20,20,20
+2020-10-18,0,Metridium Mountain,boat,10,10,10
+2023-07-29,0,Point Lobos,lobos,40,40,40
+2023-03-11,0,Breakwater,bay_shore,10,10,10
+2022-01-25,0,Breakwater,bay_shore,40,40,40
+2022-03-13,0,Stillwater Cove,carmel_shore,15,15,15
+2022-05-07,0,McAbee,bay_shore,5,5,5
+2022-06-03,0,Breakwater,bay_shore,10,15,12.5
+2022-07-26,0,Lovers Point,bay_shore,15,15,15
+2022-09-25,0,Point Lobos,lobos,10,40,25
+2023-06-24,0,Carmel,carmel_shore,80,80,80
+2023-12-18,0,Aquarium Reef,boat,40,40,40
+2020-09-13,0,Carmel,carmel_shore,30,30,30
+2020-09-19,0,Breakwater,bay_shore,40,40,40
+2020-06-13,0,Carmel,carmel_shore,70,70,70
+2020-08-08,0,Wharf,bay_shore,15,15,15
+2020-11-22,0,Breakwater,bay_shore,15,15,15
+2020-11-22,0,Breakwater,bay_shore,10,10,10
+2020-03-14,0,Breakwater,bay_shore,40,50,45
+2020-11-03,0,Metridium Mountain,boat,25,25,25
+2020-09-18,0,Point Pinos,boat,25,25,25
+2020-08-02,0,Breakwater,bay_shore,10,15,12.5
+2020-08-02,0,Hidden Beach,boat,8,8,8
+2020-02-16,0,Copper Roof,boat,10,20,15
+2020-01-05,0,Breakwater,bay_shore,5,15,10
+2020-11-28,0,Monastery,carmel_shore,50,50,50
+2023-04-28,0,Point Lobos,lobos,30,30,30
+2023-12-18,0,Aquarium Reef,boat,40,40,40
+2023-12-12,1,Point Lobos,lobos,30,30,30
+2023-12-02,1,Point Lobos,lobos,10,30,20
+2023-11-16,1,McAbee,bay_shore,10,30,20
+2023-09-18,1,Breakwater,bay_shore,20,20,20
+2023-09-09,0,Breakwater,bay_shore,15,40,27.5
+2023-08-04,1,Breakwater,bay_shore,20,20,20
+2023-06-23,1,Breakwater,bay_shore,5,15,10
+2023-03-20,1,Wharf,bay_shore,20,30,25
+2023-03-19,1,Point Lobos,lobos,20,60,40
+2023-02-25,1,Tanker's Reef,boat,7,7,7
+2023-01-21,1,McAbee,bay_shore,1,5,3
+2026-01-10,0,Cabrillo Point,boat,10,10,10
+2026-01-10,0,Tanker's Reef,boat,5,5,5
+2025-06-22,0,Shale Island,boat,30,30,30
+2025-06-22,0,Cabrillo Point,boat,15,15,15
+2024-11-16,0,Mr. Ed,boat,3,3,3
+2024-10-20,0,Aumentos,boat,25,30,27.5
+2024-10-20,0,Tanker's Reef,boat,20,25,22.5
+2024-07-06,0,Mr. Ed,boat,10,10,10
+2024-07-06,0,Shale Island,boat,10,10,10
+2024-06-30,0,Aumentos,boat,30,30,30
+2023-02-11,0,Breakwater,bay_shore,10,15,12.5
+2023-01-21,0,McAbee,bay_shore,1,2,1.5
+2023-02-25,0,Tanker's Reef,boat,7,7,7
+2023-03-12,0,Breakwater,bay_shore,15,20,17.5
+2023-03-20,0,Wharf,bay_shore,20,20,20
+2023-03-20,0,Metridium Mountain,boat,30,30,30
+2023-06-09,0,Tanker's Reef,boat,20,30,25
+2023-07-16,0,McAbee,bay_shore,10,30,20
+2023-08-04,0,Breakwater,bay_shore,20,20,20
+2023-09-09,0,Breakwater,bay_shore,15,40,27.5
+2023-11-16,0,Metridium Mountain,boat,30,30,30
+2023-11-16,0,McAbee,bay_shore,10,10,10
+2023-11-17,0,Breakwater,bay_shore,30,30,30
+2023-12-02,0,Point Lobos,lobos,10,15,12.5
+2023-12-12,0,Point Lobos,lobos,30,30,30
+2024-06-30,0,Aumentos,boat,30,30,30
+2024-06-30,0,Eric's Pinnacle,boat,30,30,30
+2024-09-02,0,Mr. Ed,boat,25,25,25
+2024-09-02,0,Tanker's Reef,boat,20,20,20
+2025-02-08,0,Mr. Ed,boat,40,40,40
+2025-02-08,0,Metridium Mountain,boat,40,40,40
+2025-06-22,0,Cabrillo Point,boat,15,15,15
+2025-12-06,0,Metridium Mountain,boat,40,40,40
+2025-12-06,0,McAbee,bay_shore,30,30,30
+2026-01-01,0,Mr. Ed,boat,40,50,45
+2026-01-01,0,Tanker's Reef,boat,30,30,30
+2025-06-22,0,Cabrillo Point,boat,15,15,15
+2025-09-27,0,Mt Chetron,boat,15,15,15
+2025-09-27,0,Metridium Mountain,boat,15,15,15
+2024-06-30,0,Aumentos,boat,30,30,30
+2024-12-07,0,Metridium Mountain,boat,40,40,40
+2024-12-07,0,Breakwater,bay_shore,30,30,30
+2024-11-02,0,Breakwater,bay_shore,5,10,7.5
+2021-05-29,0,Breakwater,bay_shore,5,5,5
+2021-01-15,0,Breakwater,bay_shore,10,10,10
+2017-12-31,0,Outer Chase Reef,boat,50,50,50
+2018-10-06,0,Mola Mountain,boat,35,35,35
+2019-06-11,0,McAbee,bay_shore,30,40,35
+2019-06-16,0,McAbee,bay_shore,20,30,25
+2019-06-28,0,McAbee,bay_shore,20,50,35
+2019-07-13,0,McAbee,bay_shore,30,40,35
+2019-07-20,0,Eric's Pinnacle,boat,10,20,15
+2019-09-21,0,Aquarium Reef,boat,20,20,20
+2019-10-12,0,Breakwater,bay_shore,10,10,10
+2019-10-26,0,Lotta Bull,boat,30,30,30
+2019-11-15,0,Metridium Mountain,boat,20,20,20
+2021-01-15,0,Metridium Mountain,boat,10,10,10
+2021-09-18,0,Breakwater,bay_shore,15,20,17.5
+2021-11-03,0,Wharf,bay_shore,10,15,12.5
+2022-08-26,0,Metridium Mountain,boat,30,40,35
+2022-10-14,0,Metridium Mountain,boat,20,20,20
+2022-11-12,0,Aumentos,boat,50,50,50
+2021-06-12,0,Breakwater,bay_shore,10,10,10
+2019-11-02,0,Back Wall,boat,15,15,15
+2018-05-19,0,Lovers Point,bay_shore,15,20,17.5
+2018-02-03,0,The Needle,boat,70,70,70
+2022-10-29,0,McMuffin Beach,boat,10,10,10
+2022-06-03,0,Bottles,boat,20,20,20
+2021-05-31,0,Breakwater,bay_shore,5,5,5
+2021-03-27,0,Breakwater,bay_shore,15,15,15
+2019-08-31,0,Aumentos,boat,80,80,80
+2019-08-03,0,Cabrillo Point,boat,70,70,70
+2019-11-30,0,Cabrillo Point,boat,60,80,70
+2019-01-15,0,Breakwater,bay_shore,25,30,27.5
+2020-11-01,0,Lovers Point,bay_shore,10,15,12.5
+2022-01-07,0,Aumentos,boat,40,40,40
+2022-01-07,0,Erics Pinnacle,boat,30,30,30
+2022-02-20,0,Breakwater,bay_shore,20,20,20
+2022-04-29,0,Breakwater,bay_shore,20,20,20
+2022-04-29,0,Breakwater,bay_shore,20,20,20
+2022-05-13,0,Shale Island,boat,15,15,15
+2022-05-13,0,Erics Pinnacle,boat,15,15,15
+2022-05-13,0,Outer Chase Reef,boat,40,40,40
+2022-05-20,0,Metridium Mountain,boat,10,10,10
+2022-05-20,0,McAbee,bay_shore,15,15,15
+2022-06-27,0,Breakwater,bay_shore,10,15,12.5
+2022-07-02,0,Erics Pinnacle,boat,20,20,20
+2022-07-02,0,Metridium Mountain,boat,30,30,30
+2022-07-08,0,Metridium Mountain,boat,25,25,25
+2022-07-08,0,McAbee,bay_shore,20,20,20
+2022-08-05,0,Brians Crack,boat,25,25,25
+2022-08-05,0,Shale Island,boat,20,20,20
+2022-09-05,0,Erics Pinnacle,boat,50,50,50
+2022-09-05,0,Metridium Mountain,boat,40,50,45
+2022-09-07,0,Tankers Reef,boat,20,25,22.5
+2022-10-22,0,Breakwater,bay_shore,20,20,20
+2022-10-22,0,Metridium Mountain,boat,20,20,20
+2022-11-11,0,Metridium Mountain,boat,50,50,50
+2022-11-11,0,McAbee,bay_shore,40,50,45
+2022-12-02,0,Metridium Mountain,boat,20,20,20
+2022-12-02,0,McAbee,bay_shore,15,20,17.5
+2024-10-12,1,Breakwater,bay_shore,20,20,20
+2024-04-20,0,Crest Wall,boat,40,40,40
+2024-12-21,0,Off Course,boat,40,40,40
+2024-10-26,0,Cloud Mountain,boat,15,15,15
+2024-12-07,0,Off Course,boat,40,40,40
+2024-05-25,0,Crest Wall,boat,50,50,50
+2024-05-18,0,Shale Island,boat,10,10,10
+2024-02-24,0,Mr Ed,boat,20,20,20
+2024-06-29,0,Aumentos,boat,20,20,20
+2024-11-02,0,Octopus Reef,boat,5,5,5
+2024-10-19,0,Bottles,boat,40,40,40
+2024-02-10,0,Mr Ed,boat,20,20,20
+2024-05-27,0,Mr Ed,boat,30,30,30
+2018-06-28,0,McAbee,bay_shore,20,30,25
+2018-06-28,0,McAbee,bay_shore,20,30,25
+2018-09-01,1,Lovers Point,bay_shore,20,20,20
+2018-11-09,0,Breakwater,bay_shore,20,25,22.5
+2019-06-30,0,Monastery,carmel_shore,25,35,30
+2026-02-07,0,Mt Chetron,boat,20,20,20
+2023-05-08,0,unknown,boat,10,20,15
+2021-06-25,1,Tankers Reef,boat,10,10,10
+2025-04-20,0,Tankers Reef,boat,10,10,10
+2025-04-19,0,Mr Ed,boat,20,20,20
+2025-04-19,0,Shale Island,boat,15,15,15
+2025-10-11,0,unknown,boat,15,15,15
+2025-02-01,0,Crest Wall,boat,40,40,40
+2025-08-16,0,Mt Chetron,boat,20,20,20
+2025-08-16,0,Mt Chetron,boat,20,20,20
+2025-10-11,0,Mt Chetron,boat,20,20,20
+2025-10-11,0,Tankers Reef,boat,20,20,20
+2025-09-20,0,Mr Ed,boat,25,25,25
+2025-09-20,0,Mt Chetron,boat,25,25,25
+2025-07-19,0,Metridium Mountain,boat,25,25,25
+2025-07-19,0,Hopkins,boat,20,20,20
+2025-07-19,0,Hopkins,boat,20,20,20
+2025-08-23,0,Mr Ed,boat,20,20,20
+2025-08-23,0,Mt Chetron,boat,20,20,20
+2025-12-06,0,Breakwater,bay_shore,40,40,40
+2025-08-30,0,Mt Chetron,boat,15,15,15
+2025-08-30,0,VT3,boat,15,15,15
+2025-08-30,0,Mt Chetron,boat,15,15,15
+2025-08-30,0,VT3,boat,15,15,15
+2025-11-22,0,Point Lobos,lobos,30,40,35
+2025-04-12,0,Mr Ed,boat,20,20,20
+2025-04-12,0,McAbee,bay_shore,15,15,15
+2025-02-15,0,Breakwater,bay_shore,10,10,10
+2025-01-29,1,Metridium Mountain,boat,20,25,22.5
+2024-07-20,0,Mr Ed,boat,40,40,40
+2024-07-20,0,VT3,boat,15,20,17.5
+2024-01-27,0,Tankers Reef,boat,20,20,20
+2024-02-16,0,Metridium Mountain,boat,20,20,20
+2024-02-16,0,Breakwater,bay_shore,20,25,22.5
+2025-08-22,0,Metridium Mountain,boat,20,20,20
+2025-05-16,0,Metridium Mountain,boat,25,25,25
+2024-09-20,1,McAbee,bay_shore,5,5,5
+2023-06-10,0,Breakwater,bay_shore,20,20,20
+2023-04-08,0,Erics Pinnacle,boat,48,49,48.5
+2023-08-26,0,Mr Ed,boat,30,30,30
+2023-08-26,0,Hopkins,boat,20,20,20
+2023-07-22,0,Mr Ed,boat,15,15,15
+2023-07-22,0,McAbee,bay_shore,15,15,15
+2023-04-15,0,Metridium Mountain,boat,3,3,3
+2023-04-15,0,Erics Pinnacle,boat,10,10,10
+2023-10-28,0,Mr Ed,boat,20,25,22.5
+2023-10-28,0,Shale Island,boat,20,20,20
+2023-12-30,0,Metridium Mountain,boat,15,15,15
+2023-12-30,0,Shale Island,boat,15,15,15
+2023-09-02,0,Tankers Reef,boat,25,30,27.5
+2023-07-01,0,Tankers Reef,boat,15,15,15
+2023-05-06,0,Breakwater,bay_shore,15,25,20
+2023-04-08,0,Stillwater Cove,carmel_shore,20,20,20
+2023-12-09,0,Mr Ed,boat,15,15,15
+2023-12-09,0,Shale Island,boat,15,15,15
+2023-01-26,0,Breakwater,bay_shore,10,25,17.5
+2023-09-01,0,Shale Island,boat,40,40,40
+2023-09-01,0,VT3,boat,30,30,30
+2023-11-18,0,Aumentos,boat,40,40,40
+2023-11-18,0,Erics Pinnacle,boat,40,40,40
+2023-06-30,0,Ballbuster,boat,40,40,40
+2023-06-30,0,Anchor 1,boat,40,40,40
+2023-01-20,0,Metridium Mountain,boat,20,20,20
+2023-01-20,0,McAbee,bay_shore,15,15,15
+2023-01-27,0,Aumentos,boat,15,15,15
+2023-01-27,0,VT3,boat,15,15,15
+2023-09-08,0,Daves Ridge,boat,30,30,30
+2023-05-12,0,Mola Mountain,boat,30,40,35
+2023-05-12,0,Shale Island,boat,30,40,35
+2023-09-29,1,Breakwater,bay_shore,5,5,5
+2023-08-11,0,Breakwater,bay_shore,10,15,12.5
+2023-06-30,0,Anchor 1,boat,40,40,40
+2019-07-06,0,Metridium Mountain,boat,40,50,45
+2019-07-06,0,McAbee,bay_shore,30,40,35
+2019-05-18,1,Point Pinos,boat,50,50,50
+2019-05-18,1,Anchor,boat,40,40,40
+2019-06-29,0,Breakwater,bay_shore,25,25,25
+2019-11-23,0,Hopkins,boat,20,20,20
+2019-11-23,0,Aquarium Wall,boat,20,20,20
+2019-12-07,0,Hopkins,boat,30,40,35
+2019-12-07,0,McAbee,bay_shore,20,30,25
+2019-11-09,0,Octopus Reef,boat,50,50,50
+2019-11-09,0,Hopkins,boat,20,30,25
+2019-08-24,0,Aumentos,boat,50,60,55
+2019-08-24,0,Aquarium Wall,boat,40,50,45
+2019-11-09,1,Monastery,carmel_shore,40,40,40
+2019-11-09,0,Breakwater,bay_shore,5,10,7.5
+2019-11-09,0,Breakwater,bay_shore,20,20,20
+2019-12-29,0,Breakwater,bay_shore,15,20,17.5
+2019-08-04,0,Balls Deep,boat,20,30,25
+2019-07-06,0,Metridium Mountain,boat,40,50,45
+2019-07-06,0,McAbee,bay_shore,30,40,35
+2019-05-18,0,Point Pinos,boat,50,50,50
+2019-12-07,0,Hopkins,boat,30,40,35
+2019-11-23,0,Hopkins,boat,20,20,20
+2019-11-09,0,Octopus Reef,boat,50,50,50
+2019-11-09,0,Hopkins,boat,20,30,25
+2019-08-24,0,Aumentos,boat,50,60,55
+2019-08-24,0,Aquarium Wall,boat,40,50,45
+2019-04-29,0,Lovers Point,bay_shore,50,60,55
+2019-12-29,0,Breakwater,bay_shore,15,20,17.5
+2019-04-28,0,Erics Pinnacle,boat,30,30,30
+2019-01-13,0,Ballbuster,boat,30,40,35
+2019-01-13,0,Hopkins,boat,20,30,25
+2019-02-23,0,Monastery,carmel_shore,50,70,60
+2019-07-28,1,Breakwater,bay_shore,50,50,50
+2019-10-03,0,Monastery,carmel_shore,35,55,45
+2019-11-29,0,Carmel,carmel_shore,30,30,30
+2019-04-30,0,Lovers Point,bay_shore,30,35,32.5
+2019-10-20,0,McAbee,bay_shore,2,3,2.5
+2019-08-11,0,Spanish Bay,boat,30,50,40
+2019-08-11,0,Erics Pinnacle,boat,30,50,40
+2019-03-31,0,Breakwater,bay_shore,25,30,27.5
+2019-07-27,0,Carmel,carmel_shore,25,25,25
+2019-09-06,0,Butterfly House,carmel_shore,25,30,27.5
+2018-08-19,0,Monterey Wharf,bay_shore,15,20,17.5
+2018-07-14,0,Carmel Pinnacles,boat,30,30,30
+2018-07-14,0,Horseshoe Reef,boat,30,30,30
+2018-07-15,0,Monastery,carmel_shore,40,50,45
+2018-07-16,0,Monterey Wharf,bay_shore,10,15,12.5
+2018-09-15,0,McAbee,bay_shore,25,25,25
+2018-08-11,0,Metridium Mountain,boat,25,30,27.5
+2018-08-11,0,Breakwater,bay_shore,15,20,17.5
+2018-07-28,1,Breakwater,bay_shore,30,50,40
+2018-07-28,1,Breakwater,bay_shore,30,50,40
+2018-07-28,1,Breakwater,bay_shore,30,50,40
+2018-07-28,1,Metridium Mountain,boat,30,50,40
+2018-08-07,0,Breakwater,bay_shore,20,25,22.5
+2018-08-07,0,Breakwater,bay_shore,10,10,10
+2018-08-12,0,Breakwater,bay_shore,0,5,2.5
+2018-08-12,0,Breakwater,bay_shore,0,0,0
+2018-08-25,0,Point Lobos,lobos,5,25,15
+2018-08-31,0,Breakwater,bay_shore,15,25,20
+2018-02-04,0,Monastery,carmel_shore,40,40,40
+2018-07-18,0,Point Lobos,lobos,40,40,40
+2018-07-08,0,Breakwater,bay_shore,10,10,10
+2018-11-24,0,Point Lobos,lobos,0,0,0
+2018-11-24,0,Point Lobos,lobos,20,30,25
+2018-11-24,0,Point Lobos,lobos,30,30,30
+2018-02-18,0,Breakwater,bay_shore,10,10,10
+2018-07-26,0,Breakwater,bay_shore,20,20,20
+2018-03-24,0,Erics Pinnacle,boat,15,20,17.5
+2018-03-24,0,Georges Crack,boat,15,20,17.5
+2018-08-11,0,Metridium Mountain,boat,25,30,27.5
+2018-03-31,0,Breakwater,bay_shore,15,20,17.5
+2018-02-10,1,Point Lobos,lobos,25,25,25
+2018-11-24,0,Point Lobos,lobos,0,0,0
+2018-11-24,0,Point Lobos,lobos,20,30,25
+2018-11-24,0,Point Lobos,lobos,30,30,30
+2018-09-28,0,Monastery,carmel_shore,15,15,15
+2018-05-24,0,Breakwater,bay_shore,5,12,8.5
+2018-08-07,0,Breakwater,bay_shore,15,15,15
+2018-08-18,0,Monterey Wharf,bay_shore,15,20,17.5
+2018-07-27,0,Metridium Mountain,boat,10,30,20
+2018-07-21,0,Coral Street,boat,20,20,20
+2018-07-20,0,Breakwater,bay_shore,10,20,15
+2018-08-05,0,Breakwater,bay_shore,10,15,12.5
+2018-11-12,0,Coral Street,boat,15,20,17.5
+2018-11-12,0,Breakwater,bay_shore,20,25,22.5
+2018-03-30,0,Breakwater,bay_shore,20,20,20
+2018-06-12,0,Breakwater,bay_shore,5,5,5
+2018-01-05,0,Point Lobos,lobos,1,3,2
+2018-01-05,0,Point Lobos,lobos,20,20,20
+2018-07-27,0,Metridium Mountain,boat,25,30,27.5
+2018-07-20,0,Breakwater,bay_shore,10,20,15
+2018-07-20,0,Breakwater,bay_shore,30,30,30
+2018-03-30,0,Breakwater,bay_shore,20,20,20
+2018-06-12,0,Breakwater,bay_shore,5,5,5
+2021-04-04,0,Lovers Point,bay_shore,40,50,45
+2021-06-19,0,Breakwater,bay_shore,3,3,3
+2021-05-29,0,Breakwater,bay_shore,5,5,5
+2021-03-27,0,Breakwater,bay_shore,15,15,15
+2021-06-12,0,Breakwater,bay_shore,10,10,10
+2021-06-12,0,Breakwater,bay_shore,10,10,10
+2021-11-26,0,Aumentos,boat,40,40,40
+2021-11-26,0,Hopkins,boat,30,30,30
+2021-06-12,0,Breakwater,bay_shore,10,15,12.5
+2021-07-31,0,Monterey Wharf,bay_shore,10,15,12.5
+2021-05-22,0,Octopus Reef,boat,20,30,25
+2021-05-22,0,McAbee,bay_shore,15,20,17.5
+2021-01-30,0,Outer Chase Reef,boat,30,30,30
+2021-01-30,0,Shale Island,boat,10,10,10
+2021-12-10,0,Metridium Mountain,boat,50,50,50
+2021-12-10,0,VT3,boat,30,30,30
+2021-08-06,0,Mola Mountain,boat,30,40,35
+2021-08-06,0,Anchor,boat,20,25,22.5
+2021-10-18,0,Breakwater,bay_shore,15,20,17.5
+2021-10-18,0,Breakwater,bay_shore,10,15,12.5
+2021-11-22,0,McAbee,bay_shore,20,30,25
+2021-12-08,0,Breakwater,bay_shore,50,50,50
+2021-01-22,0,Breakwater,bay_shore,20,20,20
+2021-12-10,0,VT3,boat,30,30,30
+2021-10-18,0,Breakwater,bay_shore,15,20,17.5
+2021-10-18,0,Breakwater,bay_shore,10,15,12.5
+2021-06-04,0,Hopkins,boat,5,10,7.5
+2021-06-04,0,VT3,boat,10,10,10
+2021-07-29,0,Breakwater,bay_shore,20,20,20
+2021-06-19,0,Tankers Reef,boat,12,15,13.5
+2021-09-10,0,Octopus Reef,boat,40,40,40
+2021-09-10,0,Hopkins,boat,20,20,20
+2021-12-30,1,Breakwater,bay_shore,20,25,22.5
+2021-12-18,0,Boat,boat,20,25,22.5
+2021-08-08,1,Monastery,carmel_shore,60,60,60
+2021-04-16,0,Shale Island,boat,5,5,5
+2021-04-16,0,McAbee,bay_shore,5,5,5
+2021-10-15,0,Lovers Point,bay_shore,5,5,5
+2021-07-25,0,Breakwater,bay_shore,10,10,10
+2021-10-08,0,Metridium Mountain,boat,25,30,27.5
+2021-10-08,0,McAbee,bay_shore,25,30,27.5
+2021-04-18,1,Metridium Mountain,boat,5,5,5
+2021-04-18,1,VT3,boat,5,5,5
+2021-03-27,0,unknown,boat,15,15,15
+2017-08-19,1,Breakwater,bay_shore,20,20,20
+2017-10-26,0,Breakwater,bay_shore,10,15,12.5
+2017-06-16,0,Breakwater,bay_shore,5,5,5
+2017-11-18,0,unknown,boat,40,40,40
+2017-11-05,0,Coral Street,boat,15,15,15
+2017-12-27,0,Breakwater,bay_shore,30,30,30
+2017-12-11,0,Monastery,carmel_shore,40,40,40
+2017-11-12,0,Point Lobos,lobos,40,50,45
+2017-12-26,0,Breakwater,bay_shore,30,30,30
+2017-09-02,0,Breakwater,bay_shore,60,60,60
+2017-11-11,0,Breakwater,bay_shore,10,20,15
+2021-12-18,0,Boat,boat,20,25,22.5
+2017-07-21,0,Point Lobos,lobos,40,40,40
+2017-10-27,0,Breakwater,bay_shore,15,20,17.5
+2017-11-25,1,Breakwater,bay_shore,15,20,17.5
+2017-09-16,0,Point Lobos,lobos,40,50,45
+2017-06-24,0,Monastery,carmel_shore,15,15,15
+2017-06-24,0,Monastery,carmel_shore,15,15,15
+2017-08-20,0,Point Lobos,lobos,20,20,20
+2017-07-22,0,Monastery,carmel_shore,40,40,40
+2017-07-28,0,Point Lobos,lobos,10,10,10
+2017-11-04,0,Point Lobos,lobos,25,35,30
+2017-06-10,1,Point Lobos,lobos,10,15,12.5
+2017-07-16,0,Carmel River,carmel_shore,20,30,25
+2017-07-15,0,Breakwater,bay_shore,20,25,22.5
+2017-09-03,1,Breakwater,bay_shore,24,25,24.5
+2017-12-22,0,Point Lobos,lobos,35,35,35
+2017-06-17,0,Lovers Point,bay_shore,8,8,8
+2017-12-30,0,Metridium Mountain,boat,25,25,25
+2017-12-30,0,Breakwater,bay_shore,25,25,25
+2017-11-05,0,Monterey Wharf,bay_shore,10,10,10
+2017-05-28,0,Point Lobos,lobos,40,40,40
+2017-06-11,0,Monterey Wharf,bay_shore,5,5,5
+2017-06-16,0,Point Lobos,lobos,40,50,45
+2017-10-25,0,Monastery,carmel_shore,20,20,20
+2017-12-08,0,Breakwater,bay_shore,50,50,50
+2017-05-26,0,Breakwater,bay_shore,5,12,8.5
+2017-07-11,0,Cannery Row,boat,15,15,15
+2017-11-04,0,Monastery,carmel_shore,20,30,25
+2017-05-28,0,Breakwater,bay_shore,15,18,16.5
+2017-05-27,0,Stillwater Cove,carmel_shore,20,20,20
+2017-08-19,0,Breakwater,bay_shore,10,15,12.5
+2017-06-18,0,Lovers Point,bay_shore,10,13,11.5
+2017-07-28,0,Point Lobos,lobos,10,10,10
+2017-09-03,1,Breakwater,bay_shore,24,25,24.5
+2017-09-03,1,Breakwater,bay_shore,15,15,15
+2017-09-30,0,Point Lobos,lobos,20,20,20
+2017-12-03,0,Breakwater,bay_shore,5,10,7.5
+2017-07-08,0,Point Lobos,lobos,40,45,42.5
+2017-07-08,0,Point Lobos,lobos,5,10,7.5
+2020-01-30,0,Otter Cove,boat,20,20,20
+2024-04-02,0,Breakwater,bay_shore,30,30,30
+2025-12-21,1,Point Lobos,lobos,30,30,30
+2025-09-14,0,Point Lobos,lobos,40,40,40
+2024-09-15,0,Monastery,carmel_shore,35,35,35
+2024-08-11,0,Wharf,bay_shore,10,10,10
+2018-09-22,1,Point Lobos,lobos,10,10,10
+2017-11-18,0,Carmel,carmel_shore,40,40,40
+2024-10-11,0,Breakwater,bay_shore,10,15,12.5
+2022-01-08,0,Breakwater,bay_shore,5,5,5
+2024-06-03,0,Point Lobos,lobos,20,20,20
+2024-06-03,0,Otter Cove,boat,5,5,5
+2026-05-31,0,McAbee,bay_shore,25,25,25
+2019-07-04,0,unknown,boat,30,30,30
+2024-05-19,0,Metridium Mountain,boat,10,15,12.5
+2024-07-09,0,Breakwater,bay_shore,25,25,25
+2025-12-14,0,Point Lobos,lobos,30,40,35
+2026-04-04,0,Shale Island,boat,50,50,50
+2025-12-20,0,Shale Island,boat,20,20,20
+2025-12-20,0,VT3,boat,20,20,20
+2025-07-25,0,Mr Ed,boat,25,25,25
+2026-05-25,0,Shale Island,boat,10,10,10
+2026-05-25,0,VT3,boat,10,10,10
+2023-07-10,0,Wharf,bay_shore,30,30,30
+2022-01-09,0,Tankers Reef,boat,15,15,15
+2025-12-23,0,Hopkins,boat,30,30,30
+2025-08-26,0,Aumentos,boat,10,10,10
+2025-06-28,0,Aumentos,boat,30,30,30
+2025-06-28,0,Metridium Mountain,boat,30,30,30
+2025-06-08,0,Hopkins,boat,50,50,50
+2025-06-08,0,Aumentos,boat,50,50,50
+2026-02-21,0,Hopkins,boat,15,15,15
+2026-02-21,0,Aumentos,boat,15,15,15
+2025-11-15,0,McAbee,bay_shore,50,50,50
+2026-01-24,0,boat,boat,74,74,74
+2024-07-09,0,Breakwater,bay_shore,25,25,25
+2025-12-14,0,Point Lobos,lobos,35,35,35
+2025-12-14,0,Point Lobos,lobos,60,60,60
+2020-09-30,1,Lovers Point,bay_shore,5,5,5
+2025-12-20,0,Shale Island,boat,20,20,20
+2025-12-20,0,VT3,boat,20,20,20
+2025-07-25,0,Mr Ed,boat,25,25,25
+2025-07-25,0,Shale Island,boat,25,25,25
+2026-05-25,0,Shale Island,boat,10,10,10
+2026-05-25,0,VT3,boat,10,10,10
+2026-01-16,0,Mt Chetron,boat,25,25,25
+2026-01-16,0,Shale Island,boat,18,18,18
+2022-01-09,0,Tankers Reef,boat,15,15,15
+2025-12-23,0,Hopkins,boat,30,30,30
+2025-08-26,0,Aumentos,boat,30,30,30
+2025-08-26,1,Hopkins,boat,30,30,30
+2018-04-24,0,Aumentos,boat,12,12,12
+2018-04-24,0,Breakwater,bay_shore,10,10,10
+2025-06-08,0,Hopkins,boat,50,50,50
+2025-06-08,0,Aumentos,boat,50,50,50
+2025-06-28,0,Aumentos,boat,30,30,30
+2025-06-28,0,Metridium Mountain,boat,30,30,30
+2025-11-15,0,McAbee,bay_shore,50,50,50
+2020-07-10,0,Mt Chetron,boat,15,15,15
+2026-03-31,0,Monastery,carmel_shore,50,50,50
+2023-06-12,0,Wharf,bay_shore,15,15,15
+2023-03-14,0,Wharf,bay_shore,20,20,20
+2024-04-28,1,Wharf,bay_shore,15,15,15
+2026-01-18,0,Point Lobos,lobos,40,40,40
+2019-06-22,0,Aquarium Reef,boat,20,30,25
+2019-06-22,0,McAbee,bay_shore,30,40,35
+2024-03-08,0,Metridium Mountain,boat,10,15,12.5
+2025-05-26,0,Monastery,carmel_shore,30,30,30
+2025-07-04,0,Mr Ed,boat,30,30,30
+2025-07-04,0,VT3,boat,30,30,30
+2026-04-03,0,Otter Cove,boat,3,30,16.5
+2026-01-17,1,Butterfly House,carmel_shore,30,40,35
+2024-05-24,0,Breakwater,bay_shore,10,10,10
+2024-05-24,0,Metridium Mountain,boat,30,30,30
+2025-12-15,0,Breakwater,bay_shore,40,40,40
+2025-07-18,0,Daves Ridge,boat,10,15,12.5
+2026-04-09,0,Monastery,carmel_shore,30,30,30
+2026-03-07,0,unknown,boat,15,20,17.5
+2023-05-17,1,Breakwater,bay_shore,15,15,15
+2023-04-20,0,Breakwater,bay_shore,15,15,15
+2023-06-05,1,Breakwater,bay_shore,20,20,20
+2026-05-07,1,Breakwater,bay_shore,10,10,10
+2026-05-07,1,Breakwater,bay_shore,10,10,10
+2026-03-14,0,Mr Ed,boat,15,15,15
+2026-03-14,0,VT3,boat,15,15,15
+2026-03-09,0,Breakwater,bay_shore,20,25,22.5
+2022-01-20,0,Monastery,carmel_shore,50,50,50
