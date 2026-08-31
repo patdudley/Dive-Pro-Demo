@@ -1573,9 +1573,21 @@
       : null;
 
     /* Meteorological coming-from → going-to, then +270 so the east-pointing
-       shaft glyph matches map north. Same convention as wind particles. */
-    function flowRotationCss(directionDegrees) {
-      const flowBearing = (Number(directionDegrees) + 180) % 360;
+       shaft glyph matches map north. Wave trains optionally flip travel so
+       the head aims landward; the printed coming-from label is unchanged. */
+    function flowRotationCss(directionDegrees, { towardLand = false } = {}) {
+      const spot = typeof window.spotFromSlug === "function"
+        ? window.spotFromSlug(document.body.dataset.spot)
+        : { slug: document.body.dataset.spot };
+      const landBearing = typeof window.swellLandBearingForSpot === "function"
+        ? window.swellLandBearingForSpot(spot)
+        : 70;
+      const flowBearing = towardLand && typeof window.swellTravelBearingTowardLand === "function"
+        ? window.swellTravelBearingTowardLand(directionDegrees, landBearing)
+        : (Number(directionDegrees) + 180) % 360;
+      if (typeof window.swellTravelBearingToArrowRotateDeg === "function") {
+        return window.swellTravelBearingToArrowRotateDeg(flowBearing);
+      }
       return (flowBearing + 270) % 360;
     }
 
@@ -1589,7 +1601,7 @@
           const arrow = document.createElement("i");
           arrow.className = "map-wind-probe-arrow";
           arrow.setAttribute("aria-hidden", "true");
-          arrow.style.setProperty("--wind-flow-rotation", `${Math.round(flowRotationCss(train.direction))}deg`);
+          arrow.style.setProperty("--wind-flow-rotation", `${Math.round(flowRotationCss(train.direction, { towardLand: true }))}deg`);
           token.appendChild(arrow);
         }
         const label = document.createElement("span");

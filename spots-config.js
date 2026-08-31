@@ -17,6 +17,7 @@ const MONTEREY_FORECAST = {
   isBeta: true,
   swellBounds: MONTEREY_SWELL_BOUNDS,
   tideStation: MONTEREY_TIDE,
+  swellLandBearing: 70,
 };
 
 window.outdoorSpots = [
@@ -49,6 +50,7 @@ window.outdoorSpots = [
       id: "9410230",
       label: "NOAA La Jolla 9410230",
     },
+    swellLandBearing: 70,
     regionLabel: "La Jolla, San Diego",
     grade: null,
     gradeClass: "",
@@ -237,6 +239,7 @@ window.outdoorSpots = [
       id: "9410079",
       label: "NOAA Avalon 9410079",
     },
+    swellLandBearing: 70,
     regionLabel: "Catalina Island",
     grade: null,
     gradeClass: "",
@@ -279,6 +282,7 @@ window.outdoorSpots = [
       fallbackId: "9410840",
       fallbackLabel: "NOAA Santa Monica 9410840",
     },
+    swellLandBearing: 45,
     regionLabel: "Channel Islands",
     grade: null,
     gradeClass: "",
