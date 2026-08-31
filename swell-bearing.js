@@ -3,6 +3,23 @@ export function swellSourceBearingToTravelBearing(sourceBearing) {
   return (Number(sourceBearing) + 180) % 360;
 }
 
+function angularDistanceDeg(a, b) {
+  const delta = Math.abs(((Number(a) - Number(b) + 540) % 360) - 180);
+  return delta;
+}
+
+/**
+ * Keep nearshore swell travel in the land-facing half of the compass.
+ * When an offshore model cell reports the reciprocal train, flip the displayed
+ * coming-from bearing so its label and arrow remain physically consistent.
+ */
+export function swellSourceBearingTowardLand(sourceBearing, landBearing) {
+  const source = ((Number(sourceBearing) % 360) + 360) % 360;
+  const land = ((Number(landBearing) % 360) + 360) % 360;
+  const travel = swellSourceBearingToTravelBearing(source);
+  return angularDistanceDeg(travel, land) <= 90 ? source : (source + 180) % 360;
+}
+
 /**
  * CSS/SVG rotate for an east-pointing shaft (local +X / 0°).
  * Compass 0° is north, clockwise; compensate exactly once with +270.
