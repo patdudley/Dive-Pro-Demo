@@ -3,6 +3,51 @@ export function swellSourceBearingToTravelBearing(sourceBearing) {
   return (Number(sourceBearing) + 180) % 360;
 }
 
+export function normalizeBearingDeg(deg) {
+  return ((Number(deg) % 360) + 360) % 360;
+}
+
+export function angularDistanceDeg(a, b) {
+  return Math.abs(((Number(a) - Number(b) + 540) % 360) - 180);
+}
+
+/**
+ * Scripps / west-coast cards: land is east-ENE, not crude due-east.
+ * Due-east (90°) flips a 170° alongshore train and leaves 203° alone,
+ * so two nearby northbound swells look 147° apart.
+ */
+export const SCRIPPS_SHORE_NORMAL_DEG = 70;
+export const ANACAPA_LAND_BEARING_DEG = 45;
+
+const LAND_BEARING_BY_SLUG = {
+  "la-jolla": SCRIPPS_SHORE_NORMAL_DEG,
+  monterey: SCRIPPS_SHORE_NORMAL_DEG,
+  "monterey-mcabee": SCRIPPS_SHORE_NORMAL_DEG,
+  "monterey-lovers": SCRIPPS_SHORE_NORMAL_DEG,
+  "monterey-lobos": SCRIPPS_SHORE_NORMAL_DEG,
+  "monterey-monastery": SCRIPPS_SHORE_NORMAL_DEG,
+  "catalina-wrigley": SCRIPPS_SHORE_NORMAL_DEG,
+  "anacapa-ocean": ANACAPA_LAND_BEARING_DEG,
+};
+
+export function swellLandBearingForSpot(spot) {
+  const explicit = Number(spot?.swellLandBearing);
+  if (Number.isFinite(explicit)) return normalizeBearingDeg(explicit);
+  const slug = String(spot?.slug || "");
+  if (Number.isFinite(LAND_BEARING_BY_SLUG[slug])) return LAND_BEARING_BY_SLUG[slug];
+  return SCRIPPS_SHORE_NORMAL_DEG;
+}
+
+/**
+ * Arrow-only: keep travel in the land-facing half of the compass.
+ * Do not change the printed Open-Meteo coming-from label / source bearing.
+ */
+export function swellTravelBearingTowardLand(sourceBearing, landBearing) {
+  const travel = swellSourceBearingToTravelBearing(normalizeBearingDeg(sourceBearing));
+  const land = normalizeBearingDeg(landBearing);
+  return angularDistanceDeg(travel, land) <= 90 ? travel : normalizeBearingDeg(travel + 180);
+}
+
 /**
  * CSS/SVG rotate for an east-pointing shaft (local +X / 0°).
  * Compass 0° is north, clockwise; compensate exactly once with +270.
@@ -75,7 +120,10 @@ function unitBisector(travelA, travelB) {
 
 export function swellArrowWorldGeometry(spec) {
   const sourceBearing = Number(spec.sourceBearing);
-  const travelBearing = swellSourceBearingToTravelBearing(sourceBearing);
+  const landBearing = Number.isFinite(Number(spec.landBearing)) ? Number(spec.landBearing) : null;
+  const travelBearing = landBearing == null
+    ? swellSourceBearingToTravelBearing(sourceBearing)
+    : swellTravelBearingTowardLand(sourceBearing, landBearing);
   const rotateDeg = swellTravelBearingToArrowRotateDeg(travelBearing);
   const headSize = Number(spec.headSize);
   const hubGap = Number.isFinite(Number(spec.hubGap)) ? Number(spec.hubGap) : 14;
@@ -302,8 +350,14 @@ export function separateSwellArrowPair(primarySpec, secondarySpec, opts = {}) {
   const outlineGap = (opts.outlineGap ?? SWELL_OUTLINE_GAP) * scale;
   const maxPerp = (opts.maxPerp ?? SWELL_MAX_PERP_OFFSET) * scale;
   const maxBisector = (opts.maxBisector ?? SWELL_MAX_BISECTOR_OFFSET) * scale;
-  const travelA = swellSourceBearingToTravelBearing(primarySpec.sourceBearing);
-  const travelB = swellSourceBearingToTravelBearing(secondarySpec.sourceBearing);
+  const landA = Number.isFinite(Number(primarySpec.landBearing)) ? Number(primarySpec.landBearing) : null;
+  const landB = Number.isFinite(Number(secondarySpec.landBearing)) ? Number(secondarySpec.landBearing) : landA;
+  const travelA = landA == null
+    ? swellSourceBearingToTravelBearing(primarySpec.sourceBearing)
+    : swellTravelBearingTowardLand(primarySpec.sourceBearing, landA);
+  const travelB = landB == null
+    ? swellSourceBearingToTravelBearing(secondarySpec.sourceBearing)
+    : swellTravelBearingTowardLand(secondarySpec.sourceBearing, landB);
   const bisU = unitBisector(travelA, travelB);
   const collisionOpts = { outlineGap, minHeadCenter };
 

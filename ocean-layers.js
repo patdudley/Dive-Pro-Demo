@@ -43,7 +43,7 @@
     if (document.querySelector('link[data-divepro-ocean-layers]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "ocean-layers.css?v=pages-20260831truetravel1";
+    link.href = "ocean-layers.css?v=pages-20260831landward2";
     link.setAttribute("data-divepro-ocean-layers", "1");
     document.head.appendChild(link);
   }
@@ -1128,18 +1128,30 @@
     function drawCompassArrow(ctx, cx, cy, comingFrom, color, length, strokeWidth, headSize, hubGap) {
       const source = Number(comingFrom);
       if (!Number.isFinite(source)) return;
-      // True travel only: coming-from + 180. Do not aim shore-normal / east.
-      const travel = (source + 180) % 360;
-      const rad = ((travel - 90) * Math.PI) / 180;
-      const travelX = Math.cos(rad);
-      const travelY = Math.sin(rad);
-      const tailX = cx - travelX * length;
-      const tailY = cy - travelY * length;
-      const tipX = cx + travelX * hubGap;
-      const tipY = cy + travelY * hubGap;
-      const mag = Math.hypot(tipX - tailX, tipY - tailY) || 1;
-      const ux = (tipX - tailX) / mag;
-      const uy = (tipY - tailY) / mag;
+      const spot = typeof window.spotFromSlug === "function"
+        ? window.spotFromSlug(document.body.dataset.spot)
+        : { slug: document.body.dataset.spot };
+      const landBearing = typeof window.swellLandBearingForSpot === "function"
+        ? window.swellLandBearingForSpot(spot)
+        : 70;
+      const travel = typeof window.swellTravelBearingTowardLand === "function"
+        ? window.swellTravelBearingTowardLand(source, landBearing)
+        : (source + 180) % 360;
+      // Same 17ff5d44 shaft: argument is coming-from, tip is opposite (travel).
+      // Feed the coming-from that belongs to landward travel so the head aims landward.
+      const heading = (Number(travel) + 180) % 360;
+      const rad = ((heading - 90) * Math.PI) / 180;
+      const fromX = Math.cos(rad);
+      const fromY = Math.sin(rad);
+      const tailX = cx + fromX * length;
+      const tailY = cy + fromY * length;
+      const tipX = cx - fromX * hubGap;
+      const tipY = cy - fromY * hubGap;
+      const travelX = tipX - tailX;
+      const travelY = tipY - tailY;
+      const mag = Math.hypot(travelX, travelY) || 1;
+      const ux = travelX / mag;
+      const uy = travelY / mag;
       const px = -uy;
       const py = ux;
       const baseX = tipX - ux * headSize;
