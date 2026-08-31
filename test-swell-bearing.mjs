@@ -1,5 +1,6 @@
 import {
   swellSourceBearingToTravelBearing,
+  swellSourceBearingTowardLand,
   swellTravelBearingToArrowRotateDeg,
   defaultSwellArrowSpec,
   swellArrowWorldGeometry,
@@ -30,6 +31,24 @@ function assert(cond, message) {
 for (const [source, expected] of travelCases) {
   const got = swellSourceBearingToTravelBearing(source);
   assert(got === expected, `travel ${source} → ${got}, expected ${expected}`);
+}
+
+const landwardCases = [
+  // La Jolla / Monterey / Catalina: land is east.
+  [203, 90, 203],
+  [170, 90, 350],
+  [90, 90, 270],
+  [270, 90, 270],
+  // Anacapa card: land is northeast.
+  [225, 45, 225],
+  [45, 45, 225],
+];
+for (const [source, land, expected] of landwardCases) {
+  const got = swellSourceBearingTowardLand(source, land);
+  assert(got === expected, `landward source ${source} toward ${land} → ${got}, expected ${expected}`);
+  const travel = swellSourceBearingToTravelBearing(got);
+  const distance = Math.abs(((travel - land + 540) % 360) - 180);
+  assert(distance <= 90, `landward travel ${travel} is ${distance}° from land bearing ${land}`);
 }
 
 // East-pointing shaft: travel north (0) must rotate to CSS 270° (up).
@@ -135,4 +154,4 @@ if (failed) {
   console.error(`FAIL ${failed} assertion(s)`);
   process.exit(1);
 }
-console.log(`ok ${travelCases.length} travel + ${rotateCases.length} rotate + separation`);
+console.log(`ok ${travelCases.length} travel + ${landwardCases.length} landward + ${rotateCases.length} rotate + separation`);
