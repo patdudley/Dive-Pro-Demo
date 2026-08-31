@@ -1080,10 +1080,34 @@ function dayLabel(date) {
 }
 
 function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
-  const valid = (forecasts || []).filter((forecast) => forecast && forecastDateKey(forecast));
-  const upcoming = valid.filter((forecast) => forecastDateKey(forecast) >= today);
-  if (upcoming.length) return upcoming.slice(0, 10);
-  return valid.slice(-1);
+  const valid = (forecasts || [])
+    .filter((forecast) => forecast && forecastDateKey(forecast))
+    .sort((a, b) => forecastDateKey(a).localeCompare(forecastDateKey(b)));
+  if (!valid.length) return [];
+
+  const byDate = new Map(valid.map((forecast) => [forecastDateKey(forecast), forecast]));
+  const firstUpcoming = valid.find((forecast) => forecastDateKey(forecast) >= today);
+  let template = firstUpcoming || valid[valid.length - 1];
+  const window = [];
+
+  for (let offset = 0; offset < 10; offset += 1) {
+    const utc = new Date(`${today}T12:00:00Z`);
+    utc.setUTCDate(utc.getUTCDate() + offset);
+    const date = utc.toISOString().slice(0, 10);
+    const exact = byDate.get(date);
+    if (exact) {
+      template = exact;
+      window.push(exact);
+      continue;
+    }
+    window.push({
+      ...template,
+      date,
+      is_projected: true,
+      features: { ...(template.features || {}), date },
+    });
+  }
+  return window;
 }
 
 function initialForecastForToday(forecasts, publishedLatest, today = localTodayInLaJolla()) {
