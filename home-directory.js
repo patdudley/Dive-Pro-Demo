@@ -233,7 +233,7 @@
       const latest = forecast.latest || forecast;
       if (slug === "la-jolla" && latest?.date && latest.date < pacificToday()) {
         try {
-          forecast = await fetchJson("https://diveprosd.com/model_outputs/latest_forecast.json");
+          forecast = await fetchJson("https://diveproca.com/model_outputs/latest_forecast.json");
         } catch {
           // Keep the local emit if the published host is unreachable.
         }
@@ -242,7 +242,7 @@
     } catch {
       if (slug === "la-jolla") {
         try {
-          const published = await fetchJson("https://diveprosd.com/model_outputs/latest_forecast.json");
+          const published = await fetchJson("https://diveproca.com/model_outputs/latest_forecast.json");
           applyState(slug, fallbackFromForecast(published));
           return;
         } catch {
