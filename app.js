@@ -7,7 +7,7 @@ import {
   swellTravelUnitCanvas,
   defaultSwellArrowSpec,
   separateSwellArrowPair,
-} from "./swell-bearing.js?v=pages-20260831headflip1";
+} from "./swell-bearing.js?v=pages-20260831shorefix2";
 
 window.swellSourceBearingToTravelBearing = swellSourceBearingToTravelBearing;
 window.swellTravelBearingForSpot = swellTravelBearingForSpot;
