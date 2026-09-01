@@ -291,12 +291,16 @@
   }
 
   async function loadScrippsPreview() {
-    try {
-      const data = await fetchJson("camera-snapshots/scripps-pier-last-valid.json");
-      if (data.image_url) scrippsPreview = data.image_url;
-    } catch {
-      scrippsPreview = null;
-    }
+    const requestToken = Date.now();
+    const [latestAttempt, lastValid] = await Promise.all([
+      fetchJson(`camera-snapshots/scripps-pier-latest-attempt.json?t=${requestToken}`).catch(() => null),
+      fetchJson(`camera-snapshots/scripps-pier-last-valid.json?t=${requestToken}`).catch(() => null),
+    ]);
+    const currentCapture =
+      latestAttempt?.capture_ok === true && latestAttempt?.source_freshness_verified === true
+        ? latestAttempt
+        : null;
+    scrippsPreview = currentCapture?.image_url || lastValid?.image_url || null;
   }
 
   function metricCell(icon, label, value, emptyText) {
