@@ -820,6 +820,9 @@ async function loadCameraObservation() {
         `camera-snapshots/scripps-pier-latest-attempt.json?t=${requestToken}`,
       ).catch(() => null),
     ]);
+    // Prefer the newest verified capture even when the independent visibility
+    // grader failed. A grading failure must not freeze the camera image.
+    if (isCameraObservationDisplayable(latestAttempt)) return latestAttempt;
     if (isCameraObservationDisplayable(lastValid)) return lastValid;
     if (
       latestAttempt &&
