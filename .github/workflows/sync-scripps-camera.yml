@@ -1,0 +1,64 @@
+name: Sync Scripps camera
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-scripps-camera
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download current public camera pointers
+        run: |
+          set -euo pipefail
+          base="https://raw.githubusercontent.com/patdudley/DivePro-site/main"
+          mkdir -p camera-snapshots
+          for status in scripps-pier-latest-attempt.json scripps-pier-last-valid.json scripps-pier-latest.json; do
+            curl --fail --silent --show-error --location \
+              "$base/camera-snapshots/$status" \
+              --output "camera-snapshots/$status"
+          done
+
+      - name: Download images referenced by the pointers
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import urllib.request
+          from urllib.parse import urlsplit
+
+          source = "https://raw.githubusercontent.com/patdudley/DivePro-site/main"
+          for status_path in pathlib.Path("camera-snapshots").glob("scripps-pier-*.json"):
+              status = json.loads(status_path.read_text())
+              image_url = status.get("image_url")
+              if not image_url:
+                  continue
+              relative = pathlib.Path(urlsplit(image_url).path.lstrip("/"))
+              if relative.parts[:2] != ("camera-snapshot-history", "scripps-pier"):
+                  raise RuntimeError(f"Unexpected camera image path: {relative}")
+              relative.parent.mkdir(parents=True, exist_ok=True)
+              urllib.request.urlretrieve(f"{source}/{relative.as_posix()}", relative)
+          PY
+
+      - name: Publish changed camera data
+        run: |
+          if git diff --quiet; then
+            echo "Camera data is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add camera-snapshots camera-snapshot-history
+          git commit -m "Refresh Scripps camera"
+          git push
