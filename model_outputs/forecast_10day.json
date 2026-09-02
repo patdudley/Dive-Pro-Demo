@@ -1374,7 +1374,7 @@
     "region": "California",
     "date": "2026-09-02",
     "numeric_score_0_100": 62,
-    "grade": "D",
+    "grade": "C",
     "grade_probabilities": {
       "F": 0.0,
       "D": 0.4191555868896288,
@@ -1397,12 +1397,23 @@
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
-    "display_override": null,
+    "display_override": {
+      "type": "manual_grade",
+      "requested_by": "Patrick Dudley",
+      "note": "Patrick-requested C for 2026-09-02; not a silent fake. Model 10-day row was D with estimated_visibility_range_ft [5, 9] / mid 7.0.",
+      "original_grade": "D",
+      "original_visibility_range_ft": [
+        5,
+        9
+      ],
+      "original_visibility_mid_ft": 7.0,
+      "display_grade": "C"
+    },
     "estimated_visibility_range_ft": [
-      5,
-      9
+      10,
+      14
     ],
-    "estimated_visibility_mid_ft": 7.0,
+    "estimated_visibility_mid_ft": 12.0,
     "raw_expected_vis_ft": 12.5,
     "guardrail_applied": false,
     "confidence": "low",
@@ -1418,7 +1429,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with surface movement and wind-driven mixing creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "The model expects 10-14 ft of visibility, resulting in a C grade. Conditions are moderately favorable overall, but the algorithm is seeing enough swell energy, surface movement and wind-driven mixing to prevent a clearer B-grade forecast.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast remains diveable, but clarity may vary by location and could be worse around shallow reefs, sandy bottoms and areas exposed to surge.",
     "features": {
       "date": "2026-09-02",
       "coherent_swell_source": "hourly_max_height_event",
