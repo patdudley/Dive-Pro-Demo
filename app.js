@@ -1,4 +1,5 @@
 import { forecastFromFeatures } from "./visibilityModel.js";
+import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20260903";
 import {
   swellSourceBearingToTravelBearing,
   swellTravelBearingForSpot,
@@ -1114,11 +1115,7 @@ function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
 }
 
 function initialForecastForToday(forecasts, publishedLatest, today = localTodayInLaJolla()) {
-  const fromWindow = (forecasts || []).find((forecast) => isForecastForToday(forecast, today))
-    || (forecasts || []).find((forecast) => forecastDateKey(forecast) > today);
-  if (fromWindow) return fromWindow;
-  if (isForecastForToday(publishedLatest, today)) return publishedLatest;
-  return (forecasts && forecasts[0]) || publishedLatest;
+  return selectForecastForToday(forecasts, publishedLatest, today);
 }
 
 function list(id, values) {
