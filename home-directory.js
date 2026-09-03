@@ -1,3 +1,5 @@
+import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20260903";
+
 (function () {
   const BUBBLE_COPY = {
     "la-jolla": { name: "La Jolla", place: "San Diego, CA" },
@@ -229,21 +231,39 @@
 
   async function loadForecast(slug, path) {
     try {
-      let forecast = await fetchJson(path);
-      const latest = forecast.latest || forecast;
-      if (slug === "la-jolla" && latest?.date && latest.date < pacificToday()) {
+      let published = await fetchJson(path);
+      let forecastRows = published;
+      if (slug === "la-jolla") {
+        forecastRows = await fetchJson("model_outputs/forecast_10day.json");
+      }
+      let forecast = selectForecastForToday(
+        forecastRows,
+        published.latest || published,
+        pacificToday(),
+      );
+
+      if (slug === "la-jolla" && forecast?.date && forecast.date < pacificToday()) {
         try {
-          forecast = await fetchJson("https://diveproca.com/model_outputs/latest_forecast.json");
+          const [hostLatest, hostTenDay] = await Promise.all([
+            fetchJson("https://diveproca.com/model_outputs/latest_forecast.json"),
+            fetchJson("https://diveproca.com/model_outputs/forecast_10day.json"),
+          ]);
+          published = hostLatest;
+          forecast = selectForecastForToday(hostTenDay, hostLatest, pacificToday());
         } catch {
-          // Keep the local emit if the published host is unreachable.
+          // Keep the repository forecast if the published host is unreachable.
         }
       }
       applyState(slug, fallbackFromForecast(forecast));
     } catch {
       if (slug === "la-jolla") {
         try {
-          const published = await fetchJson("https://diveproca.com/model_outputs/latest_forecast.json");
-          applyState(slug, fallbackFromForecast(published));
+          const [published, tenDay] = await Promise.all([
+            fetchJson("https://diveproca.com/model_outputs/latest_forecast.json"),
+            fetchJson("https://diveproca.com/model_outputs/forecast_10day.json"),
+          ]);
+          const forecast = selectForecastForToday(tenDay, published, pacificToday());
+          applyState(slug, fallbackFromForecast(forecast));
           return;
         } catch {
           // Fall through to empty vis.
