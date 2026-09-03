@@ -88,7 +88,7 @@ function slugFromPathname(pathname = window.location.pathname) {
   const parts = String(pathname || "").split("/").filter(Boolean);
   let last = (parts.pop() || "").replace(/\.html$/i, "");
   if (!last || last === "index") last = (parts.pop() || "").replace(/\.html$/i, "");
-  if (!last || last === "Dive-Pro-Demo") return "";
+  if (!last || ["Dive-Pro-Demo", "DiveProCA"].includes(last)) return "";
   return last;
 }
 
