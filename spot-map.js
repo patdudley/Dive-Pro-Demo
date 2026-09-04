@@ -564,7 +564,9 @@
     east: -114.6,
     north: 38.8,
   };
-  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v4";
+  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v5";
+  const WIND_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
+  const WIND_CACHE_MIN_FUTURE_MS = 24 * 60 * 60 * 1000;
   const CA_WIND_STEP = 0.7;
   const WIND_FORECAST_DAYS = 10;
   const WIND_FORECAST_HOURS = WIND_FORECAST_DAYS * 24;
@@ -690,12 +692,25 @@
     return buildCaliforniaWindManifest(lats, lons, points, results, step);
   }
 
-  function readCachedWindManifest() {
+  function readCachedWindManifest(now = Date.now()) {
     try {
       const raw = sessionStorage.getItem(WIND_SESSION_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed?.frames?.length ? parsed : null;
+      const cachedAt = Number(parsed?.cached_at);
+      const frames = Array.isArray(parsed?.frames) ? parsed.frames : [];
+      const lastFrameTime = frames.reduce((latest, frame) => {
+        const time = frameTime(frame)?.getTime();
+        return Number.isFinite(time) ? Math.max(latest, time) : latest;
+      }, 0);
+      const cacheIsFresh = Number.isFinite(cachedAt)
+        && cachedAt > 0
+        && now - cachedAt >= 0
+        && now - cachedAt <= WIND_CACHE_MAX_AGE_MS;
+      const windowIsCurrent = lastFrameTime >= now + WIND_CACHE_MIN_FUTURE_MS;
+      if (frames.length && cacheIsFresh && windowIsCurrent) return parsed;
+      sessionStorage.removeItem(WIND_SESSION_KEY);
+      return null;
     } catch {
       return null;
     }
@@ -703,7 +718,10 @@
 
   function writeCachedWindManifest(manifest) {
     try {
-      sessionStorage.setItem(WIND_SESSION_KEY, JSON.stringify(manifest));
+      sessionStorage.setItem(WIND_SESSION_KEY, JSON.stringify({
+        ...manifest,
+        cached_at: Date.now(),
+      }));
     } catch {
       /* ignore quota */
     }
