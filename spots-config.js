@@ -58,9 +58,9 @@ window.outdoorSpots = [
     fill: 0,
     metrics: [
       ["Visibility", "Model forecast"],
-      ["Water", "—"],
-      ["Wind", "—"],
-      ["Window", "—"],
+      ["Water", "N/A"],
+      ["Wind", "N/A"],
+      ["Window", "N/A"],
     ],
   },
   {
@@ -246,8 +246,8 @@ window.outdoorSpots = [
     primaryText: "",
     fill: 0,
     metrics: [
-      ["Water", "—"],
-      ["Wind", "—"],
+      ["Water", "N/A"],
+      ["Wind", "N/A"],
     ],
   },
   {
@@ -289,8 +289,8 @@ window.outdoorSpots = [
     primaryText: "",
     fill: 0,
     metrics: [
-      ["Water", "—"],
-      ["Wind", "—"],
+      ["Water", "N/A"],
+      ["Wind", "N/A"],
     ],
   },
 ];

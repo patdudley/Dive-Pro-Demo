@@ -151,7 +151,7 @@ function renderSpots() {
 
 function heroMetricValue(spot, label) {
   const metric = (spot.metrics || []).find(([name]) => name.toLowerCase() === label.toLowerCase());
-  return metric ? metric[1] : "—";
+  return metric ? metric[1] : "N/A";
 }
 
 function heroGradeClass(grade = "") {
@@ -161,7 +161,7 @@ function heroGradeClass(grade = "") {
 function heroVisibilityRange(forecast = {}) {
   const range = forecast.estimated_visibility_range_ft;
   if (Array.isArray(range) && range.length >= 2) return `${range[0]}-${range[1]} ft`;
-  return forecast.visibility || "—";
+  return forecast.visibility || "N/A";
 }
 
 function heroDayLabel(date, index) {
@@ -217,7 +217,7 @@ function heroForecastPreviewMarkup(spot) {
         ${heroForecasts.slice(0, 4).map((forecast, index) => `
           <div class="hero-forecast-day ${heroGradeClass(forecast.grade)}">
             <span>${heroDayLabel(forecast.date, index)}</span>
-            <strong>${forecast.grade || "—"}</strong>
+            <strong>${forecast.grade || "N/A"}</strong>
             <em>${heroVisibilityRange(forecast)}</em>
           </div>
         `).join("")}
@@ -228,7 +228,7 @@ function heroForecastPreviewMarkup(spot) {
           ${outlookForecasts.map((forecast, index) => `
             <div class="${heroGradeClass(forecast.grade)}">
               <b>${heroDayLabel(forecast.date, index + 1)}</b>
-              <strong>${forecast.grade || "—"}</strong>
+              <strong>${forecast.grade || "N/A"}</strong>
               <em>${heroVisibilityRange(forecast)}</em>
             </div>
           `).join("")}

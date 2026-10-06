@@ -26,6 +26,10 @@ FORECAST_FILES = (
 )
 
 
+def pacific_today() -> dt.date:
+    return dt.datetime.now(PACIFIC).date()
+
+
 def freshness_values(value: Any, keys: set[str], key: str = "") -> list[str]:
     values: list[str] = []
     if isinstance(value, dict):
@@ -347,6 +351,7 @@ CANONICAL_PAGES = [
 
 
 def git_lastmod(root: pathlib.Path, relative: str) -> str:
+    today = pacific_today().isoformat()
     try:
         dirty = subprocess.run(
             ["git", "status", "--porcelain", "--", relative],
@@ -356,7 +361,7 @@ def git_lastmod(root: pathlib.Path, relative: str) -> str:
             text=True,
         ).stdout.strip()
         if dirty:
-            return dt.date.today().isoformat()
+            return today
         result = subprocess.run(
             ["git", "log", "-1", "--format=%cs", "--", relative],
             cwd=root,
@@ -368,11 +373,11 @@ def git_lastmod(root: pathlib.Path, relative: str) -> str:
             return result
     except (OSError, subprocess.CalledProcessError):
         pass
-    return dt.date.today().isoformat()
+    return today
 
 
 def write_sitemap(root: pathlib.Path) -> None:
-    today = dt.date.today().isoformat()
+    today = pacific_today().isoformat()
     rows = []
     for relative, url_path in CANONICAL_PAGES:
         if not (root / relative).exists():
@@ -394,14 +399,22 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=pathlib.Path, required=True)
     parser.add_argument("--destination", type=pathlib.Path, default=pathlib.Path.cwd())
+    parser.add_argument("--component", choices=("all", "forecast", "wind"), default="all")
     args = parser.parse_args()
     destination = args.destination.resolve()
     source = args.source.resolve()
-    mirror_forecast_set(source, destination)
-    mirror_history(source, destination)
-    mirror_wind_data(source, destination)
-    render_homepage(destination)
-    write_sitemap(destination)
+    if args.component in {"all", "forecast"}:
+        source_bundle = {relative: load_json(source / relative) for relative in FORECAST_FILES}
+        validate_forecast_set(source_bundle)
+        source_history = source / "forecast_history.json"
+        if source_history.exists():
+            load_json(source_history)
+        mirror_forecast_set(source, destination)
+        mirror_history(source, destination)
+        render_homepage(destination)
+        write_sitemap(destination)
+    if args.component in {"all", "wind"}:
+        mirror_wind_data(source, destination)
 
 
 if __name__ == "__main__":

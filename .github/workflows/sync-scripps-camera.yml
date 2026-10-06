@@ -1,4 +1,4 @@
-name: Sync Scripps camera
+name: Sync published Dive Pro data
 
 on:
   schedule:
@@ -11,11 +11,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-scripps-camera
+  group: sync-published-dive-pro-data
   cancel-in-progress: true
 
 jobs:
-  sync:
+  camera:
+    name: Refresh camera
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,16 +30,7 @@ jobs:
           ref: main
           path: source-site
 
-      - name: Copy current public camera pointers
-        run: |
-          set -euo pipefail
-          mkdir -p camera-snapshots
-          for status in scripps-pier-latest-attempt.json scripps-pier-last-valid.json scripps-pier-latest.json; do
-            python3 -m json.tool "source-site/camera-snapshots/$status" >/dev/null
-            cp "source-site/camera-snapshots/$status" "camera-snapshots/$status"
-          done
-
-      - name: Download images referenced by the pointers
+      - name: Validate and copy camera data
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -46,35 +38,110 @@ jobs:
           import pathlib
           from urllib.parse import urlsplit
 
-          for status_path in pathlib.Path("camera-snapshots").glob("scripps-pier-*.json"):
-              status = json.loads(status_path.read_text())
+          source_root = pathlib.Path("source-site")
+          status_names = (
+              "scripps-pier-latest-attempt.json",
+              "scripps-pier-last-valid.json",
+              "scripps-pier-latest.json",
+          )
+          pointers = {}
+          images = {}
+          for name in status_names:
+              source_status = source_root / "camera-snapshots" / name
+              status = json.loads(source_status.read_text())
+              pointers[pathlib.Path("camera-snapshots") / name] = source_status.read_bytes()
               image_url = status.get("image_url")
               if not image_url:
                   continue
               relative = pathlib.Path(urlsplit(image_url).path.lstrip("/"))
               if relative.parts[:2] != ("camera-snapshot-history", "scripps-pier"):
                   raise RuntimeError(f"Unexpected camera image path: {relative}")
-              relative.parent.mkdir(parents=True, exist_ok=True)
-              source_image = pathlib.Path("source-site") / relative
+              source_image = source_root / relative
               if not source_image.is_file():
                   raise RuntimeError(f"Missing source camera image: {source_image}")
-              relative.write_bytes(source_image.read_bytes())
+              images[relative] = source_image.read_bytes()
+
+          for relative, content in {**pointers, **images}.items():
+              relative.parent.mkdir(parents=True, exist_ok=True)
+              relative.write_bytes(content)
           PY
 
-      - name: Validate forecasts and refresh crawler-visible content
-        run: python3 scripts/sync_published_data.py --source source-site --destination .
-
-      - name: Publish changed forecast and camera data
+      - name: Publish changed camera data
         run: |
-          git add model_outputs/latest_forecast.json model_outputs/forecast_10day.json \
-            model_outputs/spots/la-jolla.json forecast_history.json data/wind-cropped \
-            index.html sitemap.xml camera-snapshots camera-snapshot-history
+          git add camera-snapshots camera-snapshot-history
           if git diff --cached --quiet; then
-            echo "Forecast and camera data are already current."
+            echo "Camera data is already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Refresh forecasts and Scripps camera"
+          git commit -m "Refresh Scripps camera"
+          git pull --rebase
+          git push
+
+  forecast:
+    name: Refresh forecasts
+    needs: camera
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
+
+      - name: Validate and sync forecast data
+        run: python3 scripts/sync_published_data.py --component forecast --source source-site --destination .
+
+      - name: Publish changed forecast data
+        run: |
+          git add model_outputs/latest_forecast.json model_outputs/forecast_10day.json \
+            model_outputs/spots/la-jolla.json forecast_history.json index.html sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Forecast data is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh forecasts"
+          git pull --rebase
+          git push
+
+  wind:
+    name: Refresh regional wind data
+    needs: forecast
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
+
+      - name: Validate and sync regional wind data
+        run: python3 scripts/sync_published_data.py --component wind --source source-site --destination .
+
+      - name: Publish changed regional wind data
+        run: |
+          git add data/wind-cropped
+          if git diff --cached --quiet; then
+            echo "Regional wind data is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh regional wind data"
           git pull --rebase
           git push

@@ -1,9 +1,9 @@
-import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20260903";
+import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20261006-review";
 
 (function () {
   const BUBBLE_COPY = {
     "la-jolla": { name: "La Jolla", place: "San Diego, CA" },
-    monterey: { name: "Monterey", place: "Monterey, CA" },
+    monterey: { name: "Monterey", place: "Monterey, CA", summary: "Water, wind, and swell conditions for Breakwater" },
     "monterey-mcabee": { name: "McAbee", place: "Monterey, CA" },
     "monterey-lovers": { name: "Lovers Point", place: "Pacific Grove, CA" },
     "monterey-lobos": { name: "Point Lobos", place: "Carmel, CA" },
@@ -488,6 +488,11 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
     card.className = publishesVis ? "spot-feature" : "spot-feature is-no-vis";
     card.dataset.slug = spot.slug;
     const status = gradeStatus(state.grade);
+    const conditions = [
+      state.water ? `Water ${state.water}` : "",
+      state.wind ? `Wind ${state.wind}` : "",
+      state.swell ? `Swell ${state.swell}` : "",
+    ].filter(Boolean).join(" · ") || copy.summary || "";
     const grade = publishesVis && state.grade
       ? `<div class="spot-feature-grade-col">
           <span class="spot-feature-grade-wrap">
@@ -522,6 +527,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
           <div class="spot-feature-copy">
             <h3>${escapeHtml(copy.name)}</h3>
             ${place ? `<p class="spot-feature-place">${pinIcon()}<span>${escapeHtml(place)}</span></p>` : ""}
+            ${!publishesVis && conditions ? `<p class="spot-feature-conditions">${escapeHtml(conditions)}</p>` : ""}
           </div>
           ${visCol}
           ${grade}

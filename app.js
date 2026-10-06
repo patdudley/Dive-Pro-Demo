@@ -1,5 +1,5 @@
 import { forecastFromFeatures } from "./visibilityModel.js";
-import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20260903";
+import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20261006-review";
 import {
   swellSourceBearingToTravelBearing,
   swellTravelBearingForSpot,
@@ -2952,12 +2952,12 @@ function buildMontereyNarrative(data) {
     driver = `Conditions look poor at ${location}, and ${support} point to very limited underwater clarity.`;
   }
   const siteCopy = data.site_bucket === "lobos"
-    ? "The number on this card is a Point Lobos blend. Do not judge the day from the cove — people come here for the water past the entrance."
+    ? "The number on this card is a Point Lobos blend. Do not judge the day from the cove; people come here for the water past the entrance."
     : data.site_bucket === "carmel_shore"
       ? "Harbor vis does not decide Carmel. Sit and watch sets before gearing up. Calling the dive here is normal."
-      : "Vis is often layered: a dirty or green top 15-30 ft, then it opens — or it does not. After rain, the San Carlos storm drain — not swell — is the usual Breakwater killer.";
+      : "Vis is often layered: a dirty or green top 15-30 ft, then it opens, or it does not. After rain, the San Carlos storm drain, not swell, is the usual Breakwater killer.";
   const practical = (grade === "A" || grade === "A+")
-    ? `Overall this looks like a high-clarity day at ${name}, but treat the number as a site-bucket estimate — harbor, Point Lobos, and Carmel often disagree on the same afternoon.`
+    ? `Overall this looks like a high-clarity day at ${name}, but treat the number as a site-bucket estimate. Harbor, Point Lobos, and Carmel often disagree on the same afternoon.`
     : grade === "B"
       ? `Overall the forecast is favorable for diving at ${name}. Expect the usual layering and site-to-site spread, and check the other Monterey cards before you choose a parking lot.`
       : grade === "C"
@@ -2989,8 +2989,8 @@ function renderMontereyCompare(data) {
     link.setAttribute("aria-label", `${site.name} ${site.grade} ${range?.[0]}-${range?.[1]} ft`);
     link.innerHTML = `
       <b>${site.name}</b>
-      <span class="monterey-compare-grade">${site.grade || "—"}</span>
-      <span>${Array.isArray(range) ? `${range[0]}-${range[1]} ft` : "—"}</span>
+      <span class="monterey-compare-grade">${site.grade || "N/A"}</span>
+      <span>${Array.isArray(range) ? `${range[0]}-${range[1]} ft` : "N/A"}</span>
     `;
     return link;
   }));
@@ -3145,10 +3145,10 @@ function render(data) {
   );
   const hasWave = Number.isFinite(swellHeight) && swellHeight > 0;
   const hasConditions = liveFeaturesPresent(features);
-  setText("grade", unavailable ? "—" : (data.grade || "C"));
+  setText("grade", unavailable || data.forecast_stale ? "N/A" : (data.grade || "C"));
   setText("visibility", data.forecast_stale ? "Forecast out of date" : unavailable || !hasRange ? "Unavailable" : feet(range));
   setForecastUpdated(data.forecast_stale
-    ? `Forecast out of date · Updated ${forecastUpdateLabel(data)}`
+    ? `Forecast out of date · Forecast date ${shortDate(data.date)} · Updated ${forecastUpdateLabel(data)}`
     : `Forecast date ${shortDate(data.date)} · Updated ${forecastUpdateLabel(data)}`);
   setText("bestWindow", unavailable ? "Unavailable" : (data.best_window || "Early morning"));
   setText("waveWeight", hasWave ? waveWeight(data) : "Unavailable");
@@ -3505,7 +3505,7 @@ function renderStaleNotice(latest) {
     banner.hidden = true;
     return;
   }
-  banner.textContent = `Forecast out of date. Last updated ${forecastUpdateLabel(latest)}. Conditions may have changed.`;
+  banner.textContent = `Forecast out of date. Forecast date ${shortDate(latest.date)}. Last updated ${forecastUpdateLabel(latest)}. Conditions may have changed.`;
   banner.hidden = false;
 }
 

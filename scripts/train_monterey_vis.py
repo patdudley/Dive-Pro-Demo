@@ -20,7 +20,7 @@ from sklearn.metrics import mean_absolute_error
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
 BETA_NOTE = (
-    "Monterey beta vis model — development data only. Not validated for public "
+    "Monterey beta vis model; development data only. Not validated for public "
     "accuracy claims. Trained on numbered Facebook group reports (Monterey County "
     "Dive Reports, 2017–2026). La Jolla weights were not used."
 )
@@ -413,7 +413,7 @@ def train(root: Path) -> dict:
             "lon": -121.8946,
             "timezone": "America/Los_Angeles",
             "tide_label": "NOAA Monterey 9413450",
-            "description": "Monterey Bay dive visibility beta — Breakwater / McAbee / Lovers. Not validated for public accuracy claims.",
+            "description": "Monterey Bay dive visibility beta for Breakwater / McAbee / Lovers. Not validated for public accuracy claims.",
             "calibration_note": BETA_NOTE,
         },
         "latest": {

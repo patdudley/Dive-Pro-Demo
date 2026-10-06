@@ -374,6 +374,14 @@
   display: none;
 }
 
+.home-directory .spot-feature-conditions {
+  margin: 6px 0 0;
+  color: rgba(10, 37, 64, 0.68);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .home-directory .home-cond-grade {
   display: grid;
   place-items: center;
