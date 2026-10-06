@@ -3147,7 +3147,7 @@ function render(data) {
         ? featureRows(features)
         : "<div><span>Conditions</span><strong>Unavailable</strong></div>";
     }
-    if (isMontereySpot()) renderMontereyLiveSummary(features);
+    if (isMontereySpot(currentSpot())) renderMontereyLiveSummary(features);
     renderCamera(data);
     renderWaveComponents(data);
     renderTideChart(data);
