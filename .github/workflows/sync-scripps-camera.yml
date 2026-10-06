@@ -96,8 +96,22 @@ jobs:
           ref: main
           path: source-site
 
+      - name: Refresh checkout after camera publish
+        run: git pull --rebase
+
       - name: Validate and sync forecast data
-        run: python3 scripts/sync_published_data.py --component forecast --source source-site --destination .
+        run: |
+          set +e
+          output=$(python3 scripts/sync_published_data.py --component forecast --source source-site --destination . 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -eq 2 ]; then
+            warning=${output//$'\n'/ }
+            echo "::warning::Forecast artifact rejected: $warning"
+            exit 0
+          fi
+          exit "$status"
 
       - name: Publish changed forecast data
         run: |
@@ -131,7 +145,18 @@ jobs:
           path: source-site
 
       - name: Validate and sync regional wind data
-        run: python3 scripts/sync_published_data.py --component wind --source source-site --destination .
+        run: |
+          set +e
+          output=$(python3 scripts/sync_published_data.py --component wind --source source-site --destination . 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -eq 2 ]; then
+            warning=${output//$'\n'/ }
+            echo "::warning::Wind artifact rejected: $warning"
+            exit 0
+          fi
+          exit "$status"
 
       - name: Publish changed regional wind data
         run: |

@@ -11,6 +11,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -24,6 +25,10 @@ FORECAST_FILES = (
     pathlib.Path("model_outputs/forecast_10day.json"),
     pathlib.Path("model_outputs/spots/la-jolla.json"),
 )
+
+
+class ArtifactValidationError(RuntimeError):
+    """Upstream generated data is missing, malformed, or internally inconsistent."""
 
 
 def pacific_today() -> dt.date:
@@ -48,6 +53,13 @@ def load_json(path: pathlib.Path) -> Any:
         return json.load(handle)
 
 
+def load_artifact_json(path: pathlib.Path) -> Any:
+    try:
+        return load_json(path)
+    except (OSError, json.JSONDecodeError) as error:
+        raise ArtifactValidationError(f"Cannot read upstream artifact {path}: {error}") from error
+
+
 def newest_value(value: Any) -> str:
     generated = freshness_values(value, {"generated_at", "updated_at"})
     if generated:
@@ -65,13 +77,13 @@ def parse_generated_at(value: str) -> dt.datetime:
 
 def validate_forecast_row(row: Any, label: str) -> None:
     if not isinstance(row, dict):
-        raise RuntimeError(f"{label} must be an object")
+        raise ArtifactValidationError(f"{label} must be an object")
     try:
         dt.date.fromisoformat(str(row["date"]))
     except (KeyError, TypeError, ValueError) as error:
-        raise RuntimeError(f"{label} has an invalid date") from error
+        raise ArtifactValidationError(f"{label} has an invalid date") from error
     if row.get("grade") not in VALID_GRADES:
-        raise RuntimeError(f"{label} has an invalid grade: {row.get('grade')!r}")
+        raise ArtifactValidationError(f"{label} has an invalid grade: {row.get('grade')!r}")
     visibility = row.get("estimated_visibility_range_ft")
     if (
         not isinstance(visibility, list)
@@ -80,11 +92,11 @@ def validate_forecast_row(row: Any, label: str) -> None:
         or visibility[0] < 0
         or visibility[1] < visibility[0]
     ):
-        raise RuntimeError(f"{label} has an invalid visibility range")
+        raise ArtifactValidationError(f"{label} has an invalid visibility range")
     try:
         parse_generated_at(row["generated_at"])
     except (KeyError, TypeError, ValueError) as error:
-        raise RuntimeError(f"{label} has an invalid generated_at") from error
+        raise ArtifactValidationError(f"{label} has an invalid generated_at") from error
 
 
 def validate_forecast_set(bundle: dict[pathlib.Path, Any]) -> dt.datetime:
@@ -93,21 +105,21 @@ def validate_forecast_set(bundle: dict[pathlib.Path, Any]) -> dt.datetime:
     spot = bundle[FORECAST_FILES[2]]
     validate_forecast_row(latest, "latest_forecast.json")
     if not isinstance(ten_day, list) or not ten_day:
-        raise RuntimeError("forecast_10day.json must contain forecast rows")
+        raise ArtifactValidationError("forecast_10day.json must contain forecast rows")
     for index, row in enumerate(ten_day):
         validate_forecast_row(row, f"forecast_10day.json[{index}]")
     dates = [row["date"] for row in ten_day]
     if len(dates) != len(set(dates)):
-        raise RuntimeError("forecast_10day.json contains duplicate dates")
+        raise ArtifactValidationError("forecast_10day.json contains duplicate dates")
     if not isinstance(spot, dict) or not isinstance(spot.get("tenDay"), list):
-        raise RuntimeError("spots/la-jolla.json must contain latest and tenDay")
+        raise ArtifactValidationError("spots/la-jolla.json must contain latest and tenDay")
     validate_forecast_row(spot.get("latest"), "spots/la-jolla.json latest")
     for index, row in enumerate(spot["tenDay"]):
         validate_forecast_row(row, f"spots/la-jolla.json tenDay[{index}]")
     if spot["latest"]["date"] != latest["date"]:
-        raise RuntimeError("La Jolla latest forecast dates do not match")
+        raise ArtifactValidationError("La Jolla latest forecast dates do not match")
     if [row["date"] for row in spot["tenDay"]] != dates:
-        raise RuntimeError("La Jolla 10-day forecast dates do not match")
+        raise ArtifactValidationError("La Jolla 10-day forecast dates do not match")
     generated = [
         parse_generated_at(latest["generated_at"]),
         *(parse_generated_at(row["generated_at"]) for row in ten_day),
@@ -115,7 +127,7 @@ def validate_forecast_set(bundle: dict[pathlib.Path, Any]) -> dt.datetime:
         *(parse_generated_at(row["generated_at"]) for row in spot["tenDay"]),
     ]
     if max(generated) - min(generated) > dt.timedelta(minutes=10):
-        raise RuntimeError("Forecast files were not generated as one set")
+        raise ArtifactValidationError("Forecast files were not generated as one set")
     return max(generated)
 
 
@@ -177,10 +189,13 @@ def mirror_wind_data(source_root: pathlib.Path, destination_root: pathlib.Path) 
     relative_root = pathlib.Path("data/wind-cropped")
     source_wind = source_root / relative_root
     manifest_path = source_wind / "wind-san-diego-manifest.json"
-    manifest = load_json(manifest_path)
+    manifest = load_artifact_json(manifest_path)
     if not isinstance(manifest, dict) or not manifest.get("generated_utc") or not isinstance(manifest.get("frames"), list):
-        raise RuntimeError("Wind manifest is missing generated_utc or frames")
-    source_generated = parse_generated_at(manifest["generated_utc"])
+        raise ArtifactValidationError("Wind manifest is missing generated_utc or frames")
+    try:
+        source_generated = parse_generated_at(manifest["generated_utc"])
+    except (TypeError, ValueError) as error:
+        raise ArtifactValidationError("Wind manifest has an invalid generated_utc") from error
     destination_manifest = destination_root / relative_root / "wind-san-diego-manifest.json"
     if destination_manifest.exists():
         destination_data = load_json(destination_manifest)
@@ -190,13 +205,13 @@ def mirror_wind_data(source_root: pathlib.Path, destination_root: pathlib.Path) 
             return []
     source_files = sorted(source_wind.glob("*.json"))
     if not source_files:
-        raise RuntimeError("No wind data files found")
+        raise ArtifactValidationError("No wind data files found")
     for source in source_files:
-        load_json(source)
+        load_artifact_json(source)
     for frame in manifest["frames"]:
         frame_path = source_root / str(frame.get("path", ""))
         if not frame_path.is_file() or source_wind not in frame_path.parents:
-            raise RuntimeError(f"Wind manifest references a missing file: {frame_path}")
+            raise ArtifactValidationError(f"Wind manifest references a missing file: {frame_path}")
     changed = []
     for source in source_files:
         relative = source.relative_to(source_root)
@@ -395,7 +410,7 @@ def write_sitemap(root: pathlib.Path) -> None:
     (root / "sitemap.xml").write_text(xml, encoding="utf-8")
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=pathlib.Path, required=True)
     parser.add_argument("--destination", type=pathlib.Path, default=pathlib.Path.cwd())
@@ -403,19 +418,24 @@ def main() -> None:
     args = parser.parse_args()
     destination = args.destination.resolve()
     source = args.source.resolve()
-    if args.component in {"all", "forecast"}:
-        source_bundle = {relative: load_json(source / relative) for relative in FORECAST_FILES}
-        validate_forecast_set(source_bundle)
-        source_history = source / "forecast_history.json"
-        if source_history.exists():
-            load_json(source_history)
-        mirror_forecast_set(source, destination)
-        mirror_history(source, destination)
-        render_homepage(destination)
-        write_sitemap(destination)
-    if args.component in {"all", "wind"}:
-        mirror_wind_data(source, destination)
+    try:
+        if args.component in {"all", "forecast"}:
+            source_bundle = {relative: load_artifact_json(source / relative) for relative in FORECAST_FILES}
+            validate_forecast_set(source_bundle)
+            source_history = source / "forecast_history.json"
+            if source_history.exists():
+                load_artifact_json(source_history)
+            mirror_forecast_set(source, destination)
+            mirror_history(source, destination)
+            render_homepage(destination)
+            write_sitemap(destination)
+        if args.component in {"all", "wind"}:
+            mirror_wind_data(source, destination)
+    except ArtifactValidationError as error:
+        print(f"{args.component} artifact validation failed: {error}", file=sys.stderr)
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -3112,6 +3112,29 @@ function renderWeather(data) {
   setText("rain72", `${formatOneDecimal(features.rain_prior_3day_in ?? features.ml_rain_3day_in, "0.0")} in`);
 }
 
+function renderMontereyLiveSummary(features = {}) {
+  const panel = document.querySelector(".forecast-panel");
+  if (!panel) return;
+  let summary = document.getElementById("spotLiveConditionsSummary");
+  if (!summary) {
+    summary = document.createElement("div");
+    summary.id = "spotLiveConditionsSummary";
+    summary.className = "spot-live-conditions-summary";
+    summary.setAttribute("aria-label", "Live water, wind, and swell conditions");
+    panel.appendChild(summary);
+  }
+  const metric = (label, raw, unit, digits = 0) => {
+    const value = Number(raw);
+    const shown = Number.isFinite(value) ? `${value.toFixed(digits)}${unit}` : "N/A";
+    return `<div><span>${label}</span><strong>${shown}</strong></div>`;
+  };
+  summary.innerHTML = [
+    metric("Water", features.water_temp_estimate_f ?? features.ml_sst_f ?? features.buoy_water_temp_f, "°F"),
+    metric("Wind", features.wind_speed_max_mph, " mph"),
+    metric("Swell", features.swell_wave_height_max_ft ?? features.surf_height_max_ft, " ft", 1),
+  ].join("");
+}
+
 function render(data) {
   data = cameraObservationDisplay(data);
   if (!pagePublishesVisGrades()) {
@@ -3124,6 +3147,7 @@ function render(data) {
         ? featureRows(features)
         : "<div><span>Conditions</span><strong>Unavailable</strong></div>";
     }
+    if (isMontereySpot()) renderMontereyLiveSummary(features);
     renderCamera(data);
     renderWaveComponents(data);
     renderTideChart(data);
