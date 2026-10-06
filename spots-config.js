@@ -318,8 +318,8 @@ window.isMontereySpot = function isMontereySpot(spot) {
 
 window.spotPublishesVisGrades = function spotPublishesVisGrades(spot) {
   const slug = String(spot?.slug || "");
-  if (slug === "catalina-wrigley" || slug === "anacapa-ocean") return false;
+  if (slug === "catalina-wrigley" || slug === "anacapa-ocean" || window.isMontereySpot(spot)) return false;
   if (spot && spot.hasModelForecast === false) return false;
   if (spot && !spot.forecastPath && slug !== "la-jolla" && !window.isMontereySpot(spot)) return false;
-  return Boolean(spot?.hasModelForecast || slug === "la-jolla" || window.isMontereySpot(spot));
+  return Boolean(spot?.hasModelForecast || slug === "la-jolla");
 };

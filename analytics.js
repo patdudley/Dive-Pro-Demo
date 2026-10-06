@@ -1,7 +1,8 @@
 (function () {
   const config = window.DIVEPRO_ANALYTICS || {};
   const measurementId = String(config.ga4MeasurementId || "").trim();
-  const isConfigured = /^G-[A-Z0-9]+$/i.test(measurementId);
+  const isProductionHost = window.location.hostname === "diveproca.com";
+  const isConfigured = isProductionHost && /^G-[A-Z0-9]+$/i.test(measurementId);
 
   window.diveproTrack = function (eventName, params) {
     if (!isConfigured || typeof window.gtag !== "function") return;
@@ -9,7 +10,7 @@
   };
 
   if (!isConfigured) {
-    window.DIVEPRO_ANALYTICS_STATUS = "not_configured";
+    window.DIVEPRO_ANALYTICS_STATUS = isProductionHost ? "not_configured" : "disabled_non_production";
     return;
   }
 

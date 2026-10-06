@@ -1670,6 +1670,14 @@ h2::before {
   box-shadow: none;
 }
 
+.forecast-updated {
+  margin: 2px 0 12px;
+  color: rgba(10, 37, 64, 0.62);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .forecast-meta {
   display: flex;
   align-items: center;

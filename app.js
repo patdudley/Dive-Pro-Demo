@@ -35,7 +35,7 @@ const fallback = {
   },
 };
 
-const PUBLISHED_LA_JOLLA_ORIGIN = "https://diveproca.com";
+const FORECAST_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
 
 async function fetchJson(path) {
   const absolute = /^https?:/i.test(path);
@@ -49,8 +49,30 @@ function forecastDateKey(forecast) {
   return String(forecast?.date || forecast?.features?.date || "");
 }
 
-function isForecastForToday(forecast, today = localTodayInLaJolla()) {
-  return forecastDateKey(forecast) === today;
+function forecastTimestamp(forecast) {
+  const raw = String(forecast?.generated_at || forecast?.updated_at || "");
+  const normalized = raw && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw) ? `${raw}Z` : raw;
+  const generated = Date.parse(normalized);
+  if (Number.isFinite(generated)) return generated;
+  const date = forecastDateKey(forecast);
+  return date ? Date.parse(`${date}T23:59:59-07:00`) : NaN;
+}
+
+function isForecastStale(forecast, now = Date.now()) {
+  const timestamp = forecastTimestamp(forecast);
+  return !Number.isFinite(timestamp) || now - timestamp > FORECAST_STALE_AFTER_MS;
+}
+
+function forecastUpdateLabel(forecast) {
+  const timestamp = forecastTimestamp(forecast);
+  if (!Number.isFinite(timestamp)) return forecastDateKey(forecast) || "Date unavailable";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(timestamp));
 }
 
 function embeddedMontereyForecast() {
@@ -174,10 +196,10 @@ function pagePublishesVisGrades(spot = currentSpot()) {
     return window.spotPublishesVisGrades(spot);
   }
   const slug = String(spot?.slug || currentPageSlug() || "");
-  if (slug === "catalina-wrigley" || slug === "anacapa-ocean") return false;
+  if (slug === "catalina-wrigley" || slug === "anacapa-ocean" || isMontereySpot(spot)) return false;
   if (spot && spot.hasModelForecast === false) return false;
   if (spot && !spot.forecastPath && slug !== "la-jolla" && !isMontereySpot(spot)) return false;
-  return Boolean(spot?.hasModelForecast || slug === "la-jolla" || isMontereySpot(spot));
+  return Boolean(spot?.hasModelForecast || slug === "la-jolla");
 }
 
 function isIslandConditionsSpot(spot = currentSpot()) {
@@ -781,19 +803,15 @@ function localTodayInLaJolla(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(date);
 }
 
-function isCameraObservationDisplayable(observation, now = new Date()) {
+function isCameraObservationDisplayable(observation) {
   // Failed attempts are stored separately and can never displace this pointer.
-  // Automated updates must carry source-freshness evidence from the live-feed
-  // validator. A manual review may approve a capture independently.
+  // Updates must carry source-freshness evidence from the live-feed validator.
   return Boolean(
     observation &&
       observation.capture_ok === true &&
+      observation.source_freshness_verified === true &&
       observation.image_url &&
-      observation.observation_date &&
-      (
-        observation.source_freshness_verified === true ||
-        observation.validation_source === "manual_review"
-      ),
+      observation.observation_date,
   );
 }
 
@@ -1003,32 +1021,16 @@ async function loadForecastData() {
 }
 
 async function fetchPublishedLaJolla() {
-  const today = localTodayInLaJolla();
   const localLatest = await fetchJson("model_outputs/latest_forecast.json").catch(() => null);
   const localTen = await fetchJson("model_outputs/forecast_10day.json").catch(() => null);
   const localHistory = await fetchJson("forecast_history.json").catch(() => []);
-  const localFresh = isForecastForToday(localLatest, today)
-    && Array.isArray(localTen)
-    && localTen.some((row) => forecastDateKey(row) >= today);
-  if (localFresh) {
-    return { latest: localLatest, tenDay: localTen, history: localHistory, source: "local" };
-  }
-  try {
-    const [latest, tenDay, history] = await Promise.all([
-      fetchJson(`${PUBLISHED_LA_JOLLA_ORIGIN}/model_outputs/latest_forecast.json`),
-      fetchJson(`${PUBLISHED_LA_JOLLA_ORIGIN}/model_outputs/forecast_10day.json`),
-      fetchJson(`${PUBLISHED_LA_JOLLA_ORIGIN}/forecast_history.json`).catch(() => localHistory),
-    ]);
-    return {
-      latest: latest || localLatest,
-      tenDay: Array.isArray(tenDay) && tenDay.length ? tenDay : localTen,
-      history: Array.isArray(history) && history.length ? history : localHistory,
-      source: "diveproca.com",
-    };
-  } catch {
-    if (!localLatest) throw new Error("La Jolla forecast unavailable");
-    return { latest: localLatest, tenDay: localTen, history: localHistory, source: "local-stale" };
-  }
+  if (!localLatest) throw new Error("La Jolla forecast unavailable");
+  return {
+    latest: localLatest,
+    tenDay: Array.isArray(localTen) ? localTen : [],
+    history: Array.isArray(localHistory) ? localHistory : [],
+    source: "local",
+  };
 }
 
 function feet(range) {
@@ -1038,6 +1040,19 @@ function feet(range) {
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
+}
+
+function setForecastUpdated(value) {
+  let el = document.getElementById("forecastUpdated");
+  if (!el) {
+    const panel = document.querySelector(".forecast-panel");
+    if (!panel) return;
+    el = document.createElement("p");
+    el.id = "forecastUpdated";
+    el.className = "forecast-updated";
+    panel.querySelector(".forecast-meta")?.after(el);
+  }
+  el.textContent = value;
 }
 
 function setDailyReport(text) {
@@ -1084,34 +1099,9 @@ function dayLabel(date) {
 }
 
 function currentForecastWindow(forecasts, today = localTodayInLaJolla()) {
-  const valid = (forecasts || [])
-    .filter((forecast) => forecast && forecastDateKey(forecast))
+  return (forecasts || [])
+    .filter((forecast) => forecast && forecastDateKey(forecast) >= today)
     .sort((a, b) => forecastDateKey(a).localeCompare(forecastDateKey(b)));
-  if (!valid.length) return [];
-
-  const byDate = new Map(valid.map((forecast) => [forecastDateKey(forecast), forecast]));
-  const firstUpcoming = valid.find((forecast) => forecastDateKey(forecast) >= today);
-  let template = firstUpcoming || valid[valid.length - 1];
-  const window = [];
-
-  for (let offset = 0; offset < 10; offset += 1) {
-    const utc = new Date(`${today}T12:00:00Z`);
-    utc.setUTCDate(utc.getUTCDate() + offset);
-    const date = utc.toISOString().slice(0, 10);
-    const exact = byDate.get(date);
-    if (exact) {
-      template = exact;
-      window.push(exact);
-      continue;
-    }
-    window.push({
-      ...template,
-      date,
-      is_projected: true,
-      features: { ...(template.features || {}), date },
-    });
-  }
-  return window;
 }
 
 function initialForecastForToday(forecasts, publishedLatest, today = localTodayInLaJolla()) {
@@ -1382,30 +1372,8 @@ function defaultReport(data) {
 let scrippsCameraObservation = null;
 
 function cameraObservationDisplay(data) {
-  if (currentSpot().slug !== "la-jolla") return data;
-  const observation = scrippsCameraObservation;
-  const grade = String(observation?.grade || "").trim().toUpperCase();
-  const range = observation?.visibility_range_ft;
-  const hasReviewedObservation = Boolean(
-    observation
-      && observation.status === "manual_observation"
-      && data?.date === observation.observation_date
-      && ["A+", "A", "B", "C", "D", "F"].includes(grade)
-      && Array.isArray(range)
-      && range.length === 2
-      && range.every((value) => Number.isFinite(Number(value))),
-  );
-  if (!hasReviewedObservation) return data;
-
-  const score = Number(observation.numeric_score_0_100);
-  return {
-    ...data,
-    grade,
-    estimated_visibility_range_ft: range.map(Number),
-    numeric_score_0_100: Number.isFinite(score) ? score : data.numeric_score_0_100,
-    is_camera_observation: true,
-    camera_observation_slot: observation.slot,
-  };
+  // Camera capture availability never changes the selected forecast grade.
+  return data;
 }
 
 function cameraSlotLabel(slot) {
@@ -3178,7 +3146,10 @@ function render(data) {
   const hasWave = Number.isFinite(swellHeight) && swellHeight > 0;
   const hasConditions = liveFeaturesPresent(features);
   setText("grade", unavailable ? "—" : (data.grade || "C"));
-  setText("visibility", unavailable || !hasRange ? "Unavailable" : feet(range));
+  setText("visibility", data.forecast_stale ? "Forecast out of date" : unavailable || !hasRange ? "Unavailable" : feet(range));
+  setForecastUpdated(data.forecast_stale
+    ? `Forecast out of date · Updated ${forecastUpdateLabel(data)}`
+    : `Forecast date ${shortDate(data.date)} · Updated ${forecastUpdateLabel(data)}`);
   setText("bestWindow", unavailable ? "Unavailable" : (data.best_window || "Early morning"));
   setText("waveWeight", hasWave ? waveWeight(data) : "Unavailable");
   setText(
@@ -3228,7 +3199,9 @@ function renderForecastStrip(forecasts, activeDate) {
     strip.replaceChildren();
     const empty = document.createElement("p");
     empty.className = "forecast-strip-empty";
-    empty.textContent = isMontereySpot(currentSpot())
+    empty.textContent = document.body.dataset.forecastStale === "true"
+      ? "Forecast out of date. New forecast data is not available yet."
+      : isMontereySpot(currentSpot())
       ? "10-day Monterey forecast is loading or unavailable."
       : "10-day forecast is loading or unavailable.";
     strip.appendChild(empty);
@@ -3520,24 +3493,19 @@ function renderCommunityReport(data) {
   setText("communityExcerpt", report.source_excerpt || "");
 }
 
-function todayPacific() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-}
-
 function renderStaleNotice(latest) {
   const banner = document.getElementById("staleBanner");
   if (!banner) return;
-  const isStale = !latest.is_unavailable && latest.date && latest.date < todayPacific();
+  if (!pagePublishesVisGrades()) {
+    banner.hidden = true;
+    return;
+  }
+  const isStale = latest.forecast_stale || (!latest.is_unavailable && isForecastStale(latest));
   if (!isStale) {
     banner.hidden = true;
     return;
   }
-  banner.textContent = `Last updated ${shortDate(latest.date)} — conditions may have changed since this forecast was issued.`;
+  banner.textContent = `Forecast out of date. Last updated ${forecastUpdateLabel(latest)}. Conditions may have changed.`;
   banner.hidden = false;
 }
 
@@ -3723,8 +3691,19 @@ if (!swellMapInstance) {
 
 loadForecastData().then(({ latest, tenDay, gradeGuide, history, cameraObservation }) => {
   scrippsCameraObservation = cameraObservation || null;
-  const visibleForecasts = currentForecastWindow(tenDay);
-  const initialForecast = initialForecastForToday(visibleForecasts, latest);
+  const availableForecasts = currentForecastWindow(tenDay);
+  const selectedForecast = initialForecastForToday(availableForecasts, latest);
+  const stale = pagePublishesVisGrades() && isForecastStale(selectedForecast);
+  document.body.dataset.forecastStale = stale ? "true" : "false";
+  const visibleForecasts = stale ? [] : availableForecasts;
+  const initialForecast = stale
+    ? {
+      ...selectedForecast,
+      is_unavailable: true,
+      forecast_stale: true,
+      report_text: `Forecast out of date. Last updated ${forecastUpdateLabel(selectedForecast)}.`,
+    }
+    : selectedForecast;
   if (!pagePublishesVisGrades()) hideUnpublishedVisChrome();
   render(initialForecast);
   renderStaleNotice(initialForecast);

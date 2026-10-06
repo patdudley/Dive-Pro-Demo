@@ -26,8 +26,9 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
     monterey: "model_outputs/spots/monterey.json",
   };
 
-  const EMPTY = "—";
+  const EMPTY = "N/A";
   const VIS_EMPTY = "No published vis";
+  const FORECAST_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
 
   const spotState = new Map();
   let scrippsPreview = null;
@@ -67,7 +68,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
       return window.spotPublishesVisGrades(spot);
     }
     const slug = String(spot?.slug || "");
-    if (slug === "catalina-wrigley" || slug === "anacapa-ocean") return false;
+    if (slug === "catalina-wrigley" || slug === "anacapa-ocean" || String(slug).startsWith("monterey")) return false;
     return Boolean(forecastPathFor(spot) || slug === "la-jolla");
   }
 
@@ -180,7 +181,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
   }
 
   function emptyState() {
-    return { grade: "", visRange: "", water: "", wind: "", swell: "", source: "" };
+    return { grade: "", visRange: "", water: "", wind: "", swell: "", source: "", date: "", updated: "", stale: false };
   }
 
   function stateFor(slug) {
@@ -204,16 +205,46 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
     };
   }
 
+  function forecastTimestamp(forecast) {
+    const raw = String(forecast?.generated_at || forecast?.updated_at || "");
+    const normalized = raw && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw) ? `${raw}Z` : raw;
+    const parsed = Date.parse(normalized);
+    if (Number.isFinite(parsed)) return parsed;
+    const date = isoDateKey(forecast?.date || forecast?.features?.date);
+    return date ? Date.parse(`${date}T23:59:59-07:00`) : NaN;
+  }
+
+  function forecastIsStale(forecast) {
+    const timestamp = forecastTimestamp(forecast);
+    return !Number.isFinite(timestamp) || Date.now() - timestamp > FORECAST_STALE_AFTER_MS;
+  }
+
+  function formatForecastUpdated(forecast) {
+    const timestamp = forecastTimestamp(forecast);
+    if (!Number.isFinite(timestamp)) return "time unavailable";
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Los_Angeles",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(timestamp));
+  }
+
   function fallbackFromForecast(forecast) {
     const latest = forecast?.latest || forecast;
     const features = latest?.features || {};
-    const vis = visFromForecast(forecast);
+    const stale = forecastIsStale(latest);
+    const vis = stale ? { grade: "", visRange: "Forecast out of date" } : visFromForecast(forecast);
     return {
       ...vis,
       water: singleLabel(features.water_temp_estimate_f ?? features.ml_sst_f, "°F"),
       wind: singleLabel(features.wind_speed_max_mph, " mph"),
       swell: singleLabel(features.swell_wave_height_max_ft ?? features.surf_height_max_ft, " ft", 1),
-      source: "forecast file",
+      source: stale ? "Forecast out of date" : "forecast file",
+      date: isoDateKey(latest?.date || latest?.features?.date),
+      updated: formatForecastUpdated(latest),
+      stale,
     };
   }
 
@@ -231,46 +262,45 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
 
   async function loadForecast(slug, path) {
     try {
-      let published = await fetchJson(path);
-      let forecastRows = published;
+      const published = await fetchJson(path);
       if (slug === "la-jolla") {
-        forecastRows = await fetchJson("model_outputs/forecast_10day.json");
+        const forecastRows = await fetchJson("model_outputs/forecast_10day.json");
+        const forecast = selectForecastForToday(forecastRows, published, pacificToday());
+        applyState(slug, fallbackFromForecast(forecast));
+        renderHomeForecast(forecast);
+        return;
       }
+      const forecastRows = published;
       let forecast = selectForecastForToday(
         forecastRows,
         published.latest || published,
         pacificToday(),
       );
 
-      if (slug === "la-jolla" && forecast?.date && forecast.date < pacificToday()) {
-        try {
-          const [hostLatest, hostTenDay] = await Promise.all([
-            fetchJson("https://diveproca.com/model_outputs/latest_forecast.json"),
-            fetchJson("https://diveproca.com/model_outputs/forecast_10day.json"),
-          ]);
-          published = hostLatest;
-          forecast = selectForecastForToday(hostTenDay, hostLatest, pacificToday());
-        } catch {
-          // Keep the repository forecast if the published host is unreachable.
-        }
-      }
       applyState(slug, fallbackFromForecast(forecast));
     } catch {
-      if (slug === "la-jolla") {
-        try {
-          const [published, tenDay] = await Promise.all([
-            fetchJson("https://diveproca.com/model_outputs/latest_forecast.json"),
-            fetchJson("https://diveproca.com/model_outputs/forecast_10day.json"),
-          ]);
-          const forecast = selectForecastForToday(tenDay, published, pacificToday());
-          applyState(slug, fallbackFromForecast(forecast));
-          return;
-        } catch {
-          // Fall through to empty vis.
-        }
-      }
       applyState(slug, visFromForecast(null));
+      if (slug === "la-jolla") renderHomeForecast(null);
     }
+  }
+
+  function renderHomeForecast(forecast) {
+    const card = document.getElementById("homeLaJollaForecast");
+    if (!card) return;
+    const stale = !forecast || forecastIsStale(forecast);
+    const range = forecast?.estimated_visibility_range_ft;
+    card.classList.toggle("is-stale", stale);
+    const isToday = isoDateKey(forecast?.date) === pacificToday();
+    document.getElementById("homeForecastStatus").textContent = stale
+      ? "Forecast out of date"
+      : isToday ? "Today's La Jolla forecast" : `La Jolla forecast for ${isoDateKey(forecast?.date)}`;
+    document.getElementById("homeForecastGrade").textContent = stale ? "N/A" : (forecast.grade || "N/A");
+    document.getElementById("homeForecastVisibility").textContent = stale
+      ? "Forecast out of date"
+      : Array.isArray(range) && range.length >= 2 ? `${range[0]}–${range[1]} ft` : "Unavailable";
+    document.getElementById("homeForecastDate").textContent = forecast
+      ? `Forecast date ${isoDateKey(forecast.date)} · Updated ${formatForecastUpdated(forecast)}`
+      : "Forecast date unavailable";
   }
 
   async function loadOpenMeteo(spot) {
@@ -317,10 +347,30 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
       fetchJson(`camera-snapshots/scripps-pier-last-valid.json?t=${requestToken}`).catch(() => null),
     ]);
     const currentCapture =
-      latestAttempt?.capture_ok === true && latestAttempt?.source_freshness_verified === true
+      latestAttempt?.capture_ok === true
+        && latestAttempt?.source_freshness_verified === true
+        && latestAttempt?.image_url
+        && latestAttempt?.observation_date
         ? latestAttempt
         : null;
-    scrippsPreview = currentCapture?.image_url || lastValid?.image_url || null;
+    const validFallback = lastValid?.capture_ok === true
+      && lastValid?.source_freshness_verified === true
+      && lastValid?.image_url
+      && lastValid?.observation_date
+      ? lastValid
+      : null;
+    const selected = currentCapture || validFallback;
+    scrippsPreview = selected?.image_url || null;
+    const image = document.getElementById("homeScrippsImage");
+    const frame = document.getElementById("homeScrippsCamera");
+    const caption = document.getElementById("homeScrippsCaption");
+    if (selected && image && frame && caption) {
+      image.src = String(selected.image_url).replace(/^\/(?!\/)/, "");
+      image.alt = `Scripps Pier underwater camera captured ${selected.observation_date}`;
+      image.hidden = false;
+      frame.classList.remove("is-unavailable");
+      caption.textContent = `${selected.observation_date}${currentCapture ? "" : " · last valid"}`;
+    }
   }
 
   function metricCell(icon, label, value, emptyText) {
@@ -448,7 +498,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026090
       : publishesVis
         ? `<div class="spot-feature-grade-col is-empty">
           <span class="spot-feature-grade-wrap">
-            <span class="spot-feature-grade">—</span>
+            <span class="spot-feature-grade">N/A</span>
           </span>
         </div>`
         : "";

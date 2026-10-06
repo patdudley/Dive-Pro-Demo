@@ -2,7 +2,54 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://diveproca.com/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/la-jolla.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/monterey.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/monterey-mcabee.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/monterey-lovers.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/monterey-lobos.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/monterey-monastery.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/catalina-wrigley.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/anacapa-ocean.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/map.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/feedback.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/blog/</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://diveproca.com/blog/noaa-el-nino-weekly-24-aug-2026/</loc>
+    <lastmod>2026-10-06</lastmod>
   </url>
 </urlset>

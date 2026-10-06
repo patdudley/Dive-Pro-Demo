@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DiveProCA | California dive spots</title>
-    <meta name="description" content="Find California dive spots on Dive Pro. Search La Jolla, Monterey, Catalina Wrigley, and Anacapa.">
+    <title>La Jolla Dive Visibility Forecast Today | Dive Pro</title>
+    <meta name="description" content="Daily La Jolla dive visibility forecast with today's grade, visibility range, forecast date, and Scripps Pier camera, plus other California dive spots.">
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#13baee">
     <meta name="divepro-build" content="pages-20260829ax">
@@ -16,8 +16,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=fish-icon-4">
     <meta property="og:site_name" content="DiveProCA">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="DiveProCA | California dive spots">
-    <meta property="og:description" content="Find California dive spots on Dive Pro. Search La Jolla, Monterey, Catalina Wrigley, and Anacapa.">
+    <meta property="og:title" content="La Jolla Dive Visibility Forecast Today | Dive Pro">
+    <meta property="og:description" content="Daily La Jolla dive visibility forecast with today's grade, visibility range, forecast date, and Scripps Pier camera, plus other California dive spots.">
     <meta property="og:url" content="https://diveproca.com/">
     <meta property="og:image" content="https://diveproca.com/divepro-social-card.png">
     <meta property="og:image:type" content="image/png">
@@ -25,8 +25,8 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="DivePro - California dive spots">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="DiveProCA | California dive spots">
-    <meta name="twitter:description" content="Find California dive spots on Dive Pro. Search La Jolla, Monterey, Catalina Wrigley, and Anacapa.">
+    <meta name="twitter:title" content="La Jolla Dive Visibility Forecast Today | Dive Pro">
+    <meta name="twitter:description" content="Daily La Jolla dive visibility forecast with today's grade, visibility range, forecast date, and Scripps Pier camera, plus other California dive spots.">
     <meta name="twitter:image" content="https://diveproca.com/divepro-social-card.png">
     <meta name="twitter:image:alt" content="DivePro - California dive spots">
     <script type="application/ld+json">
@@ -53,7 +53,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
     <link rel="stylesheet" href="styles.css?v=pages-20260830nav1">
-    <link rel="stylesheet" href="home-hero.css?v=pages-20260830mapht">
+    <link rel="stylesheet" href="home-hero.css?v=forecast-home-20261006">
     <link rel="stylesheet" href="home-cards.css?v=pages-20260830novis1">
     <link rel="stylesheet" href="map-time-player.css?v=expand-only-1">
   </head>
@@ -63,16 +63,6 @@
         <a class="site-logo" href="./">
           <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
         </a>
-        <form class="home-search" id="spotSearchForm" role="search">
-          <label class="home-search-label" for="spotSearch">Search dive spots</label>
-          <div class="home-search-field">
-            <span class="home-search-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            </span>
-            <input id="spotSearch" type="search" name="q" placeholder="Search dive spots, regions, or conditions." autocomplete="off" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-controls="spotSearchSuggest" aria-expanded="false">
-            <ul class="home-search-suggest" id="spotSearchSuggest" role="listbox" hidden></ul>
-          </div>
-        </form>
         <nav class="site-nav" aria-label="Site">
           <a class="site-nav-link" href="blog/">Blog</a>
           <a class="site-nav-link" href="feedback.html">Feedback</a>
@@ -81,64 +71,73 @@
     </header>
     <main class="shell home-directory-shell">
       <div class="home-hero">
-        <section class="home-hero-copy" aria-label="Live dive conditions">
-          <p class="home-live-badge"><span aria-hidden="true"></span> Live conditions</p>
-          <h1 class="home-hero-title">Find the best conditions to dive Across California</h1>
-          <p class="home-hero-sub">Live forecasts, real-time data, and published visibility reports for California’s top dive spots</p>
-
-          <div class="home-cond-slider" id="spotConditionSlider">
-            <div class="home-cond-toolbar">
-              <p class="home-cond-kicker">Spot conditions</p>
-              <div class="home-cond-arrows">
-                <button type="button" class="home-cond-arrow" id="spotCondPrev" aria-label="Previous spot">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
-                </button>
-                <button type="button" class="home-cond-arrow" id="spotCondNext" aria-label="Next spot">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
-                </button>
-              </div>
+        <section class="home-hero-copy" aria-label="La Jolla dive visibility forecast">
+          <p class="home-live-badge"><span aria-hidden="true"></span> Daily La Jolla forecast</p>
+          <h1 class="home-hero-title">La Jolla Dive Visibility Forecast Today</h1>
+          <p class="home-hero-sub">Plan your La Jolla dive with today's visibility forecast and the latest verified Scripps Pier camera image.</p>
+          <!-- DIVEPRO_FORECAST_START -->
+          <article class="home-la-jolla-forecast" id="homeLaJollaForecast">
+            <p class="home-forecast-status" id="homeForecastStatus">Today's La Jolla forecast</p>
+            <div class="home-forecast-values">
+              <strong class="home-forecast-grade" id="homeForecastGrade">D</strong>
+              <div><span>Estimated visibility</span><strong id="homeForecastVisibility">5–9 ft</strong></div>
             </div>
-            <div class="home-cond-viewport" id="spotCondTrack" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Conditions by dive spot">
-              <div class="home-cond-pages" id="spotCondPages"></div>
-            </div>
-            <div class="home-cond-dots" id="spotCondDots" role="tablist" aria-label="Choose a dive spot"></div>
-          </div>
+            <p class="home-forecast-date" id="homeForecastDate">Forecast date 2026-10-06 · Updated Oct 6, 7:07 AM</p>
+            <a class="home-forecast-link" href="la-jolla.html">View the full La Jolla forecast</a>
+          </article>
+          <!-- DIVEPRO_FORECAST_END -->
         </section>
-
-        <section class="model-card region-map-card home-map-card" aria-label="California map">
-          <div class="section-heading home-map-heading">
-            <h2>California</h2>
-            <span id="regionMapLabel">Four dive spots</span>
-          </div>
-          <div class="map-frame spot-map-frame">
-            <div class="spot-map-graphic">
-              <div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive California dive region map"></div>
-              <div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer">
-                <button type="button" data-map-layer="wind" aria-pressed="true">Wind</button>
-                <button type="button" data-map-layer="depth" aria-pressed="false">Depth</button>
-              </div>
-              <div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend">
-                <span>Wind MPH</span>
-                <div class="wind-legend-gradient"></div>
-                <div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <!-- DIVEPRO_CAMERA_START -->
+        <figure class="home-scripps-camera" id="homeScrippsCamera">
+          <img id="homeScrippsImage" src="camera-snapshot-history/scripps-pier/2026-10-05/scripps-pier-232104-0bea8922784e.jpg?v=0bea8922784e" alt="Scripps Pier underwater camera captured 2026-10-05">
+          <figcaption><strong>Scripps Pier camera</strong><span id="homeScrippsCaption">2026-10-05</span></figcaption>
+        </figure>
+        <!-- DIVEPRO_CAMERA_END -->
       </div>
+
+      <section class="home-search-section" aria-label="Find California dive spots">
+        <form class="home-search" id="spotSearchForm" role="search">
+          <label class="home-search-label" for="spotSearch">Search dive spots</label>
+          <div class="home-search-field">
+            <span class="home-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+            <input id="spotSearch" type="search" name="q" placeholder="Search dive spots, regions, or conditions." autocomplete="off" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-controls="spotSearchSuggest" aria-expanded="false">
+            <ul class="home-search-suggest" id="spotSearchSuggest" role="listbox" hidden></ul>
+          </div>
+        </form>
+        <div class="home-cond-slider" id="spotConditionSlider">
+          <div class="home-cond-toolbar"><p class="home-cond-kicker">Spot conditions</p><div class="home-cond-arrows"><button type="button" class="home-cond-arrow" id="spotCondPrev" aria-label="Previous spot">‹</button><button type="button" class="home-cond-arrow" id="spotCondNext" aria-label="Next spot">›</button></div></div>
+          <div class="home-cond-viewport" id="spotCondTrack" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Conditions by dive spot"><div class="home-cond-pages" id="spotCondPages"></div></div>
+          <div class="home-cond-dots" id="spotCondDots" role="tablist" aria-label="Choose a dive spot"></div>
+        </div>
+      </section>
 
       <section class="home-featured" id="featuredSpots" aria-label="Featured dive spots">
         <div class="home-featured-heading">
           <h2>Featured Dive Spots</h2>
         </div>
         <div id="spotBubbles" class="home-featured-grid"></div>
+        <nav class="home-static-spot-links" aria-label="All California dive spot pages">
+          <a href="la-jolla.html">La Jolla</a>
+          <a href="monterey.html">Monterey Breakwater</a>
+          <a href="monterey-mcabee.html">McAbee Beach</a>
+          <a href="monterey-lovers.html">Lovers Point</a>
+          <a href="monterey-lobos.html">Point Lobos</a>
+          <a href="monterey-monastery.html">Monastery Beach</a>
+          <a href="catalina-wrigley.html">Catalina Wrigley</a>
+          <a href="anacapa-ocean.html">Anacapa</a>
+        </nav>
         <p class="home-search-empty" id="spotSearchEmpty" hidden>No spots match that search.</p>
       </section>
+
+      <section class="model-card region-map-card home-map-card" aria-label="California dive spot map">
+        <div class="section-heading"><h2>California dive spots</h2><a href="map.html">Open full map</a></div>
+        <div class="map-frame spot-map-frame"><div class="spot-map-graphic"><div id="spotRegionMap" class="spot-region-map" role="img" aria-label="Interactive California dive region map"></div><div class="map-layer-toggle spot-map-layer-toggle" aria-label="Map layer"><button type="button" data-map-layer="wind" aria-pressed="true">Wind</button><button type="button" data-map-layer="depth" aria-pressed="false">Depth</button></div><div class="wind-legend spot-wind-legend is-hidden" aria-label="Wind speed legend"><span>Wind MPH</span><div class="wind-legend-gradient"></div><div class="wind-legend-labels"><b>0</b><b>5</b><b>10</b><b>20+</b></div></div></div></div>
+      </section>
     </main>
-    <script src="analytics-config.js?v=analytics-2"></script>
-    <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260831headflip1"></script>
-    <script type="module" src="home-directory.js?v=forecast-day-20260903"></script>
+    <script src="analytics-config.js?v=analytics-3"></script>
+    <script src="analytics.js?v=analytics-3"></script>
+    <script src="spots-config.js?v=vis-policy-20261006"></script>
+    <script type="module" src="home-directory.js?v=forecast-fresh-20261006b"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>
     <script src="map-config.js?v=map-1"></script>

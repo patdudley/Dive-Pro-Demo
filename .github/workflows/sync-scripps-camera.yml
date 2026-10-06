@@ -2,8 +2,10 @@ name: Sync Scripps camera
 
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+  repository_dispatch:
+    types: [divepro-site-deployed]
 
 permissions:
   contents: write
@@ -17,16 +19,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Download current public camera pointers
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
+
+      - name: Copy current public camera pointers
         run: |
           set -euo pipefail
-          base="https://raw.githubusercontent.com/patdudley/DivePro-site/main"
           mkdir -p camera-snapshots
           for status in scripps-pier-latest-attempt.json scripps-pier-last-valid.json scripps-pier-latest.json; do
-            curl --fail --silent --show-error --location \
-              "$base/camera-snapshots/$status" \
-              --output "camera-snapshots/$status"
+            python3 -m json.tool "source-site/camera-snapshots/$status" >/dev/null
+            cp "source-site/camera-snapshots/$status" "camera-snapshots/$status"
           done
 
       - name: Download images referenced by the pointers
@@ -35,10 +44,8 @@ jobs:
           python3 - <<'PY'
           import json
           import pathlib
-          import urllib.request
           from urllib.parse import urlsplit
 
-          source = "https://raw.githubusercontent.com/patdudley/DivePro-site/main"
           for status_path in pathlib.Path("camera-snapshots").glob("scripps-pier-*.json"):
               status = json.loads(status_path.read_text())
               image_url = status.get("image_url")
@@ -48,17 +55,26 @@ jobs:
               if relative.parts[:2] != ("camera-snapshot-history", "scripps-pier"):
                   raise RuntimeError(f"Unexpected camera image path: {relative}")
               relative.parent.mkdir(parents=True, exist_ok=True)
-              urllib.request.urlretrieve(f"{source}/{relative.as_posix()}", relative)
+              source_image = pathlib.Path("source-site") / relative
+              if not source_image.is_file():
+                  raise RuntimeError(f"Missing source camera image: {source_image}")
+              relative.write_bytes(source_image.read_bytes())
           PY
 
-      - name: Publish changed camera data
+      - name: Validate forecasts and refresh crawler-visible content
+        run: python3 scripts/sync_published_data.py --source source-site --destination .
+
+      - name: Publish changed forecast and camera data
         run: |
-          if git diff --quiet; then
-            echo "Camera data is already current."
+          git add model_outputs/latest_forecast.json model_outputs/forecast_10day.json \
+            model_outputs/spots/la-jolla.json forecast_history.json data/wind-cropped \
+            index.html sitemap.xml camera-snapshots camera-snapshot-history
+          if git diff --cached --quiet; then
+            echo "Forecast and camera data are already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add camera-snapshots camera-snapshot-history
-          git commit -m "Refresh Scripps camera"
+          git commit -m "Refresh forecasts and Scripps camera"
+          git pull --rebase
           git push
