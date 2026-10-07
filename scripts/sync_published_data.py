@@ -312,40 +312,9 @@ def render_homepage(root: pathlib.Path) -> None:
 </article>
 <!-- DIVEPRO_FORECAST_END -->'''
 
-    def valid_camera(value: Any) -> bool:
-        return bool(
-            isinstance(value, dict)
-            and value.get("capture_ok") is True
-            and value.get("source_freshness_verified") is True
-            and value.get("image_url")
-            and value.get("observation_date")
-        )
-
-    latest_attempt = load_json(root / "camera-snapshots/scripps-pier-latest-attempt.json")
-    last_valid = load_json(root / "camera-snapshots/scripps-pier-last-valid.json")
-    camera = latest_attempt if valid_camera(latest_attempt) else last_valid if valid_camera(last_valid) else None
-    if camera:
-        image_url = html.escape(str(camera["image_url"]).lstrip("/"), quote=True)
-        observation_date = html.escape(str(camera["observation_date"]))
-        suffix = "" if camera is latest_attempt else " · last valid"
-        camera_block = f'''<!-- DIVEPRO_CAMERA_START -->
-<figure class="home-scripps-camera" id="homeScrippsCamera">
-  <img id="homeScrippsImage" src="{image_url}" alt="Scripps Pier underwater camera captured {observation_date}">
-  <figcaption><strong>Scripps Pier camera</strong><span id="homeScrippsCaption">{observation_date}{suffix}</span></figcaption>
-</figure>
-<!-- DIVEPRO_CAMERA_END -->'''
-    else:
-        camera_block = '''<!-- DIVEPRO_CAMERA_START -->
-<figure class="home-scripps-camera is-unavailable" id="homeScrippsCamera">
-  <img id="homeScrippsImage" alt="" hidden>
-  <figcaption><strong>Scripps Pier camera</strong><span id="homeScrippsCaption">No verified camera image available</span></figcaption>
-</figure>
-<!-- DIVEPRO_CAMERA_END -->'''
-
     index_path = root / "index.html"
     text = index_path.read_text(encoding="utf-8")
     text = replace_marker(text, "FORECAST", forecast_block)
-    text = replace_marker(text, "CAMERA", camera_block)
     index_path.write_text(text, encoding="utf-8")
 
 
