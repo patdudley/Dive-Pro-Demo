@@ -300,14 +300,15 @@ def render_homepage(root: pathlib.Path) -> None:
     else:
         status = f"La Jolla forecast for {date}"
     forecast_block = f'''<!-- DIVEPRO_FORECAST_START -->
-<article class="home-la-jolla-forecast{' is-stale' if stale else ''}" id="homeLaJollaForecast">
-  <p class="home-forecast-status" id="homeForecastStatus">{status}</p>
-  <div class="home-forecast-values">
-    <strong class="home-forecast-grade" id="homeForecastGrade">{grade}</strong>
-    <div><span>Estimated visibility</span><strong id="homeForecastVisibility">{range_text}</strong></div>
+<article class="home-cond-page home-static-forecast{' is-stale' if stale else ''}" id="homeLaJollaForecast" data-slug="la-jolla" aria-label="La Jolla conditions">
+  <div class="home-cond-spot">
+    <div><h3 id="homeForecastStatus">{status}</h3><p id="homeForecastDate">Forecast date {date} · Updated {html.escape(updated)}</p></div>
+    <span class="home-cond-grade" id="homeForecastGrade">{grade}</span>
   </div>
-  <p class="home-forecast-date" id="homeForecastDate">Forecast date {date} · Updated {html.escape(updated)}</p>
-  <a class="home-forecast-link" href="la-jolla.html">View the full La Jolla forecast</a>
+  <div class="home-cond-metrics">
+    <div class="home-cond-metric"><span class="home-cond-label">Estimated visibility</span><strong id="homeForecastVisibility">{range_text}</strong></div>
+    <a class="home-forecast-link" href="la-jolla.html">Full forecast</a>
+  </div>
 </article>
 <!-- DIVEPRO_FORECAST_END -->'''
 
