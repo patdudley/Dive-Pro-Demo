@@ -1670,6 +1670,43 @@ h2::before {
   box-shadow: none;
 }
 
+.forecast-updated {
+  margin: 2px 0 12px;
+  color: rgba(10, 37, 64, 0.62);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.spot-live-conditions-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spot-live-conditions-summary > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(10, 37, 64, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.spot-live-conditions-summary span {
+  color: rgba(10, 37, 64, 0.58);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.spot-live-conditions-summary strong {
+  color: #0a2540;
+  font-size: 0.92rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
 .forecast-meta {
   display: flex;
   align-items: center;

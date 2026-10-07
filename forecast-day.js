@@ -13,12 +13,9 @@ export function selectForecastForToday(source, publishedLatest, today) {
   const rows = forecastRows(source)
     .filter((forecast) => forecast && forecastDateKey(forecast))
     .sort((a, b) => forecastDateKey(a).localeCompare(forecastDateKey(b)));
-  const exact = rows.find((forecast) => forecastDateKey(forecast) === today);
-  if (exact) return exact;
-  if (forecastDateKey(publishedLatest) === today) return publishedLatest;
-  return rows.find((forecast) => forecastDateKey(forecast) > today)
-    || publishedLatest
-    || source?.latest
-    || source
-    || null;
+  const latest = publishedLatest || source?.latest || (!Array.isArray(source) ? source : null);
+  if (latest && forecastDateKey(latest) < today) {
+    return rows.find((forecast) => forecastDateKey(forecast) === today) || latest;
+  }
+  return latest || rows.find((forecast) => forecastDateKey(forecast) === today) || null;
 }

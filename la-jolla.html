@@ -82,6 +82,7 @@
                 <p class="spot-heading-name" id="spotHeading">La Jolla</p>
               </div>
             </div>
+            <p class="forecast-updated" id="forecastUpdated">Forecast date loading</p>
             <div class="forecast-main">
               <strong id="grade">--</strong>
               <div class="primary-stat">
@@ -181,9 +182,9 @@
       </section>
 
     </main>
-    <script src="analytics-config.js?v=analytics-2"></script>
-    <script src="analytics.js?v=analytics-2"></script>
-    <script src="spots-config.js?v=pages-20260829az"></script>
+    <script src="analytics-config.js?v=analytics-3"></script>
+    <script src="analytics.js?v=analytics-3"></script>
+    <script src="spots-config.js?v=vis-policy-20261006"></script>
     <script>
       (function applySpotFromPath() {
         const parts = (window.location.pathname || "").split("/").filter(Boolean);
@@ -195,7 +196,7 @@
         document.body.dataset.spot = spot?.slug || requested || "la-jolla";
       })();
     </script>
-    <script type="module" src="app.js?v=grade-c-20260902"></script>
+    <script type="module" src="app.js?v=forecast-fresh-20261006b"></script>
     <script type="module" src="ui-polish.js?v=date-rollover-20260719"></script>
     <script src="vendor/maplibre/maplibre-gl.js?v=map-1"></script>
     <script src="vendor/suncalc/suncalc.js?v=1.9.0"></script>

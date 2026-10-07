@@ -2,9 +2,9 @@
    Never set display:contents on .map-frame. */
 
 .home-directory .site-chrome-bar {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
 }
 
@@ -17,6 +17,19 @@
   position: relative;
   width: min(560px, 100%);
   margin: 0 auto;
+}
+
+.home-directory .home-search-section {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.home-directory .home-search-section .home-search {
+  width: 100%;
+  margin-top: 4px;
 }
 
 .home-directory .home-search-field {
@@ -141,6 +154,88 @@
 .home-directory .home-hero-copy {
   padding-top: 8px;
 }
+
+.home-directory .home-la-jolla-forecast {
+  max-width: 35rem;
+  padding: 20px;
+  border: 1px solid rgba(13, 122, 140, 0.14);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(10, 37, 64, 0.08);
+}
+
+.home-directory .home-forecast-status,
+.home-directory .home-forecast-date {
+  margin: 0;
+  color: rgba(10, 37, 64, 0.58);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.home-directory .home-la-jolla-forecast.is-stale .home-forecast-status { color: #9a4b00; }
+
+.home-directory .home-forecast-values {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 12px 0;
+}
+
+.home-directory .home-forecast-grade {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e9f8ff;
+  color: #0a2540;
+  font-size: 2rem;
+}
+
+.home-directory .home-forecast-values div { display: grid; gap: 4px; }
+.home-directory .home-forecast-values span {
+  color: rgba(10, 37, 64, 0.55);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.home-directory .home-forecast-values div strong { color: #0a2540; font-size: 1.35rem; }
+.home-directory .home-forecast-link { display: inline-block; margin-top: 14px; color: #1267d6; font-weight: 800; }
+
+.home-directory .home-scripps-camera {
+  position: relative;
+  min-height: 390px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #0a2540;
+  box-shadow: 0 16px 38px rgba(10, 37, 64, 0.15);
+}
+
+.home-directory .home-scripps-camera img {
+  width: 100%;
+  height: 100%;
+  min-height: 390px;
+  object-fit: cover;
+}
+
+.home-directory .home-scripps-camera figcaption {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(4, 25, 44, 0.82);
+  color: #fff;
+  font-size: 0.78rem;
+}
+
+.home-directory .home-static-spot-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; }
+.home-directory .home-static-spot-links a { color: #1267d6; font-size: 0.86rem; font-weight: 700; }
 
 .home-directory .home-live-badge {
   display: inline-flex;
@@ -279,6 +374,14 @@
   display: none;
 }
 
+.home-directory .spot-feature-conditions {
+  margin: 6px 0 0;
+  color: rgba(10, 37, 64, 0.68);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .home-directory .home-cond-grade {
   display: grid;
   place-items: center;
@@ -360,9 +463,9 @@
   align-self: stretch;
   width: auto;
   max-width: none;
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
+  height: 520px;
+  min-height: 520px;
+  margin: 36px 0 0;
   padding: 0;
   overflow: visible;
   border: 0;
@@ -424,18 +527,10 @@
 
 @media (max-width: 979px) {
   .home-directory .site-chrome-bar {
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      "logo nav"
-      "search search";
+    display: flex;
   }
 
-  .home-directory .site-logo { grid-area: logo; }
-  .home-directory .site-nav { grid-area: nav; justify-self: end; }
-  .home-directory .home-search {
-    grid-area: search;
-    width: 100%;
-  }
+  .home-directory .home-search-section { grid-template-columns: 1fr; }
 
   .home-directory .home-hero {
     grid-template-columns: minmax(0, 1fr);
@@ -462,15 +557,8 @@
     font-size: 2.25rem;
   }
 
-  /* Stacked hero: hide the slider so copy sits above the map. Desktop two-column keeps it. */
-  .home-directory .home-cond-slider {
-    display: none;
-  }
-
-  /* Stacked hero: hide the subtitle. Desktop two-column keeps it. */
-  .home-directory .home-hero-sub {
-    display: none;
-  }
+  .home-directory .home-scripps-camera,
+  .home-directory .home-scripps-camera img { min-height: 300px; }
 
   .home-directory .home-map-card .spot-map-graphic {
     height: 320px;

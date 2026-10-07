@@ -1,64 +1,172 @@
-name: Sync Scripps camera
+name: Sync published Dive Pro data
 
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+  repository_dispatch:
+    types: [divepro-site-deployed]
 
 permissions:
   contents: write
 
 concurrency:
-  group: sync-scripps-camera
+  group: sync-published-dive-pro-data
   cancel-in-progress: true
 
 jobs:
-  sync:
+  camera:
+    name: Refresh camera
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Download current public camera pointers
-        run: |
-          set -euo pipefail
-          base="https://raw.githubusercontent.com/patdudley/DivePro-site/main"
-          mkdir -p camera-snapshots
-          for status in scripps-pier-latest-attempt.json scripps-pier-last-valid.json scripps-pier-latest.json; do
-            curl --fail --silent --show-error --location \
-              "$base/camera-snapshots/$status" \
-              --output "camera-snapshots/$status"
-          done
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
 
-      - name: Download images referenced by the pointers
+      - name: Validate and copy camera data
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import json
           import pathlib
-          import urllib.request
           from urllib.parse import urlsplit
 
-          source = "https://raw.githubusercontent.com/patdudley/DivePro-site/main"
-          for status_path in pathlib.Path("camera-snapshots").glob("scripps-pier-*.json"):
-              status = json.loads(status_path.read_text())
+          source_root = pathlib.Path("source-site")
+          status_names = (
+              "scripps-pier-latest-attempt.json",
+              "scripps-pier-last-valid.json",
+              "scripps-pier-latest.json",
+          )
+          pointers = {}
+          images = {}
+          for name in status_names:
+              source_status = source_root / "camera-snapshots" / name
+              status = json.loads(source_status.read_text())
+              pointers[pathlib.Path("camera-snapshots") / name] = source_status.read_bytes()
               image_url = status.get("image_url")
               if not image_url:
                   continue
               relative = pathlib.Path(urlsplit(image_url).path.lstrip("/"))
               if relative.parts[:2] != ("camera-snapshot-history", "scripps-pier"):
                   raise RuntimeError(f"Unexpected camera image path: {relative}")
+              source_image = source_root / relative
+              if not source_image.is_file():
+                  raise RuntimeError(f"Missing source camera image: {source_image}")
+              images[relative] = source_image.read_bytes()
+
+          for relative, content in {**pointers, **images}.items():
               relative.parent.mkdir(parents=True, exist_ok=True)
-              urllib.request.urlretrieve(f"{source}/{relative.as_posix()}", relative)
+              relative.write_bytes(content)
           PY
 
       - name: Publish changed camera data
         run: |
-          if git diff --quiet; then
+          git add camera-snapshots camera-snapshot-history
+          if git diff --cached --quiet; then
             echo "Camera data is already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add camera-snapshots camera-snapshot-history
           git commit -m "Refresh Scripps camera"
+          git pull --rebase
+          git push
+
+  forecast:
+    name: Refresh forecasts
+    needs: camera
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
+
+      - name: Refresh checkout after camera publish
+        run: git pull --rebase
+
+      - name: Validate and sync forecast data
+        run: |
+          set +e
+          output=$(python3 scripts/sync_published_data.py --component forecast --source source-site --destination . 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -eq 2 ]; then
+            warning=${output//$'\n'/ }
+            echo "::warning::Forecast artifact rejected: $warning"
+            exit 0
+          fi
+          exit "$status"
+
+      - name: Publish changed forecast data
+        run: |
+          git add model_outputs/latest_forecast.json model_outputs/forecast_10day.json \
+            model_outputs/spots/la-jolla.json forecast_history.json index.html sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Forecast data is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh forecasts"
+          git pull --rebase
+          git push
+
+  wind:
+    name: Refresh regional wind data
+    needs: forecast
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out generated site data
+        uses: actions/checkout@v4
+        with:
+          repository: patdudley/DivePro-site
+          ref: main
+          path: source-site
+
+      - name: Validate and sync regional wind data
+        run: |
+          set +e
+          output=$(python3 scripts/sync_published_data.py --component wind --source source-site --destination . 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -eq 2 ]; then
+            warning=${output//$'\n'/ }
+            echo "::warning::Wind artifact rejected: $warning"
+            exit 0
+          fi
+          exit "$status"
+
+      - name: Publish changed regional wind data
+        run: |
+          git add data/wind-cropped
+          if git diff --cached --quiet; then
+            echo "Regional wind data is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh regional wind data"
+          git pull --rebase
           git push
