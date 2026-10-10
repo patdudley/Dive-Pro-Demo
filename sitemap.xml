@@ -52,4 +52,14 @@
     <loc>https://diveproca.com/blog/noaa-el-nino-weekly-24-aug-2026/</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
+  <url>
+    <loc>https://diveproca.com/blog/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://diveproca.com/blog/noaa-upwelling-weekly-3-sep-2026/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>
