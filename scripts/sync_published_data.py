@@ -20,6 +20,11 @@ from zoneinfo import ZoneInfo
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:[T ][0-9:.+-]+Z?)?$")
 PACIFIC = ZoneInfo("America/Los_Angeles")
 VALID_GRADES = {"A+", "A", "B", "C", "D", "F"}
+LA_JOLLA_PAGE_NAME = "La Jolla Dive Visibility Today: Cove and Shores Forecast"
+LA_JOLLA_DESCRIPTION = (
+    "La Jolla Cove and Shores visibility today: the grade, visibility range, "
+    "and forecast date, with the Scripps Pier camera, swell, tide, and wind."
+)
 FORECAST_FILES = (
     pathlib.Path("model_outputs/latest_forecast.json"),
     pathlib.Path("model_outputs/forecast_10day.json"),
@@ -259,30 +264,43 @@ def select_forecast_for_today(
     return latest
 
 
-def replace_marker(text: str, name: str, replacement: str) -> str:
+def replace_marker(text: str, name: str, replacement: str, label: str = "published HTML") -> str:
     pattern = re.compile(
         rf"(?s)([ \t]*)<!-- DIVEPRO_{name}_START -->.*?<!-- DIVEPRO_{name}_END -->"
     )
     match = pattern.search(text)
     if not match:
-        raise RuntimeError(f"Missing DIVEPRO_{name} markers in index.html")
+        raise RuntimeError(f"Missing DIVEPRO_{name} markers in {label}")
     indent = match.group(1)
     block = "\n".join(indent + line if line else line for line in replacement.splitlines())
     return text[: match.start()] + block + text[match.end() :]
 
 
-def render_homepage(root: pathlib.Path) -> None:
+def load_selected_forecast(root: pathlib.Path, today: dt.date | None = None) -> tuple[dict[str, Any], dt.date]:
     latest = load_json(root / "model_outputs/latest_forecast.json")
     ten_day = load_json(root / "model_outputs/forecast_10day.json")
     if not isinstance(latest, dict) or not isinstance(ten_day, list):
         raise RuntimeError("latest_forecast.json must contain an object")
-    today = dt.datetime.now(PACIFIC).date()
-    forecast = select_forecast_for_today(latest, ten_day, today)
+    today = today or dt.datetime.now(PACIFIC).date()
+    return select_forecast_for_today(latest, ten_day, today), today
+
+
+def describe_forecast(
+    forecast: dict[str, Any],
+    today: dt.date,
+    now: dt.datetime | None = None,
+) -> dict[str, Any]:
     generated = parse_timestamp(forecast)
-    now = dt.datetime.now(dt.timezone.utc)
+    now = now or dt.datetime.now(dt.timezone.utc)
     stale = generated is None or now - generated > dt.timedelta(hours=36)
     date = html.escape(str(forecast.get("date") or "unavailable"))
-    updated = generated.astimezone(PACIFIC).strftime("%b %-d, %-I:%M %p") if generated else "time unavailable"
+    if generated:
+        local = generated.astimezone(PACIFIC)
+        updated = local.strftime("%b %-d, %-I:%M %p")
+        updated_iso = local.isoformat(timespec="seconds")
+    else:
+        updated = "time unavailable"
+        updated_iso = ""
     grade = html.escape(str(forecast.get("grade") or "N/A"))
     visibility = forecast.get("estimated_visibility_range_ft")
     range_text = (
@@ -299,14 +317,33 @@ def render_homepage(root: pathlib.Path) -> None:
         status = "Today's La Jolla forecast"
     else:
         status = f"La Jolla forecast for {date}"
+    return {
+        "stale": stale,
+        "date": date,
+        "updated": updated,
+        "updated_iso": updated_iso,
+        "grade": grade,
+        "range_text": range_text,
+        "status": status,
+    }
+
+
+def render_homepage(
+    root: pathlib.Path,
+    today: dt.date | None = None,
+    now: dt.datetime | None = None,
+) -> None:
+    forecast, today = load_selected_forecast(root, today)
+    fields = describe_forecast(forecast, today, now)
+    stale = fields["stale"]
     forecast_block = f'''<!-- DIVEPRO_FORECAST_START -->
 <article class="home-cond-page home-static-forecast{' is-stale' if stale else ''}" id="homeLaJollaForecast" data-slug="la-jolla" aria-label="La Jolla conditions">
   <div class="home-cond-spot">
-    <div><h3 id="homeForecastStatus">{status}</h3><p id="homeForecastDate">Forecast date {date} · Updated {html.escape(updated)}</p></div>
-    <span class="home-cond-grade" id="homeForecastGrade">{grade}</span>
+    <div><h3 id="homeForecastStatus">{fields["status"]}</h3><p id="homeForecastDate">Forecast date {fields["date"]} · Updated {html.escape(fields["updated"])}</p></div>
+    <span class="home-cond-grade" id="homeForecastGrade">{fields["grade"]}</span>
   </div>
   <div class="home-cond-metrics">
-    <div class="home-cond-metric"><span class="home-cond-label">Estimated visibility</span><strong id="homeForecastVisibility">{range_text}</strong></div>
+    <div class="home-cond-metric"><span class="home-cond-label">Estimated visibility</span><strong id="homeForecastVisibility">{fields["range_text"]}</strong></div>
     <a class="home-forecast-link" href="la-jolla.html">Full forecast</a>
   </div>
 </article>
@@ -314,8 +351,87 @@ def render_homepage(root: pathlib.Path) -> None:
 
     index_path = root / "index.html"
     text = index_path.read_text(encoding="utf-8")
-    text = replace_marker(text, "FORECAST", forecast_block)
+    text = replace_marker(text, "FORECAST", forecast_block, "index.html")
     index_path.write_text(text, encoding="utf-8")
+
+
+def la_jolla_jsonld(fields: dict[str, Any]) -> str:
+    modified = fields["updated_iso"] or fields["date"]
+    payload = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebPage",
+                "@id": "https://diveproca.com/la-jolla.html",
+                "url": "https://diveproca.com/la-jolla.html",
+                "name": LA_JOLLA_PAGE_NAME,
+                "description": LA_JOLLA_DESCRIPTION,
+                "inLanguage": "en-US",
+                "dateModified": modified,
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "DiveProCA",
+                    "url": "https://diveproca.com/",
+                },
+            },
+            {
+                "@type": "Dataset",
+                "@id": "https://diveproca.com/la-jolla.html#visibility",
+                "name": "La Jolla dive visibility forecast",
+                "description": LA_JOLLA_DESCRIPTION,
+                "url": "https://diveproca.com/la-jolla.html",
+                "dateModified": modified,
+                "spatialCoverage": {
+                    "@type": "Place",
+                    "name": "La Jolla",
+                },
+                "creator": {
+                    "@type": "Organization",
+                    "name": "DiveProCA",
+                    "url": "https://diveproca.com/",
+                },
+            },
+        ],
+    }
+    body = json.dumps(payload, indent=2)
+    return (
+        "<!-- DIVEPRO_LAJOLLA_JSONLD_START -->\n"
+        '<script type="application/ld+json">\n'
+        f"{body}\n"
+        "</script>\n"
+        "<!-- DIVEPRO_LAJOLLA_JSONLD_END -->"
+    )
+
+
+def render_la_jolla(
+    root: pathlib.Path,
+    today: dt.date | None = None,
+    now: dt.datetime | None = None,
+) -> None:
+    forecast, today = load_selected_forecast(root, today)
+    fields = describe_forecast(forecast, today, now)
+    if fields["updated_iso"]:
+        updated_html = (
+            f'<time datetime="{html.escape(fields["updated_iso"])}">'
+            f'{html.escape(fields["updated"])}</time>'
+        )
+    else:
+        updated_html = html.escape(fields["updated"])
+    summary = f'''<!-- DIVEPRO_LAJOLLA_SUMMARY_START -->
+<p class="forecast-updated" id="forecastUpdated">Forecast date {fields["date"]} · Updated {updated_html}</p>
+<div class="forecast-main">
+  <strong id="grade">{fields["grade"]}</strong>
+  <div class="primary-stat">
+    <span>Estimated visibility</span>
+    <strong id="visibility">{fields["range_text"]}</strong>
+  </div>
+</div>
+<!-- DIVEPRO_LAJOLLA_SUMMARY_END -->'''
+    page_path = root / "la-jolla.html"
+    text = page_path.read_text(encoding="utf-8")
+    text = replace_marker(text, "LAJOLLA_SUMMARY", summary, "la-jolla.html")
+    text = replace_marker(text, "LAJOLLA_JSONLD", la_jolla_jsonld(fields), "la-jolla.html")
+    page_path.write_text(text, encoding="utf-8")
 
 
 CANONICAL_PAGES = [
@@ -398,6 +514,7 @@ def main() -> int:
             mirror_forecast_set(source, destination)
             mirror_history(source, destination)
             render_homepage(destination)
+            render_la_jolla(destination)
             write_sitemap(destination)
         if args.component in {"all", "wind"}:
             mirror_wind_data(source, destination)
