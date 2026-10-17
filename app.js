@@ -773,13 +773,17 @@ function updateSpotChrome(spot) {
       liveLink.hidden = true;
     }
   }
-  if (isMontereySpot(spot)) {
-    document.title = `DiveProCA | ${spot.name} dive visibility (beta)`;
-  } else {
-    document.title = spot.hasModelForecast
-      ? "DiveProCA | La Jolla Dive Visibility Forecast"
-      : `DiveProCA | ${spot.menuName || spot.name} location preview`;
-  }
+  const pageTitles = {
+    "la-jolla": "La Jolla Dive Visibility Today: Cove and Shores Forecast | Dive Pro",
+    monterey: "Monterey Breakwater Dive Conditions | Dive Pro",
+    "monterey-mcabee": "McAbee Beach Dive Conditions, Cannery Row | Dive Pro",
+    "monterey-lovers": "Lovers Point Dive Conditions, Pacific Grove | Dive Pro",
+    "monterey-lobos": "Point Lobos Dive Conditions | Dive Pro",
+    "monterey-monastery": "Monastery Beach Dive Conditions, Carmel | Dive Pro",
+    "catalina-wrigley": "Catalina Wrigley Reserve Dive Conditions | Dive Pro",
+    "anacapa-ocean": "Anacapa Island Ocean Dive Conditions | Dive Pro",
+  };
+  if (pageTitles[spot.slug]) document.title = pageTitles[spot.slug];
 }
 
 function fallbackForecast() {

@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DiveProCA | La Jolla Dive Visibility Forecast</title>
-    <meta name="description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <title>La Jolla Dive Visibility Today: Cove and Shores Forecast | Dive Pro</title>
+    <meta name="description" content="La Jolla Cove and Shores visibility today: the grade, visibility range, and forecast date, with the Scripps Pier camera, swell, tide, and wind.">
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#13baee">
     <link rel="canonical" href="https://diveproca.com/la-jolla.html">
@@ -15,8 +15,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=fish-icon-4">
     <meta property="og:site_name" content="DiveProCA">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="DiveProCA | La Jolla Dive Visibility Forecast">
-    <meta property="og:description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <meta property="og:title" content="La Jolla Dive Visibility Today: Cove and Shores Forecast | Dive Pro">
+    <meta property="og:description" content="La Jolla Cove and Shores visibility today: the grade, visibility range, and forecast date, with the Scripps Pier camera, swell, tide, and wind.">
     <meta property="og:url" content="https://diveproca.com/la-jolla.html">
     <meta property="og:image" content="https://diveproca.com/divepro-social-card.png">
     <meta property="og:image:type" content="image/png">
@@ -24,29 +24,50 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="DiveProCA | La Jolla Dive Visibility Forecast">
-    <meta name="twitter:description" content="Daily La Jolla dive visibility forecast with tide, wind, wave, swell, weather, and shore-dive target conditions for San Diego divers.">
+    <meta name="twitter:title" content="La Jolla Dive Visibility Today: Cove and Shores Forecast | Dive Pro">
+    <meta name="twitter:description" content="La Jolla Cove and Shores visibility today: the grade, visibility range, and forecast date, with the Scripps Pier camera, swell, tide, and wind.">
     <meta name="twitter:image" content="https://diveproca.com/divepro-social-card.png">
     <meta name="twitter:image:alt" content="DivePro - La Jolla Dive Visibility Forecast">
+    <!-- DIVEPRO_LAJOLLA_JSONLD_START -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "DiveProCA",
-        "url": "https://diveproca.com/",
-        "description": "DiveProCA California dive conditions and forecasts.",
-        "inLanguage": "en-US",
-        "publisher": {
-          "@type": "Organization",
-          "name": "DiveProCA",
-          "url": "https://diveproca.com/"
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://diveproca.com/la-jolla.html",
+          "url": "https://diveproca.com/la-jolla.html",
+          "name": "La Jolla Dive Visibility Today: Cove and Shores Forecast",
+          "description": "La Jolla Cove and Shores visibility today: the grade, visibility range, and forecast date, with the Scripps Pier camera, swell, tide, and wind.",
+          "inLanguage": "en-US",
+          "dateModified": "2026-10-16T14:50:29-07:00",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "DiveProCA",
+            "url": "https://diveproca.com/"
+          }
         },
-        "potentialAction": {
-          "@type": "ViewAction",
-          "target": "https://diveproca.com/"
+        {
+          "@type": "Dataset",
+          "@id": "https://diveproca.com/la-jolla.html#visibility",
+          "name": "La Jolla dive visibility forecast",
+          "description": "La Jolla Cove and Shores visibility today: the grade, visibility range, and forecast date, with the Scripps Pier camera, swell, tide, and wind.",
+          "url": "https://diveproca.com/la-jolla.html",
+          "dateModified": "2026-10-16T14:50:29-07:00",
+          "spatialCoverage": {
+            "@type": "Place",
+            "name": "La Jolla"
+          },
+          "creator": {
+            "@type": "Organization",
+            "name": "DiveProCA",
+            "url": "https://diveproca.com/"
+          }
         }
-      }
+      ]
+    }
     </script>
+    <!-- DIVEPRO_LAJOLLA_JSONLD_END -->
     <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css?v=map-1">
     <link rel="stylesheet" href="styles.css?v=pages-20260830swelldir1">
     <link rel="stylesheet" href="ui-polish.css?v=beta-ui-13">
@@ -57,7 +78,7 @@
     <header class="site-chrome">
       <div class="site-chrome-bar">
         <a class="site-logo" href="./">
-          <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
+          <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro" width="1500" height="362">
         </a>
         <nav class="site-nav" aria-label="Site">
           <a class="site-nav-link" href="blog/">Blog</a>
@@ -69,7 +90,7 @@
       <div class="stale-banner" id="staleBanner" hidden></div>
       <section class="hero-camera">
         <figure class="camera-frame is-camera-unavailable" id="cameraFrame">
-          <img id="cameraImage" alt="" hidden>
+          <img id="cameraImage" alt="" hidden fetchpriority="high">
           <p class="camera-unavailable-message" id="cameraUnavailableMessage">Camera unavailable · no verified recent image</p>
           <span class="camera-observed-badge" id="cameraObservedBadge" hidden>Today</span>
           <a class="camera-live-link" href="https://coollab.ucsd.edu/pierviz/" target="_blank" rel="noopener noreferrer" aria-label="Open the live Scripps Pier camera on UCSD Coollab in a new tab">Scripps Pier cam <span aria-hidden="true">&nearr;</span></a>
@@ -79,17 +100,19 @@
           <section class="forecast-panel">
             <div class="forecast-meta">
               <div class="spot-heading">
-                <p class="spot-heading-name" id="spotHeading">La Jolla</p>
+                <h1 class="spot-heading-name">La Jolla Dive Visibility Today</h1>
               </div>
             </div>
-            <p class="forecast-updated" id="forecastUpdated">Forecast date loading</p>
+            <!-- DIVEPRO_LAJOLLA_SUMMARY_START -->
+            <p class="forecast-updated" id="forecastUpdated">Forecast date 2026-10-16 · Updated <time datetime="2026-10-16T14:50:29-07:00">Oct 16, 2:50 PM</time></p>
             <div class="forecast-main">
-              <strong id="grade">--</strong>
+              <strong id="grade">C</strong>
               <div class="primary-stat">
                 <span>Estimated visibility</span>
-                <strong id="visibility">-- ft</strong>
+                <strong id="visibility">10–14 ft</strong>
               </div>
             </div>
+            <!-- DIVEPRO_LAJOLLA_SUMMARY_END -->
             <div class="score-row">
               <div class="score-track" aria-hidden="true"><div id="scoreFill"></div></div>
             </div>
