@@ -32,20 +32,29 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "DiveProCA",
-        "url": "https://diveproca.com/",
-        "description": "DiveProCA California dive conditions and forecasts.",
-        "inLanguage": "en-US",
-        "publisher": {
-          "@type": "Organization",
-          "name": "DiveProCA",
-          "url": "https://diveproca.com/"
-        },
-        "potentialAction": {
-          "@type": "ViewAction",
-          "target": "https://diveproca.com/"
-        }
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://diveproca.com/#website",
+            "name": "DiveProCA",
+            "url": "https://diveproca.com/",
+            "description": "Daily La Jolla dive visibility forecast with today's grade, visibility range, forecast date, and Scripps Pier camera, plus other California dive spots.",
+            "inLanguage": "en-US",
+            "publisher": {
+              "@id": "https://diveproca.com/#organization"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://diveproca.com/#organization",
+            "name": "DiveProCA",
+            "url": "https://diveproca.com/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://diveproca.com/divepro-logo.png"
+            }
+          }
+        ]
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +70,7 @@
     <header class="site-chrome">
       <div class="site-chrome-bar">
         <a class="site-logo" href="./">
-          <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro">
+          <img src="divepro-logo.png?v=logo-clear-20260827" alt="Dive Pro" width="1500" height="362">
         </a>
         <form class="home-search" id="spotSearchForm" role="search">
           <label class="home-search-label" for="spotSearch">Search dive spots</label>
@@ -83,8 +92,8 @@
       <div class="home-hero">
         <section class="home-hero-copy" aria-label="Live dive conditions">
           <p class="home-live-badge"><span aria-hidden="true"></span> Live conditions</p>
-          <h1 class="home-hero-title">Find the best conditions to dive Across California</h1>
-          <p class="home-hero-sub">Live forecasts, real-time data, and published visibility reports for California’s top dive spots</p>
+          <h1 class="home-hero-title">La Jolla Dive Visibility Forecast Today</h1>
+          <p class="home-hero-sub">Find the best conditions to dive Across California. Live forecasts, real-time data, and published visibility reports for California’s top dive spots</p>
 
           <div class="home-cond-slider" id="spotConditionSlider">
             <div class="home-cond-toolbar">
