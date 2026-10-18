@@ -116,7 +116,8 @@ jobs:
       - name: Publish changed forecast data
         run: |
           git add model_outputs/latest_forecast.json model_outputs/forecast_10day.json \
-            model_outputs/spots/la-jolla.json forecast_history.json index.html sitemap.xml
+            model_outputs/spots/la-jolla.json forecast_history.json index.html \
+            la-jolla.html sitemap.xml
           if git diff --cached --quiet; then
             echo "Forecast data is already current."
             exit 0
@@ -124,7 +125,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Refresh forecasts"
-          git pull --rebase
+          git pull --rebase --autostash
           git push
 
   wind:
