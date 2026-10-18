@@ -1,5 +1,33 @@
 [
   {
+    "archived_at": "2026-10-18T17:09:46Z",
+    "generated_at": "2026-10-18T17:01:10",
+    "date": "2026-10-18",
+    "location": "La Jolla, San Diego",
+    "grade": "B",
+    "numeric_score_0_100": 67,
+    "estimated_visibility_range_ft": [
+      15,
+      24
+    ],
+    "best_window": "Early morning to late morning before wind builds",
+    "report_text": "The model expects 15-24 ft of visibility, resulting in a B grade. Conditions are favorable overall, with dry recent conditions and an easing wave trend supporting useful clarity. Some swell energy, surface movement and wind-driven mixing keep the forecast below exceptional A-grade conditions.\n\nThe falling tide is an additional negative signal. As water moves toward the next low tide at 11:25 PM, visibility may gradually decline because the outgoing tide is less likely to bring cleaner offshore water into La Jolla.\n\nOverall, the forecast is favorable for diving. Sheltered coves and deeper water may hold the clearest conditions, while exposed coastline and sandy entries could be less consistent."
+  },
+  {
+    "archived_at": "2026-10-17T23:51:32Z",
+    "generated_at": "2026-10-17T21:09:43",
+    "date": "2026-10-17",
+    "location": "La Jolla, San Diego",
+    "grade": "B",
+    "numeric_score_0_100": 62,
+    "estimated_visibility_range_ft": [
+      15,
+      24
+    ],
+    "best_window": "Early morning to late morning before wind builds",
+    "report_text": "The model expects 15-24 ft of visibility, resulting in a B grade. Conditions are favorable overall, with dry recent conditions and an easing wave trend supporting useful clarity. Some swell energy, surface movement and wind-driven mixing keep the forecast below exceptional A-grade conditions.\n\nThe falling tide is an additional negative signal. As water moves toward the next low tide at 10:24 PM, visibility may gradually decline because the outgoing tide is less likely to bring cleaner offshore water into La Jolla.\n\nOverall, the forecast is favorable for diving. Sheltered coves and deeper water may hold the clearest conditions, while exposed coastline and sandy entries could be less consistent."
+  },
+  {
     "archived_at": "2026-10-17T20:18:08Z",
     "generated_at": "2026-10-17T16:45:10",
     "date": "2026-10-17",
