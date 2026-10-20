@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T18:12:34",
+  "generated_at": "2026-10-20T21:59:54",
   "spot_slug": "la-jolla",
   "spot_name": "La Jolla",
   "location": "La Jolla, San Diego",
@@ -40,17 +40,16 @@
   "confidence": "medium",
   "best_window": "Early morning to late morning before wind builds",
   "risk_factors": [
-    "Elevated surf can stir up the shallows.",
-    "Afternoon wind may texture the surface."
+    "Elevated surf can stir up the shallows."
   ],
   "positive_factors": [
-    "Longer-period swell is easier to time around than short chop."
+    "Wind looks manageable for the morning window."
   ],
   "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
   "is_projected": false,
   "projected_from": null,
   "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-  "report_text": "The model expects 15-24 ft of visibility, resulting in a B grade. Conditions are favorable overall, with dry recent conditions supporting useful clarity. Some swell energy, surface movement and wind-driven mixing keep the forecast below exceptional A-grade conditions.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next high tide at 5:52 PM could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast is favorable for diving. Sheltered coves and deeper water may hold the clearest conditions, while exposed coastline and sandy entries could be less consistent.",
+  "report_text": "The model expects 15-24 ft of visibility, resulting in a B grade. Conditions are favorable overall, with dry recent conditions supporting useful clarity. Some swell energy, surface movement and a building wave trend keep the forecast below exceptional A-grade conditions.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next high tide at 5:52 PM could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast is favorable for diving. Sheltered coves and deeper water may hold the clearest conditions, while exposed coastline and sandy entries could be less consistent.",
   "features": {
     "date": "2026-10-20",
     "coherent_swell_source": "hourly_max_height_event",
@@ -88,7 +87,7 @@
     "rain_24h_in": 0.0,
     "ml_rain_3day_in": 0.0,
     "ml_rain_7day_in": 0.0,
-    "ml_gust_max_mph": 13.4,
+    "ml_gust_max_mph": 11.0,
     "ml_sst_f": 72.4,
     "ml_sin_doy": -0.9467,
     "ml_cos_doy": 0.3221,
@@ -98,9 +97,9 @@
     "ml_buoy_dir_deg": 198,
     "ml_buoy_exp": 0.616,
     "ml_buoy_energy_wtd": 7.011,
-    "ml_wind_dir_deg": 199,
+    "ml_wind_dir_deg": 224,
     "ml_upwelling_wind": 0.0,
-    "ml_pressure_trend": -0.6,
+    "ml_pressure_trend": -0.4,
     "ml_sst_anomaly": 5.4,
     "ml_wave_trend": 0.36,
     "ml_wave_accel": 0.34,
@@ -108,9 +107,9 @@
     "ml_tide_range_ft": 3.7,
     "ml_tide_morning_avg": 3.76,
     "wave_height_max_ft": 3.87,
-    "wind_speed_mean_mph": 6.98,
-    "wind_speed_max_mph": 10.9,
-    "wind_gust_max_mph": 13.4,
+    "wind_speed_mean_mph": 5.06,
+    "wind_speed_max_mph": 7.9,
+    "wind_gust_max_mph": 11.0,
     "wave_energy_mean_kj": 134.889,
     "wave_energy_max_kj": 134.889,
     "total_swell_height_mean_ft": 3.03,
@@ -120,12 +119,12 @@
     "short_period_swell_energy": 0.117,
     "long_period_swell_energy": 134.772,
     "mixed_swell_score": 1,
-    "wind_wave_churn_proxy": 4.864,
-    "wave_energy_wind_interaction": 1470.29,
+    "wind_wave_churn_proxy": 3.525,
+    "wave_energy_wind_interaction": 1065.623,
     "water_temp_estimate_f": 72.4,
-    "buoy_water_temp_f": 73.2,
+    "buoy_water_temp_f": 73.4,
     "buoy_water_temp_source": "ndbc_46254",
-    "air_temp_max_f": 73.3,
+    "air_temp_max_f": 74.6,
     "air_temp_min_f": 62.3,
     "tide_range_ft": 3.7,
     "wind_chart": [
@@ -171,59 +170,59 @@
       },
       {
         "time": "10:00",
-        "speed_mph": 6.5
+        "speed_mph": 4.1
       },
       {
         "time": "11:00",
-        "speed_mph": 9.7
+        "speed_mph": 4.6
       },
       {
         "time": "12:00",
-        "speed_mph": 10.9
+        "speed_mph": 5.8
       },
       {
         "time": "13:00",
-        "speed_mph": 10.3
-      },
-      {
-        "time": "14:00",
-        "speed_mph": 9.2
-      },
-      {
-        "time": "15:00",
-        "speed_mph": 7.7
-      },
-      {
-        "time": "16:00",
-        "speed_mph": 7.5
-      },
-      {
-        "time": "17:00",
         "speed_mph": 6.3
       },
       {
+        "time": "14:00",
+        "speed_mph": 6.9
+      },
+      {
+        "time": "15:00",
+        "speed_mph": 7.9
+      },
+      {
+        "time": "16:00",
+        "speed_mph": 7.1
+      },
+      {
+        "time": "17:00",
+        "speed_mph": 7.3
+      },
+      {
         "time": "18:00",
-        "speed_mph": 5.5
+        "speed_mph": 5.2
       },
       {
         "time": "19:00",
-        "speed_mph": 3.8
-      },
-      {
-        "time": "20:00",
         "speed_mph": 3.6
       },
       {
+        "time": "20:00",
+        "speed_mph": 4.4
+      },
+      {
         "time": "21:00",
-        "speed_mph": 4.3
+        "speed_mph": 4.9
       },
       {
         "time": "22:00",
-        "speed_mph": 3.5
+        "speed_mph": 5.0
       },
       {
         "time": "23:00",
-        "speed_mph": 1.6
+        "speed_mph": 4.8
       }
     ],
     "wave_chart": [
