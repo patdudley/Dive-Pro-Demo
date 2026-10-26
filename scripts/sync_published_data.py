@@ -477,13 +477,87 @@ def git_lastmod(root: pathlib.Path, relative: str) -> str:
     return today
 
 
+_PUBLISHED_TIME_RE = re.compile(
+    r'<meta\s+property="article:published_time"\s+content="(\d{4}-\d{2}-\d{2})"'
+)
+_TIME_DATETIME_RE = re.compile(r'<time\s+datetime="(\d{4}-\d{2}-\d{2})"')
+_SLUG_DATE_RE = re.compile(r"(?:^|-)(\d{1,2})-([a-z]{3})-(\d{4})$")
+_SLUG_MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
+
+
+def blog_post_date(slug: str, html_text: str) -> str | None:
+    """Post date from published metadata, the visible time, or a dated slug."""
+    match = _PUBLISHED_TIME_RE.search(html_text) or _TIME_DATETIME_RE.search(html_text)
+    if match:
+        return match.group(1)
+    slug_match = _SLUG_DATE_RE.search(slug)
+    if not slug_match:
+        return None
+    day, month, year = slug_match.groups()
+    month_num = _SLUG_MONTHS.get(month)
+    if month_num is None:
+        return None
+    return f"{int(year):04d}-{month_num:02d}-{int(day):02d}"
+
+
+def discover_blog_posts(root: pathlib.Path) -> list[tuple[str, str, str]]:
+    """Blog directories that are not already listed in CANONICAL_PAGES.
+
+    Forecast refreshes rewrite sitemap.xml. Daily notes were appended by hand
+    and then dropped on the next rewrite, so every blog/*/index.html is
+    discovered here. lastmod is the post date.
+    """
+    blog = root / "blog"
+    if not blog.is_dir():
+        return []
+    known = {url_path for _, url_path in CANONICAL_PAGES}
+    found: list[tuple[str, str, str]] = []
+    for child in blog.iterdir():
+        index = child / "index.html"
+        if not child.is_dir() or not index.is_file():
+            continue
+        url_path = f"/blog/{child.name}/"
+        if url_path in known:
+            continue
+        relative = index.relative_to(root).as_posix()
+        lastmod = blog_post_date(child.name, index.read_text(encoding="utf-8"))
+        if lastmod is None:
+            lastmod = git_lastmod(root, relative)
+        found.append((relative, url_path, lastmod))
+    found.sort(key=lambda item: item[2], reverse=True)
+    return found
+
+
 def write_sitemap(root: pathlib.Path) -> None:
     today = pacific_today().isoformat()
+    entries: list[tuple[str, str, str | None]] = [
+        (relative, url_path, None) for relative, url_path in CANONICAL_PAGES
+    ]
+    insert_at = next(
+        (index + 1 for index, (_, url_path, _) in enumerate(entries) if url_path == "/blog/"),
+        len(entries),
+    )
+    for offset, item in enumerate(discover_blog_posts(root)):
+        entries.insert(insert_at + offset, item)
     rows = []
-    for relative, url_path in CANONICAL_PAGES:
+    for relative, url_path, lastmod in entries:
         if not (root / relative).exists():
             raise RuntimeError(f"Sitemap page does not exist: {relative}")
-        lastmod = today if relative in {"index.html", "la-jolla.html"} else git_lastmod(root, relative)
+        if lastmod is None:
+            lastmod = today if relative in {"index.html", "la-jolla.html"} else git_lastmod(root, relative)
         rows.append(
             "  <url>\n"
             f"    <loc>https://diveproca.com{url_path}</loc>\n"
