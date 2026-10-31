@@ -1,5 +1,4 @@
-import { forecastFromFeatures } from "./visibilityModel.js";
-import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20261006-review";
+import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-final";
 import {
   swellSourceBearingToTravelBearing,
   swellTravelBearingForSpot,
@@ -20,27 +19,12 @@ const DISPLAY_HS_TO_CHAR = 0.625; // 1 / 1.6, display-only Hs to characteristic 
 const DISPLAY_WAVE_MODERATE_FT = 2 * DISPLAY_HS_TO_CHAR;
 const DISPLAY_WAVE_SHORT_HEAVY_FT = 3 * DISPLAY_HS_TO_CHAR;
 const DISPLAY_WAVE_HEAVY_FT = 4 * DISPLAY_HS_TO_CHAR;
-
-const fallback = {
-  date: "2026-05-23",
-  location: "La Jolla / Scripps Pier",
-  features: {
-    date: "2026-05-23",
-    surf_height_max_ft: 2,
-    total_swell_height_mean_ft: 2.5,
-    short_period_swell_energy: 8.2,
-    wind_speed_max_mph: 8,
-    wave_energy_mean_kj: 29,
-    mixed_swell_score: 1,
-  },
-};
-
 const FORECAST_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
 
 async function fetchJson(path) {
   const absolute = /^https?:/i.test(path);
   const url = absolute || path.includes("?") ? path : `${path}?t=${Date.now()}`;
-  const response = await fetch(url, { cache: "no-store" });
+  const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error(`${path} unavailable`);
   return response.json();
 }
@@ -162,12 +146,13 @@ function celsiusToFahrenheit(value) {
 }
 
 function finiteNumber(value) {
+  if (value == null || value === "" || typeof value === "boolean") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
 
 function maxFinite(values) {
-  const numbers = values.map(Number).filter((value) => Number.isFinite(value));
+  const numbers = values.map(finiteNumber).filter((value) => Number.isFinite(value));
   return numbers.length ? Math.max(...numbers) : null;
 }
 
@@ -429,7 +414,7 @@ async function fetchOpenMeteoMarine(spot) {
     wind_wave_period_max_s: windWave?.period ?? null,
     wind_wave_direction_deg: windWave?.direction ?? null,
     total_swell_height_mean_ft: primary?.heightFt ?? combinedHeight,
-    water_temp_estimate_f: maxFinite(waterTemps),
+    water_temp_estimate_f: waterTemps[timeIndex] ?? maxFinite(waterTemps),
     swell_source: "Open-Meteo",
     swell_trains_live: true,
   };
@@ -533,10 +518,9 @@ function attachWeatherCard(forecast, liveWeather) {
   const todayKey = localTodayInLaJolla();
   const byDate = liveWeather?.weather_by_date || {};
   const dayCard = byDate[dateKey] || {};
-  const todayCard = byDate[todayKey] || {};
   const extras = {};
-  if (todayCard.air_temp_max_f != null) extras.air_temp_max_f = todayCard.air_temp_max_f;
-  else if (Number.isFinite(Number(liveWeather?.air_temp_max_f))) extras.air_temp_max_f = liveWeather.air_temp_max_f;
+  if (dayCard.air_temp_max_f != null) extras.air_temp_max_f = dayCard.air_temp_max_f;
+  else if (dateKey === todayKey && finiteNumber(liveWeather?.air_temp_max_f) != null) extras.air_temp_max_f = liveWeather.air_temp_max_f;
   if (dayCard.rain_24h_in != null) {
     extras.rain_24h_in = dayCard.rain_24h_in;
     extras.rain_target_day_forecast_in = dayCard.rain_target_day_forecast_in ?? dayCard.rain_24h_in;
@@ -635,6 +619,7 @@ function clockLabelFromHour(hour) {
 }
 
 function decimalHourFromIso(iso) {
+  if (/(?:Z|[+-]\d{2}:\d{2})$/.test(String(iso || ""))) return pacificDecimalHour(new Date(iso));
   const match = String(iso || "").match(/T(\d{1,2}):(\d{2})/);
   if (match) return Number(match[1]) + Number(match[2]) / 60;
   return pacificDecimalHour(new Date(iso));
@@ -659,9 +644,13 @@ async function fetchOpenMeteoSunTimes(spot) {
   const lat = Number(spot.lat);
   const lon = Number(spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return {};
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=America/Los_Angeles&forecast_days=14&past_days=7`;
+  // UTC instants retain correct Pacific sunrise/sunset across DST changes.
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=GMT&forecast_days=14&past_days=7`;
   const weather = await fetchJson(url);
   const daily = weather.daily || {};
+  for (const field of ["sunrise", "sunset"]) {
+    daily[field] = (daily[field] || []).map(stamp => stamp ? `${stamp}Z` : null);
+  }
   const byDate = {};
   (daily.time || []).forEach((date) => {
     const key = isoDateKey(date);
@@ -786,23 +775,6 @@ function updateSpotChrome(spot) {
   if (pageTitles[spot.slug]) document.title = pageTitles[spot.slug];
 }
 
-function fallbackForecast() {
-  const computed = forecastFromFeatures(fallback.features);
-  return {
-    ...fallback,
-    grade: computed.grade,
-    numeric_score_0_100: computed.score,
-    estimated_visibility_range_ft: computed.visibilityRange,
-    estimated_visibility_mid_ft: computed.visibilityMid,
-    confidence: computed.confidence,
-    best_window: computed.bestWindow,
-    risk_factors: computed.riskFactors,
-    positive_factors: computed.positiveFactors,
-    explanation: "Score starts at 70, then adjusts for total swell, surf height, short-period energy, wind, mixed swell, and wave energy.",
-    is_projected: false,
-  };
-}
-
 function localTodayInLaJolla(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(date);
 }
@@ -866,7 +838,13 @@ async function loadCameraObservation() {
 function enrichForecastSwell(forecast, marine) {
   if (!forecast) return forecast;
   const features = { ...(forecast.features || {}) };
-  if (!marine) return { ...forecast, features };
+  // Today's observations must never overwrite a future day's forecast.
+  if (!marine || forecastDateKey(forecast) !== localTodayInLaJolla()) return { ...forecast, features };
+  if (isForecastStale(forecast) && finiteNumber(marine.water_temp_estimate_f) != null) {
+    features.water_temp_estimate_f = marine.water_temp_estimate_f;
+    // An old buoy reading must not mask the current marine estimate.
+    features.buoy_water_temp_f = null;
+  }
   if (marine.swell_trains_live === true) {
     const livePrimary = trainFeatureFields(
       marine.swell_wave_direction_deg != null
@@ -993,12 +971,13 @@ async function loadForecastData() {
     };
   }
 
-  try {
-    const [published, gradeGuide, live] = await Promise.all([
-      fetchPublishedLaJolla(),
-      fetchJson("diveprosd_grade_guidance.json").catch(() => []),
-      fetchLiveSpotFeatures(spot).catch(() => ({})),
-    ]);
+  const [published, gradeGuide, live, sunByDate] = await Promise.all([
+    fetchPublishedLaJolla().catch(() => null),
+    fetchJson("diveprosd_grade_guidance.json").catch(() => []),
+    fetchLiveSpotFeatures(spot).catch(() => ({})),
+    fetchOpenMeteoSunTimes(spot).catch(() => ({})),
+  ]);
+  if (published) {
     const latest = published.latest;
     const tenDay = published.tenDay;
     let history = published.history || [];
@@ -1009,7 +988,6 @@ async function loadForecastData() {
         history = [];
       }
     }
-    const sunByDate = await fetchOpenMeteoSunTimes(spot).catch(() => ({}));
     const days = Array.isArray(tenDay) && tenDay.length ? tenDay : [latest];
     return {
       latest: decorateForecast(latest, { live, sunByDate }),
@@ -1018,21 +996,28 @@ async function loadForecastData() {
       history: Array.isArray(history) ? history : [],
       cameraObservation,
     };
-  } catch {
-    const latest = fallbackForecast();
-    return { latest, tenDay: [latest], gradeGuide: [], history: [], cameraObservation };
   }
+  const latest = decorateForecast(unavailableSpotForecast(spot, live, {
+    conditionsLoaded: liveFeaturesPresent(live),
+  }), { live, sunByDate });
+  return { latest, tenDay: [], gradeGuide, history: [], cameraObservation };
 }
 
 async function fetchPublishedLaJolla() {
-  const localLatest = await fetchJson("model_outputs/latest_forecast.json").catch(() => null);
-  const localTen = await fetchJson("model_outputs/forecast_10day.json").catch(() => null);
-  const localHistory = await fetchJson("forecast_history.json").catch(() => []);
+  // Prefer the atomic bundle so a deployment cannot mix two forecast runs.
+  const bundle = await fetchJson("model_outputs/spots/la-jolla.json").catch(() => null);
+  if (bundle?.latest?.date && Array.isArray(bundle.tenDay) && bundle.tenDay.length) {
+    return { latest: bundle.latest, tenDay: bundle.tenDay, history: [], source: "local" };
+  }
+  const [localLatest, localTen] = await Promise.all([
+    fetchJson("model_outputs/latest_forecast.json").catch(() => null),
+    fetchJson("model_outputs/forecast_10day.json").catch(() => null),
+  ]);
   if (!localLatest) throw new Error("La Jolla forecast unavailable");
   return {
     latest: localLatest,
     tenDay: Array.isArray(localTen) ? localTen : [],
-    history: Array.isArray(localHistory) ? localHistory : [],
+    history: [],
     source: "local",
   };
 }
@@ -1142,7 +1127,7 @@ function featureRows(features) {
   const waterTempLabel = enriched?.buoy_water_temp_f != null ? "Water temp (buoy)" : "Water temp (est.)";
   const wanted = [
     [waterTempLabel, [waterTempKey], "°F"],
-    ["Today's high", ["air_temp_max_f"], "°F"],
+    ["Air temp high", ["air_temp_max_f"], "°F"],
     ["Rain forecast", ["rain_24h_in", "rain_target_day_forecast_in"], "in"],
     ["72-hour rain", ["rain_prior_3day_in", "ml_rain_3day_in"], "in"],
   ];

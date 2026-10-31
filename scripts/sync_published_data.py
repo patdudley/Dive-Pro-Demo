@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import html
 import json
+import math
 import pathlib
 import re
 import shutil
@@ -93,7 +94,7 @@ def validate_forecast_row(row: Any, label: str) -> None:
     if (
         not isinstance(visibility, list)
         or len(visibility) != 2
-        or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in visibility)
+        or any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in visibility)
         or visibility[0] < 0
         or visibility[1] < visibility[0]
     ):
@@ -256,8 +257,7 @@ def select_forecast_for_today(
     ten_day: list[dict[str, Any]],
     today: dt.date,
 ) -> dict[str, Any]:
-    latest_date = dt.date.fromisoformat(str(latest["date"]))
-    if latest_date < today:
+    if latest.get("date") != today.isoformat():
         exact = next((row for row in ten_day if row.get("date") == today.isoformat()), None)
         if exact is not None:
             return exact

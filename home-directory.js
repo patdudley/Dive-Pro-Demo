@@ -1,4 +1,4 @@
-import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-20261006-review";
+import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-final";
 
 (function () {
   const BUBBLE_COPY = {
@@ -106,6 +106,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026100
   }
 
   function finiteNumber(value) {
+    if (value == null || value === "" || typeof value === "boolean") return null;
     const number = Number(value);
     return Number.isFinite(number) ? number : null;
   }
@@ -251,7 +252,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026100
   async function fetchJson(url) {
     const absolute = /^https?:/i.test(url);
     const href = absolute || String(url).includes("?") ? url : `${url}?t=${Date.now()}`;
-    const response = await fetch(href, { cache: "no-store" });
+    const response = await fetch(href, { cache: "no-store", signal: AbortSignal.timeout(12000) });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   }
@@ -264,7 +265,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026100
     try {
       const published = await fetchJson(path);
       if (slug === "la-jolla") {
-        const forecastRows = await fetchJson("model_outputs/forecast_10day.json");
+        const forecastRows = await fetchJson("model_outputs/forecast_10day.json").catch(() => []);
         const forecast = selectForecastForToday(forecastRows, published, pacificToday());
         applyState(slug, fallbackFromForecast(forecast));
         renderHomeForecast(forecast);
@@ -646,9 +647,9 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026100
   }
 
   function spotMatchesQuery(spot, query) {
-    return suggestFields(spot).some((text) => (
-      text.split(/[^a-z0-9+]+/).some((token) => token.startsWith(query))
-    ));
+    const words = String(query).toLowerCase().split(/[^a-z0-9+]+/).filter(Boolean);
+    const tokens = suggestFields(spot).flatMap(text => text.split(/[^a-z0-9+]+/));
+    return words.length > 0 && words.every(word => tokens.some(token => token.startsWith(word)));
   }
 
   function matchSuggestSpots(query) {
@@ -805,10 +806,10 @@ import { selectForecastForToday } from "./forecast-day.js?v=forecast-day-2026100
     const forecastJobs = californiaSpots()
       .map((spot) => {
         const path = forecastPathFor(spot);
-        return path ? loadForecast(spot.slug, path) : null;
+        return path ? loadForecast(spot.slug, path).finally(renderAll) : null;
       })
       .filter(Boolean);
-    const liveJobs = hubSpots().map((spot) => loadOpenMeteo(spot));
+    const liveJobs = hubSpots().map((spot) => loadOpenMeteo(spot).finally(renderAll));
     await Promise.allSettled([...forecastJobs, ...liveJobs, loadScrippsPreview()]);
     renderAll();
     if (input?.value?.trim()) renderSuggest(input.value);

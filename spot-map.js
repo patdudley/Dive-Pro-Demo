@@ -1,5 +1,4 @@
 (function () {
-  const WIND_MANIFEST_PATH = "data/wind-cropped/wind-san-diego-manifest.json?v=multi-map-timeline-2";
   const WATER_MASK_PATH = "data/water-mask-san-diego.geojson?v=ca-coast-monterey-1";
   const NOW_FRAME_TOLERANCE_MS = 90 * 60 * 1000;
   const WIND_PARTICLE_COUNT = 360;
@@ -564,7 +563,7 @@
     east: -114.6,
     north: 38.8,
   };
-  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v5";
+  const WIND_SESSION_KEY = "divepro-ca-wind-manifest-v6-utc";
   const WIND_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
   const WIND_CACHE_MIN_FUTURE_MS = 24 * 60 * 60 * 1000;
   const CA_WIND_STEP = 0.7;
@@ -572,6 +571,7 @@
   const WIND_FORECAST_HOURS = WIND_FORECAST_DAYS * 24;
 
   function uvFromSpeedDir(speedMs, directionDeg) {
+    if (speedMs == null || directionDeg == null || speedMs === "" || directionDeg === "") return { u: null, v: null };
     const speed = Number(speedMs);
     const direction = Number(directionDeg);
     if (!Number.isFinite(speed) || !Number.isFinite(direction)) return { u: null, v: null };
@@ -605,12 +605,12 @@
     url.searchParams.set("longitude", points.map((point) => point.lon).join(","));
     url.searchParams.set("hourly", "wind_speed_10m,wind_direction_10m,cloud_cover");
     url.searchParams.set("wind_speed_unit", "ms");
-    url.searchParams.set("timezone", "America/Los_Angeles");
+    url.searchParams.set("timezone", "GMT");
     url.searchParams.set("forecast_days", String(WIND_FORECAST_DAYS));
     let lastError = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const response = await fetch(url.toString());
+        const response = await fetch(url.toString(), { signal: AbortSignal.timeout(12000) });
         if (!response.ok) throw new Error(`Open-Meteo wind request failed (${response.status})`);
         const payload = await response.json();
         if (payload?.error) throw new Error(payload.reason || "Open-Meteo wind error");
@@ -635,7 +635,9 @@
   }
 
   function buildCaliforniaWindManifest(lats, lons, points, results, step) {
-    const times = results[0]?.hourly?.time || [];
+    // The API returns UTC wall-clock strings; make the zone explicit so visitors
+    // outside California and days across DST use the same forecast instants.
+    const times = (results[0]?.hourly?.time || []).map(stamp => `${stamp}Z`);
     if (times.length < 8) throw new Error("California wind hourly times unavailable");
     const now = Date.now();
     let start = times.findIndex((stamp) => {
@@ -655,7 +657,8 @@
       points.forEach((point, pointIndex) => {
         const hourly = results[pointIndex]?.hourly || {};
         const uv = uvFromSpeedDir(hourly.wind_speed_10m?.[timeIndex], hourly.wind_direction_10m?.[timeIndex]);
-        const cover = Number(hourly.cloud_cover?.[timeIndex]);
+        const rawCover = hourly.cloud_cover?.[timeIndex];
+        const cover = rawCover == null || rawCover === "" ? NaN : Number(rawCover);
         u[point.row][point.col] = uv.u;
         v[point.row][point.col] = uv.v;
         cloud[point.row][point.col] = Number.isFinite(cover) ? cover : null;

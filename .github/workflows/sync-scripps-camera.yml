@@ -2,7 +2,7 @@ name: Sync published Dive Pro data
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "47 * * * *"
   workflow_dispatch:
   repository_dispatch:
     types: [divepro-site-deployed]
@@ -108,8 +108,8 @@ jobs:
           printf '%s\n' "$output"
           if [ "$status" -eq 2 ]; then
             warning=${output//$'\n'/ }
-            echo "::warning::Forecast artifact rejected: $warning"
-            exit 0
+            echo "::error::Forecast artifact rejected: $warning"
+            exit "$status"
           fi
           exit "$status"
 
@@ -128,46 +128,6 @@ jobs:
           git pull --rebase --autostash
           git push
 
-  wind:
-    name: Refresh regional wind data
-    needs: forecast
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check out generated site data
-        uses: actions/checkout@v4
-        with:
-          repository: patdudley/DivePro-site
-          ref: main
-          path: source-site
-
-      - name: Validate and sync regional wind data
-        run: |
-          set +e
-          output=$(python3 scripts/sync_published_data.py --component wind --source source-site --destination . 2>&1)
-          status=$?
-          set -e
-          printf '%s\n' "$output"
-          if [ "$status" -eq 2 ]; then
-            warning=${output//$'\n'/ }
-            echo "::warning::Wind artifact rejected: $warning"
-            exit 0
-          fi
-          exit "$status"
-
-      - name: Publish changed regional wind data
-        run: |
-          git add data/wind-cropped
-          if git diff --cached --quiet; then
-            echo "Regional wind data is already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Refresh regional wind data"
-          git pull --rebase
-          git push
+      - name: Verify upstream feeds are still updating
+        if: ${{ always() }}
+        run: python3 scripts/check_published_health.py
