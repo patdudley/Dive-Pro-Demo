@@ -7265,3 +7265,62 @@ ul {
     padding: 0;
   }
 }
+
+.other-dive-spots {
+  max-width: 46rem;
+  margin-top: 22px;
+  padding: 16px 2px 8px;
+  border-top: 1px solid var(--line);
+}
+
+.other-dive-spots h2 {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.other-dive-spots ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.other-dive-spots a {
+  color: var(--navy);
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.other-dive-spots a:hover,
+.other-dive-spots a:focus-visible {
+  color: var(--dark-cyan);
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .other-dive-spots {
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+
+  .other-dive-spots ul {
+    display: grid;
+    gap: 0;
+  }
+
+  .other-dive-spots a {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}
