@@ -2004,6 +2004,10 @@
     if (!map || !pins?.length) return;
     map.resize();
     const padding = regionMapFitPadding(map);
+    // Keep every pin above the timeline dock and clear of map controls.
+    padding.bottom = Math.max(padding.bottom, map.getContainer().clientWidth <= 640 ? 150 : 116);
+    padding.top = Math.max(padding.top, 66);
+    padding.right = Math.max(padding.right, 66);
     try {
       const bounds = pinLngLatBounds(maplibre, pins);
       const camera = map.cameraForBounds(bounds, {
