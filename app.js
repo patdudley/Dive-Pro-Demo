@@ -316,44 +316,14 @@ function marineTrainScore(train) {
 /* Same heading-cluster as ocean-layers pickTrains. Open-Meteo swaps
    swell_wave vs secondary_swell labels cell-to-cell; do not trust names. */
 function pickMarineTrains(hourly, timeIndex) {
-  const swell = readMarineTrain(hourly, timeIndex, "swell_wave");
-  const secondarySwell = readMarineTrain(hourly, timeIndex, "secondary_swell_wave");
-  const windWave = readMarineTrain(hourly, timeIndex, "wind_wave");
-  const combined = readMarineTrain(hourly, timeIndex, "wave");
-  const unique = [];
-  [swell, secondarySwell].forEach((train) => {
-    if (!train) return;
-    const twinIndex = unique.findIndex((other) => (
-      angularDistanceDeg(other.direction, train.direction) < MARINE_SAME_TRAIN_DEG
-    ));
-    if (twinIndex < 0) {
-      unique.push(train);
-      return;
-    }
-    if (marineTrainScore(train) > marineTrainScore(unique[twinIndex])) unique[twinIndex] = train;
-  });
-  const windDistinct = Boolean(
-    windWave
-    && windWave.heightFt >= MARINE_SECONDARY_MIN_FT
-    && !isEasterlyComingFrom(windWave.direction)
-    && unique.every((other) => (
-      angularDistanceDeg(other.direction, windWave.direction) >= MARINE_DISTINCT_HEADING_DEG
-    )),
-  );
-  if (windDistinct) unique.push(windWave);
-  unique.sort((left, right) => {
-    const periodDelta = (right.period || 0) - (left.period || 0);
-    if (Math.abs(periodDelta) >= 1) return periodDelta;
-    return (right.heightFt || 0) - (left.heightFt || 0);
-  });
-  const primary = unique[0] || combined || null;
-  const secondary = unique.find((train, index) => (
-    index > 0
-    && train.heightFt >= MARINE_SECONDARY_MIN_FT
-    && primary
-    && angularDistanceDeg(primary.direction, train.direction) >= MARINE_DISTINCT_HEADING_DEG
-  )) || null;
-  return { primary, secondary };
+  // Preserve the provider's two swell components even when their headings are close.
+  // Wind waves and the combined sea state are not a secondary swell.
+  const primary = readMarineTrain(hourly, timeIndex, "swell_wave");
+  const secondary = readMarineTrain(hourly, timeIndex, "secondary_swell_wave");
+  return {
+    primary: primary && primary.heightFt > 0 ? primary : null,
+    secondary: secondary && secondary.heightFt > 0 ? secondary : null,
+  };
 }
 
 function trainFeatureFields(train, role) {
@@ -1961,8 +1931,8 @@ function swellRows(features) {
   const secondaryDeg = finiteNumber(
     live ? features.secondary_swell_direction_deg : (features.ml_p2_direction_deg ?? features.secondary_swell_direction_deg),
   );
-  const secondaryIsClone = swellComponentIsClone(primaryDeg, secondaryDeg);
-  if (secondaryDeg != null && !secondaryIsClone && (secondaryHeight == null || secondaryHeight >= MARINE_SECONDARY_MIN_FT)) {
+  const secondaryIsClone = false; // Provider-reported swell trains may share a heading.
+  if (secondaryDeg != null && !secondaryIsClone && (secondaryHeight != null && secondaryHeight > 0)) {
     rows.push({
       label: "Secondary",
       height: secondaryHeight,
@@ -1974,21 +1944,8 @@ function swellRows(features) {
     return rows;
   }
 
-  if (live) return rows;
+  // No wind-wave substitute: an unavailable second swell remains unavailable.
 
-  const windWaveHeight = meaningfulSwellHeight(features.wind_wave_height_max_ft);
-  const windWaveDeg = finiteNumber(features.wind_wave_direction_deg);
-  const windIsClone = swellComponentIsClone(primaryDeg, windWaveDeg);
-  if (windWaveHeight != null && windWaveDeg != null && !windIsClone && !isEasterlyComingFrom(windWaveDeg)) {
-    rows.push({
-      label: "Secondary",
-      height: windWaveHeight,
-      period: features.wind_wave_period_max_s,
-      directionLabel: directionFromDegrees(windWaveDeg),
-      directionDeg: windWaveDeg,
-      color: swellDirectionColor(1),
-    });
-  }
   return rows;
 }
 
@@ -2552,6 +2509,7 @@ function renderWaveComponents(data, { fromGrid = false } = {}) {
   const rows = swellRows(features);
   hideSwellSourceLabel();
   container.innerHTML = `
+    <style>@media(max-width:340px){.site-chrome .site-logo img{width:136px;height:auto}.site-chrome-bar{gap:8px}.site-nav{gap:10px}}@media(max-width:899px){.swell-overlay-row{grid-template-columns:76px 48px 28px minmax(0,1fr);gap:6px}}</style>
     <div class="swell-overlay-list" role="list" aria-label="Swell components">
       ${rows.map((row) => `
         <div class="swell-overlay-row" role="listitem">
