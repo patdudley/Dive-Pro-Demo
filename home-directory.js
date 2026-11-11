@@ -232,6 +232,29 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
     }).format(new Date(timestamp));
   }
 
+  function forecastProvenance(forecast) {
+    const date = isoDateKey(forecast?.date || forecast?.features?.date) || "date unavailable";
+    const raw = String(forecast?.generated_at || forecast?.updated_at || "");
+    const normalized = raw && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw) ? `${raw}Z` : raw;
+    const timestamp = Date.parse(normalized);
+    const issued = Number.isFinite(timestamp) ? new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Los_Angeles", month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+    }).format(new Date(timestamp)) + " PT" : "time unavailable";
+    return `for ${date} · issued ${issued}`;
+  }
+
+  function provenanceHtml(state, publishesVis, compact = false) {
+    const lines = [];
+    if (publishesVis) lines.push(state.visibilityInfo || "Visibility: no published forecast");
+    if (!compact || !publishesVis) {
+      const grouped = new Map();
+      [["Water", state.water, state.waterInfo], ["Wind", state.wind, state.windInfo], ["Swell", state.swell, state.swellInfo]]
+        .forEach(([label, value, info]) => { if (value && info) grouped.set(info, [...(grouped.get(info) || []), label]); });
+      grouped.forEach((labels, info) => lines.push(`${labels.join("/")}: ${info}`));
+    }
+    return lines.length ? `<div class="home-source-notes">${lines.map(line => `<p>${escapeHtml(line)}</p>`).join("")}</div>` : "";
+  }
+
   function fallbackFromForecast(forecast) {
     const latest = forecast?.latest || forecast;
     const features = latest?.features || {};
@@ -242,6 +265,10 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
       water: singleLabel(features.water_temp_estimate_f ?? features.ml_sst_f, "°F"),
       wind: singleLabel(features.wind_speed_max_mph, " mph"),
       swell: singleLabel(features.swell_wave_height_max_ft ?? features.surf_height_max_ft, " ft", 1),
+      visibilityInfo: `Visibility: Dive Pro model (beta) ${forecastProvenance(latest)}${stale ? " · out of date" : ""}`,
+      waterInfo: `Dive Pro forecast input ${forecastProvenance(latest)}`,
+      windInfo: `Dive Pro forecast input ${forecastProvenance(latest)}`,
+      swellInfo: `Dive Pro forecast input ${forecastProvenance(latest)}`,
       source: stale ? "Forecast out of date" : "forecast file",
       date: isoDateKey(latest?.date || latest?.features?.date),
       updated: formatForecastUpdated(latest),
@@ -319,6 +346,8 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
       fetchJson(weatherUrl),
     ]);
 
+    const retrieved = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date());
+    const liveInfo = `Open-Meteo forecast for ${pacificTodayKey()} · retrieved ${retrieved} PT`;
     const patch = {};
     if (marineResult.status === "fulfilled") {
       const hourly = marineResult.value.hourly || {};
@@ -328,12 +357,15 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
       const swellNow = metersToFeet(hourly.swell_wave_height?.[nearestHourIndex(hourly.time || [])]);
       patch.water = rangeLabel(water.length ? water : [waterNow], "°F") || "";
       patch.swell = rangeLabel(swell.length ? swell : [swellNow], " ft", 1) || "";
+      patch.waterInfo = liveInfo;
+      patch.swellInfo = liveInfo;
     }
     if (weatherResult.status === "fulfilled") {
       const hourly = weatherResult.value.hourly || {};
       const wind = todayValues(hourly.time, hourly.wind_speed_10m);
       const windNow = finiteNumber(hourly.wind_speed_10m?.[nearestHourIndex(hourly.time || [])]);
       patch.wind = rangeLabel(wind.length ? wind : [windNow], " mph") || "";
+      patch.windInfo = liveInfo;
     }
     if (Object.keys(patch).length) {
       patch.source = "Open-Meteo";
@@ -407,6 +439,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
           ${metricCell(windIcon(), "Wind", state.wind)}
           ${metricCell(swellIcon(), "Swell", state.swell)}
         </div>
+        ${provenanceHtml(state, publishesVis)}
       </article>
     `;
   }
@@ -533,6 +566,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
           ${visCol}
           ${grade}
         </div>
+        ${provenanceHtml(state, publishesVis, true)}
       </a>
     `;
     card.querySelectorAll("img").forEach((image) => {
