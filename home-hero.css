@@ -512,3 +512,10 @@
     font-size: 1.9rem;
   }
 }
+
+/* Source notes stay next to the values they qualify. Retrieval is not model issuance. */
+.home-directory .home-source-notes { font-size: 11px; line-height: 1.5; color: #52677a; margin-top: 12px; }
+.home-directory .home-source-notes p { margin: 4px 0 0; }
+.home-directory .spot-feature .home-source-notes { padding: 0 18px 16px; margin-top: 0; }
+
+.home-directory .home-source-notes p { font-size: 11px; line-height: 1.5; }
