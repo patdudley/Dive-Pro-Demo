@@ -52,7 +52,20 @@
     window.dataLayer.push(arguments);
   };
   window.gtag("js", new Date());
+  // Keep full URLs private while retaining only our published campaign labels.
+  // These are editorial labels, never visitor IDs or arbitrary query values.
+  function ownedCampaign() {
+    const query = new URLSearchParams(window.location.search);
+    const source = query.get("utm_source");
+    const medium = query.get("utm_medium");
+    const name = query.get("utm_campaign");
+    const sources = new Set(["instagram", "tiktok", "facebook", "buffer"]);
+    const campaigns = new Set(["divepro_bio", "viz_school", "local_wildlife", "conditions", "editorial_test"]);
+    if (!sources.has(source) || medium !== "social" || !campaigns.has(name)) return {};
+    return {campaign_source: source, campaign_medium: "social", campaign_name: name};
+  }
   window.gtag("config", measurementId, {
+    ...ownedCampaign(),
     send_page_view: true,
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
