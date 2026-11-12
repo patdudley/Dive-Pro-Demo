@@ -1,32 +1,32 @@
 [
   {
-    "generated_at": "2026-11-12T14:55:30+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-12",
-    "numeric_score_0_100": 64,
+    "numeric_score_0_100": 63,
     "grade": "C",
     "grade_probabilities": {
       "F": 0.0,
-      "D": 0.15896232884809133,
-      "C": 0.5403214785774249,
-      "B": 0.300716192574484,
+      "D": 0.182954536844417,
+      "C": 0.5217461889611087,
+      "B": 0.2952992741944745,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
       "F": 0.0,
-      "D": 0.15896232884809133,
-      "C": 0.5403214785774249,
-      "B": 0.300716192574484,
+      "D": 0.182954536844417,
+      "C": 0.5217461889611087,
+      "B": 0.2952992741944745,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.5403
+      "probability": 0.5217
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -36,7 +36,7 @@
       14
     ],
     "estimated_visibility_mid_ft": 12.0,
-    "raw_expected_vis_ft": 13.46,
+    "raw_expected_vis_ft": 13.3,
     "guardrail_applied": false,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -51,7 +51,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 10-14 ft of visibility, resulting in a C grade. Conditions are moderately favorable overall, but the algorithm is seeing enough swell energy, surface movement and wind-driven mixing to prevent a clearer B-grade forecast.\n\nThe falling tide is an additional negative signal. As water moves toward the next low tide at 5:15 PM, visibility may gradually decline because the outgoing tide is less likely to bring cleaner offshore water into La Jolla.\n\nOverall, the forecast remains diveable, but clarity may vary by location and could be worse around shallow reefs, sandy bottoms and areas exposed to surge.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-12, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nAt the 7:08 AM PT issuance, the predicted tidal height was rising toward the next high tide at 9:31 AM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-12",
       "coherent_swell_source": "hourly_max_height_event",
@@ -89,7 +89,7 @@
       "rain_24h_in": 0.0,
       "ml_rain_3day_in": 0.0,
       "ml_rain_7day_in": 0.0,
-      "ml_gust_max_mph": 11.2,
+      "ml_gust_max_mph": 12.1,
       "ml_sst_f": 74.2,
       "ml_sin_doy": -0.7494,
       "ml_cos_doy": 0.6621,
@@ -99,9 +99,9 @@
       "ml_buoy_dir_deg": 273,
       "ml_buoy_exp": 0.921,
       "ml_buoy_energy_wtd": 6.529,
-      "ml_wind_dir_deg": 195,
+      "ml_wind_dir_deg": 194,
       "ml_upwelling_wind": 0.0,
-      "ml_pressure_trend": -3.2,
+      "ml_pressure_trend": -3.5,
       "ml_sst_anomaly": 11.2,
       "ml_wave_trend": -0.01,
       "ml_wave_accel": -0.44,
@@ -109,9 +109,9 @@
       "ml_tide_range_ft": 5.47,
       "ml_tide_morning_avg": 4.87,
       "wave_height_max_ft": 3.94,
-      "wind_speed_mean_mph": 6.02,
-      "wind_speed_max_mph": 9.4,
-      "wind_gust_max_mph": 11.2,
+      "wind_speed_mean_mph": 5.82,
+      "wind_speed_max_mph": 9.1,
+      "wind_gust_max_mph": 12.1,
       "wave_energy_mean_kj": 109.368,
       "wave_energy_max_kj": 109.368,
       "total_swell_height_mean_ft": 2.77,
@@ -121,12 +121,12 @@
       "short_period_swell_energy": 0.775,
       "long_period_swell_energy": 108.593,
       "mixed_swell_score": 2,
-      "wind_wave_churn_proxy": 11.102,
-      "wave_energy_wind_interaction": 1028.061,
+      "wind_wave_churn_proxy": 10.748,
+      "wave_energy_wind_interaction": 995.251,
       "water_temp_estimate_f": 74.2,
       "buoy_water_temp_f": 75.0,
       "buoy_water_temp_source": "ndbc_46254",
-      "air_temp_max_f": 75.2,
+      "air_temp_max_f": 74.8,
       "air_temp_min_f": 57.4,
       "tide_range_ft": 5.47,
       "wind_chart": [
@@ -148,67 +148,67 @@
         },
         {
           "time": "04:00",
-          "speed_mph": 3.8
+          "speed_mph": 4.4
         },
         {
           "time": "05:00",
-          "speed_mph": 6.5
+          "speed_mph": 5.1
         },
         {
           "time": "06:00",
-          "speed_mph": 5.4
+          "speed_mph": 4.3
         },
         {
           "time": "07:00",
-          "speed_mph": 4.8
+          "speed_mph": 3.2
         },
         {
           "time": "08:00",
-          "speed_mph": 3.8
+          "speed_mph": 2.4
         },
         {
           "time": "09:00",
-          "speed_mph": 3.8
+          "speed_mph": 1.7
         },
         {
           "time": "10:00",
-          "speed_mph": 4.2
+          "speed_mph": 4.1
         },
         {
           "time": "11:00",
-          "speed_mph": 6.9
+          "speed_mph": 6.6
         },
         {
           "time": "12:00",
-          "speed_mph": 7.4
+          "speed_mph": 7.8
         },
         {
           "time": "13:00",
-          "speed_mph": 8.2
+          "speed_mph": 8.1
         },
         {
           "time": "14:00",
-          "speed_mph": 9.0
+          "speed_mph": 8.6
         },
         {
           "time": "15:00",
-          "speed_mph": 9.4
+          "speed_mph": 9.1
         },
         {
           "time": "16:00",
-          "speed_mph": 8.3
+          "speed_mph": 8.1
         },
         {
           "time": "17:00",
-          "speed_mph": 6.3
+          "speed_mph": 5.6
         },
         {
           "time": "18:00",
-          "speed_mph": 4.8
+          "speed_mph": 2.5
         },
         {
           "time": "19:00",
-          "speed_mph": 3.1
+          "speed_mph": 3.5
         },
         {
           "time": "20:00",
@@ -216,15 +216,15 @@
         },
         {
           "time": "21:00",
-          "speed_mph": 5.1
+          "speed_mph": 5.8
         },
         {
           "time": "22:00",
-          "speed_mph": 6.5
+          "speed_mph": 5.9
         },
         {
           "time": "23:00",
-          "speed_mph": 4.7
+          "speed_mph": 5.2
         }
       ],
       "wave_chart": [
@@ -423,11 +423,12 @@
           "height_ft": 2.98
         }
       ],
-      "tide_phase": "falling",
+      "tide_phase_reference_time_local": "2026-11-12T07:08:58.968337-08:00",
+      "tide_phase": "rising",
       "tide_next_event": {
-        "time": "17:15",
-        "height_ft": 0.01,
-        "type": "L"
+        "time": "09:31",
+        "height_ft": 5.54,
+        "type": "H"
       },
       "tide_slack_windows": [
         {
@@ -466,36 +467,36 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-13",
-    "numeric_score_0_100": 61,
+    "numeric_score_0_100": 60,
     "grade": "C",
     "grade_probabilities": {
-      "F": 0.17386166847007634,
-      "D": 0.14906986586287418,
-      "C": 0.37744373573488676,
-      "B": 0.2996247299321627,
+      "F": 0.16787058677364114,
+      "D": 0.1966635120303363,
+      "C": 0.35482487423574577,
+      "B": 0.2806410269602767,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.17386166847007634,
-      "D": 0.14906986586287418,
-      "C": 0.37744373573488676,
-      "B": 0.2996247299321627,
+      "F": 0.16787058677364114,
+      "D": 0.1966635120303363,
+      "C": 0.35482487423574577,
+      "B": 0.2806410269602767,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.3774
+      "probability": 0.3548
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -505,7 +506,7 @@
       14
     ],
     "estimated_visibility_mid_ft": 12.0,
-    "raw_expected_vis_ft": 11.85,
+    "raw_expected_vis_ft": 11.53,
     "guardrail_applied": false,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -522,7 +523,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 10-14 ft of visibility, resulting in a C grade. Conditions are moderately favorable overall, but the algorithm is seeing enough swell energy, surface movement and short-period wind-wave churn to prevent a clearer B-grade forecast.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast remains diveable, but clarity may vary by location and could be worse around shallow reefs, sandy bottoms and areas exposed to surge.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-13, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-13",
       "coherent_swell_source": "hourly_max_height_event",
@@ -554,13 +555,13 @@
       "ml_wave_2d_ago_ft": 3.74,
       "ml_wave_3d_ago_ft": 4.18,
       "ml_wave_7d_avg_ft": 3.71,
-      "rain_target_day_forecast_in": 0.268,
+      "rain_target_day_forecast_in": 1.287,
       "rain_prior_3day_in": 0.0,
       "rain_prior_7day_in": 0.0,
-      "rain_24h_in": 0.268,
+      "rain_24h_in": 1.287,
       "ml_rain_3day_in": 0.0,
       "ml_rain_7day_in": 0.0,
-      "ml_gust_max_mph": 16.8,
+      "ml_gust_max_mph": 25.3,
       "ml_sst_f": 74.1,
       "ml_sin_doy": -0.7379,
       "ml_cos_doy": 0.6749,
@@ -570,9 +571,9 @@
       "ml_buoy_dir_deg": 271,
       "ml_buoy_exp": 0.934,
       "ml_buoy_energy_wtd": 13.995,
-      "ml_wind_dir_deg": 192,
+      "ml_wind_dir_deg": 173,
       "ml_upwelling_wind": 0.0,
-      "ml_pressure_trend": -2.5,
+      "ml_pressure_trend": -3.9,
       "ml_sst_anomaly": 11.1,
       "ml_wave_trend": -0.04,
       "ml_wave_accel": -0.07,
@@ -580,9 +581,9 @@
       "ml_tide_range_ft": 4.96,
       "ml_tide_morning_avg": 4.49,
       "wave_height_max_ft": 5.51,
-      "wind_speed_mean_mph": 8.38,
-      "wind_speed_max_mph": 13.1,
-      "wind_gust_max_mph": 16.8,
+      "wind_speed_mean_mph": 11.52,
+      "wind_speed_max_mph": 18.0,
+      "wind_gust_max_mph": 25.3,
       "wave_energy_mean_kj": 185.926,
       "wave_energy_max_kj": 185.926,
       "total_swell_height_mean_ft": 4.92,
@@ -592,18 +593,18 @@
       "short_period_swell_energy": 21.611,
       "long_period_swell_energy": 164.315,
       "mixed_swell_score": 3,
-      "wind_wave_churn_proxy": 110.628,
-      "wave_energy_wind_interaction": 2435.63,
+      "wind_wave_churn_proxy": 152.008,
+      "wave_energy_wind_interaction": 3346.668,
       "water_temp_estimate_f": 74.1,
       "buoy_water_temp_f": 75.0,
       "buoy_water_temp_source": "ndbc_46254",
-      "air_temp_max_f": 73.5,
-      "air_temp_min_f": 60.2,
+      "air_temp_max_f": 72.9,
+      "air_temp_min_f": 61.5,
       "tide_range_ft": 4.96,
       "wind_chart": [
         {
           "time": "00:00",
-          "speed_mph": 5.6
+          "speed_mph": 5.5
         },
         {
           "time": "01:00",
@@ -611,91 +612,91 @@
         },
         {
           "time": "02:00",
-          "speed_mph": 6.4
+          "speed_mph": 7.6
         },
         {
           "time": "03:00",
-          "speed_mph": 6.9
+          "speed_mph": 9.3
         },
         {
           "time": "04:00",
-          "speed_mph": 6.7
-        },
-        {
-          "time": "05:00",
-          "speed_mph": 6.8
-        },
-        {
-          "time": "06:00",
-          "speed_mph": 8.5
-        },
-        {
-          "time": "07:00",
-          "speed_mph": 8.0
-        },
-        {
-          "time": "08:00",
-          "speed_mph": 8.6
-        },
-        {
-          "time": "09:00",
-          "speed_mph": 8.6
-        },
-        {
-          "time": "10:00",
-          "speed_mph": 8.1
-        },
-        {
-          "time": "11:00",
-          "speed_mph": 8.1
-        },
-        {
-          "time": "12:00",
-          "speed_mph": 9.2
-        },
-        {
-          "time": "13:00",
-          "speed_mph": 13.1
-        },
-        {
-          "time": "14:00",
-          "speed_mph": 11.9
-        },
-        {
-          "time": "15:00",
-          "speed_mph": 9.8
-        },
-        {
-          "time": "16:00",
-          "speed_mph": 5.8
-        },
-        {
-          "time": "17:00",
-          "speed_mph": 11.2
-        },
-        {
-          "time": "18:00",
-          "speed_mph": 4.6
-        },
-        {
-          "time": "19:00",
-          "speed_mph": 7.8
-        },
-        {
-          "time": "20:00",
-          "speed_mph": 11.6
-        },
-        {
-          "time": "21:00",
-          "speed_mph": 11.2
-        },
-        {
-          "time": "22:00",
           "speed_mph": 9.5
         },
         {
+          "time": "05:00",
+          "speed_mph": 8.9
+        },
+        {
+          "time": "06:00",
+          "speed_mph": 9.7
+        },
+        {
+          "time": "07:00",
+          "speed_mph": 7.9
+        },
+        {
+          "time": "08:00",
+          "speed_mph": 10.3
+        },
+        {
+          "time": "09:00",
+          "speed_mph": 18.0
+        },
+        {
+          "time": "10:00",
+          "speed_mph": 10.9
+        },
+        {
+          "time": "11:00",
+          "speed_mph": 7.4
+        },
+        {
+          "time": "12:00",
+          "speed_mph": 6.5
+        },
+        {
+          "time": "13:00",
+          "speed_mph": 12.4
+        },
+        {
+          "time": "14:00",
+          "speed_mph": 14.3
+        },
+        {
+          "time": "15:00",
+          "speed_mph": 11.7
+        },
+        {
+          "time": "16:00",
+          "speed_mph": 6.5
+        },
+        {
+          "time": "17:00",
+          "speed_mph": 1.8
+        },
+        {
+          "time": "18:00",
+          "speed_mph": 2.1
+        },
+        {
+          "time": "19:00",
+          "speed_mph": 5.8
+        },
+        {
+          "time": "20:00",
+          "speed_mph": 7.4
+        },
+        {
+          "time": "21:00",
+          "speed_mph": 7.6
+        },
+        {
+          "time": "22:00",
+          "speed_mph": 6.4
+        },
+        {
           "time": "23:00",
-          "speed_mph": 8.4
+          "speed_mph": 6.7
         }
       ],
       "wave_chart": [
@@ -894,6 +895,7 @@
           "height_ft": 2.56
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -914,10 +916,10 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -926,24 +928,24 @@
     "numeric_score_0_100": 57,
     "grade": "D",
     "grade_probabilities": {
-      "F": 0.35118271916138744,
-      "D": 0.02094697823237009,
-      "C": 0.5516903845370558,
-      "B": 0.07617991806918646,
+      "F": 0.33377086264491707,
+      "D": 0.020460650643656125,
+      "C": 0.5685563390467345,
+      "B": 0.0772121476646921,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.35118271916138744,
-      "D": 0.02094697823237009,
-      "C": 0.5516903845370558,
-      "B": 0.07617991806918646,
+      "F": 0.33377086264491707,
+      "D": 0.020460650643656125,
+      "C": 0.5685563390467345,
+      "B": 0.0772121476646921,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.5517
+      "probability": 0.5686
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -953,8 +955,8 @@
       9
     ],
     "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 9.13,
-    "guardrail_applied": false,
+    "raw_expected_vis_ft": 9.31,
+    "guardrail_applied": true,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
     "risk_factors": [
@@ -970,7 +972,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and short-period wind-wave churn creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-14, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-14",
       "coherent_swell_source": "hourly_max_height_event",
@@ -1002,12 +1004,12 @@
       "ml_wave_2d_ago_ft": 3.67,
       "ml_wave_3d_ago_ft": 3.74,
       "ml_wave_7d_avg_ft": 3.84,
-      "rain_target_day_forecast_in": 0.164,
-      "rain_prior_3day_in": 0.268,
-      "rain_prior_7day_in": 0.268,
-      "rain_24h_in": 0.164,
-      "ml_rain_3day_in": 0.268,
-      "ml_rain_7day_in": 0.268,
+      "rain_target_day_forecast_in": 0.177,
+      "rain_prior_3day_in": 1.287,
+      "rain_prior_7day_in": 1.287,
+      "rain_24h_in": 0.177,
+      "ml_rain_3day_in": 1.287,
+      "ml_rain_7day_in": 1.287,
       "ml_gust_max_mph": 17.4,
       "ml_sst_f": 74.1,
       "ml_sin_doy": -0.7262,
@@ -1018,9 +1020,9 @@
       "ml_buoy_dir_deg": 267,
       "ml_buoy_exp": 0.956,
       "ml_buoy_energy_wtd": 23.436,
-      "ml_wind_dir_deg": 263,
-      "ml_upwelling_wind": 0.391,
-      "ml_pressure_trend": 2.2,
+      "ml_wind_dir_deg": 260,
+      "ml_upwelling_wind": 0.342,
+      "ml_pressure_trend": 3.8,
       "ml_sst_anomaly": 11.1,
       "ml_wave_trend": 0.68,
       "ml_wave_accel": 0.85,
@@ -1046,28 +1048,28 @@
       "buoy_water_temp_f": 75.0,
       "buoy_water_temp_source": "ndbc_46254",
       "air_temp_max_f": 71.4,
-      "air_temp_min_f": 63.8,
+      "air_temp_min_f": 65.2,
       "tide_range_ft": 4.34,
       "wind_chart": [
         {
           "time": "00:00",
-          "speed_mph": 10.8
+          "speed_mph": 6.5
         },
         {
           "time": "01:00",
-          "speed_mph": 10.2
+          "speed_mph": 7.2
         },
         {
           "time": "02:00",
-          "speed_mph": 8.3
+          "speed_mph": 7.2
         },
         {
           "time": "03:00",
-          "speed_mph": 9.0
+          "speed_mph": 9.8
         },
         {
           "time": "04:00",
-          "speed_mph": 8.2
+          "speed_mph": 8.9
         },
         {
           "time": "05:00",
@@ -1342,6 +1344,7 @@
           "height_ft": 2.1
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -1362,36 +1365,36 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-15",
-    "numeric_score_0_100": 57,
+    "numeric_score_0_100": 56,
     "grade": "D",
     "grade_probabilities": {
-      "F": 0.2555008178620929,
-      "D": 0.19621532141259737,
-      "C": 0.4806317344983558,
-      "B": 0.067652126226954,
+      "F": 0.26611299235358027,
+      "D": 0.19945466844859286,
+      "C": 0.4656633342633674,
+      "B": 0.06876900493445949,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.2555008178620929,
-      "D": 0.19621532141259737,
-      "C": 0.4806317344983558,
-      "B": 0.067652126226954,
+      "F": 0.26611299235358027,
+      "D": 0.19945466844859286,
+      "C": 0.4656633342633674,
+      "B": 0.06876900493445949,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.4806
+      "probability": 0.4657
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -1401,8 +1404,8 @@
       9
     ],
     "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 9.1,
-    "guardrail_applied": false,
+    "raw_expected_vis_ft": 8.99,
+    "guardrail_applied": true,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
     "risk_factors": [
@@ -1416,7 +1419,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and wind-driven mixing creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-15, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-15",
       "coherent_swell_source": "hourly_max_height_event",
@@ -1449,11 +1452,11 @@
       "ml_wave_3d_ago_ft": 3.67,
       "ml_wave_7d_avg_ft": 4.26,
       "rain_target_day_forecast_in": 0.0,
-      "rain_prior_3day_in": 0.432,
-      "rain_prior_7day_in": 0.432,
+      "rain_prior_3day_in": 1.464,
+      "rain_prior_7day_in": 1.464,
       "rain_24h_in": 0.0,
-      "ml_rain_3day_in": 0.432,
-      "ml_rain_7day_in": 0.432,
+      "ml_rain_3day_in": 1.464,
+      "ml_rain_7day_in": 1.464,
       "ml_gust_max_mph": 7.8,
       "ml_sst_f": 74.0,
       "ml_sin_doy": -0.7143,
@@ -1466,7 +1469,7 @@
       "ml_buoy_energy_wtd": 27.157,
       "ml_wind_dir_deg": 286,
       "ml_upwelling_wind": 0.719,
-      "ml_pressure_trend": 3.5,
+      "ml_pressure_trend": 3.6,
       "ml_sst_anomaly": 11.0,
       "ml_wave_trend": 2.35,
       "ml_wave_accel": 2.09,
@@ -1788,6 +1791,7 @@
           "height_ft": 1.67
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -1808,10 +1812,10 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -1820,24 +1824,24 @@
     "numeric_score_0_100": 55,
     "grade": "D",
     "grade_probabilities": {
-      "F": 0.39540143296397295,
-      "D": 0.14699593115360712,
-      "C": 0.38558254452870405,
-      "B": 0.072020091353716,
+      "F": 0.39629107945097963,
+      "D": 0.15358710470128537,
+      "C": 0.3748724043536137,
+      "B": 0.07524941149412134,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.39540143296397295,
-      "D": 0.14699593115360712,
-      "C": 0.38558254452870405,
-      "B": 0.072020091353716,
+      "F": 0.39629107945097963,
+      "D": 0.15358710470128537,
+      "C": 0.3748724043536137,
+      "B": 0.07524941149412134,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "F",
-      "probability": 0.3954
+      "probability": 0.3963
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -1847,7 +1851,7 @@
       9
     ],
     "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 8.05,
+    "raw_expected_vis_ft": 8.03,
     "guardrail_applied": false,
     "confidence": "low",
     "best_window": "Early morning to late morning before wind builds",
@@ -1864,7 +1868,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and short-period wind-wave churn creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-16, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-16",
       "coherent_swell_source": "hourly_max_height_event",
@@ -1897,11 +1901,11 @@
       "ml_wave_3d_ago_ft": 4.52,
       "ml_wave_7d_avg_ft": 4.55,
       "rain_target_day_forecast_in": 0.28,
-      "rain_prior_3day_in": 0.432,
-      "rain_prior_7day_in": 0.432,
+      "rain_prior_3day_in": 1.464,
+      "rain_prior_7day_in": 1.464,
       "rain_24h_in": 0.28,
-      "ml_rain_3day_in": 0.432,
-      "ml_rain_7day_in": 0.432,
+      "ml_rain_3day_in": 1.464,
+      "ml_rain_7day_in": 1.464,
       "ml_gust_max_mph": 15.0,
       "ml_sst_f": 73.9,
       "ml_sin_doy": -0.7021,
@@ -2236,6 +2240,7 @@
           "height_ft": 1.32
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -2256,10 +2261,10 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -2268,24 +2273,24 @@
     "numeric_score_0_100": 53,
     "grade": "D",
     "grade_probabilities": {
-      "F": 0.46491253609834976,
-      "D": 0.2524117912259932,
-      "C": 0.23007665748348344,
-      "B": 0.05259901519217348,
+      "F": 0.466911817561707,
+      "D": 0.2534972474702279,
+      "C": 0.22676572618484087,
+      "B": 0.052825208783224144,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.46491253609834976,
-      "D": 0.2524117912259932,
-      "C": 0.23007665748348344,
-      "B": 0.05259901519217348,
+      "F": 0.466911817561707,
+      "D": 0.2534972474702279,
+      "C": 0.22676572618484087,
+      "B": 0.052825208783224144,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "F",
-      "probability": 0.4649
+      "probability": 0.4669
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -2295,7 +2300,7 @@
       9
     ],
     "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 6.72,
+    "raw_expected_vis_ft": 6.69,
     "guardrail_applied": false,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -2312,7 +2317,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and short-period wind-wave churn creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-17, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-17",
       "coherent_swell_source": "hourly_max_height_event",
@@ -2345,11 +2350,11 @@
       "ml_wave_3d_ago_ft": 6.61,
       "ml_wave_7d_avg_ft": 4.7,
       "rain_target_day_forecast_in": 0.445,
-      "rain_prior_3day_in": 0.444,
-      "rain_prior_7day_in": 0.712,
+      "rain_prior_3day_in": 0.457,
+      "rain_prior_7day_in": 1.744,
       "rain_24h_in": 0.445,
-      "ml_rain_3day_in": 0.444,
-      "ml_rain_7day_in": 0.712,
+      "ml_rain_3day_in": 0.457,
+      "ml_rain_7day_in": 1.744,
       "ml_gust_max_mph": 26.2,
       "ml_sst_f": 73.6,
       "ml_sin_doy": -0.6898,
@@ -2684,6 +2689,7 @@
           "height_ft": 1.1
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -2704,36 +2710,36 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-18",
-    "numeric_score_0_100": 56,
+    "numeric_score_0_100": 57,
     "grade": "D",
     "grade_probabilities": {
-      "F": 0.1881092150149254,
-      "D": 0.41814921557690526,
-      "C": 0.3355580055545362,
-      "B": 0.05818356385363328,
+      "F": 0.16071496297348356,
+      "D": 0.3987160348669467,
+      "C": 0.31615932785299133,
+      "B": 0.1244096743065784,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.1881092150149254,
-      "D": 0.41814921557690526,
-      "C": 0.3355580055545362,
-      "B": 0.05818356385363328,
+      "F": 0.16071496297348356,
+      "D": 0.3987160348669467,
+      "C": 0.31615932785299133,
+      "B": 0.1244096743065784,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "D",
-      "probability": 0.4181
+      "probability": 0.3987
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -2743,7 +2749,7 @@
       9
     ],
     "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 8.56,
+    "raw_expected_vis_ft": 9.41,
     "guardrail_applied": true,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -2758,7 +2764,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and wind-driven mixing creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-18, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-18",
       "coherent_swell_source": "hourly_max_height_event",
@@ -2792,10 +2798,10 @@
       "ml_wave_7d_avg_ft": 5.26,
       "rain_target_day_forecast_in": 0.016,
       "rain_prior_3day_in": 0.725,
-      "rain_prior_7day_in": 1.157,
+      "rain_prior_7day_in": 2.189,
       "rain_24h_in": 0.016,
       "ml_rain_3day_in": 0.725,
-      "ml_rain_7day_in": 1.157,
+      "ml_rain_7day_in": 2.189,
       "ml_gust_max_mph": 16.8,
       "ml_sst_f": 73.4,
       "ml_sin_doy": -0.6772,
@@ -3130,6 +3136,7 @@
           "height_ft": 1.03
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -3150,46 +3157,46 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-19",
-    "numeric_score_0_100": 58,
-    "grade": "D",
+    "numeric_score_0_100": 60,
+    "grade": "C",
     "grade_probabilities": {
-      "F": 0.17729368800082207,
-      "D": 0.3106120302667656,
-      "C": 0.35541020861944195,
-      "B": 0.1566840731129704,
+      "F": 0.12602530480495017,
+      "D": 0.3020239834101313,
+      "C": 0.34126050265999913,
+      "B": 0.23069020912491936,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.17729368800082207,
-      "D": 0.3106120302667656,
-      "C": 0.35541020861944195,
-      "B": 0.1566840731129704,
+      "F": 0.12602530480495017,
+      "D": 0.3020239834101313,
+      "C": 0.34126050265999913,
+      "B": 0.23069020912491936,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.3554
+      "probability": 0.3413
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
     "display_override": null,
     "estimated_visibility_range_ft": [
-      5,
-      9
+      10,
+      14
     ],
-    "estimated_visibility_mid_ft": 7.0,
-    "raw_expected_vis_ft": 9.94,
+    "estimated_visibility_mid_ft": 12.0,
+    "raw_expected_vis_ft": 11.02,
     "guardrail_applied": false,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -3205,7 +3212,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 5-9 ft of visibility, resulting in a D grade. Conditions are marginal, with swell energy, surface movement and wind-driven mixing creating significant pressure on visibility.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, visibility looks marginal. Divers should confirm local conditions before committing and favor sheltered coves or deeper water over shallow, sandy, or surge-exposed areas.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-19, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-19",
       "coherent_swell_source": "hourly_max_height_event",
@@ -3239,10 +3246,10 @@
       "ml_wave_7d_avg_ft": 5.42,
       "rain_target_day_forecast_in": 0.169,
       "rain_prior_3day_in": 0.741,
-      "rain_prior_7day_in": 1.173,
+      "rain_prior_7day_in": 2.205,
       "rain_24h_in": 0.169,
       "ml_rain_3day_in": 0.741,
-      "ml_rain_7day_in": 1.173,
+      "ml_rain_7day_in": 2.205,
       "ml_gust_max_mph": 19.0,
       "ml_sst_f": 73.1,
       "ml_sin_doy": -0.6645,
@@ -3577,6 +3584,7 @@
           "height_ft": 1.11
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -3597,36 +3605,36 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
     "region": "California",
     "date": "2026-11-20",
-    "numeric_score_0_100": 61,
+    "numeric_score_0_100": 62,
     "grade": "C",
     "grade_probabilities": {
-      "F": 0.034221209367821935,
-      "D": 0.22751403885020838,
-      "C": 0.5947099350259845,
-      "B": 0.14355481675598517,
+      "F": 0.01929692583673184,
+      "D": 0.20833183665629199,
+      "C": 0.5784226806983891,
+      "B": 0.19394855680858694,
       "A": 0.0,
       "A+": 0.0
     },
     "raw_grade_probabilities": {
-      "F": 0.034221209367821935,
-      "D": 0.22751403885020838,
-      "C": 0.5947099350259845,
-      "B": 0.14355481675598517,
+      "F": 0.01929692583673184,
+      "D": 0.20833183665629199,
+      "C": 0.5784226806983891,
+      "B": 0.19394855680858694,
       "A": 0.0,
       "A+": 0.0
     },
     "most_likely_grade": {
       "grade": "C",
-      "probability": 0.5947
+      "probability": 0.5784
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
@@ -3636,7 +3644,7 @@
       14
     ],
     "estimated_visibility_mid_ft": 12.0,
-    "raw_expected_vis_ft": 11.61,
+    "raw_expected_vis_ft": 12.23,
     "guardrail_applied": false,
     "confidence": "medium",
     "best_window": "Early morning to late morning before wind builds",
@@ -3653,7 +3661,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 10-14 ft of visibility, resulting in a C grade. Conditions are moderately favorable overall, but the algorithm is seeing enough surface movement, wind-driven mixing and rain-related nearshore mixing to prevent a clearer B-grade forecast.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast remains diveable, but clarity may vary by location and could be worse around shallow reefs, sandy bottoms and areas exposed to surge.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-20, a C grade. This is a forecast, not a measured visibility report. The model flags surface movement, wind-driven mixing and rain-related nearshore mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-20",
       "coherent_swell_source": "hourly_max_height_event",
@@ -3687,10 +3695,10 @@
       "ml_wave_7d_avg_ft": 5.5,
       "rain_target_day_forecast_in": 0.24,
       "rain_prior_3day_in": 0.63,
-      "rain_prior_7day_in": 1.342,
+      "rain_prior_7day_in": 2.374,
       "rain_24h_in": 0.24,
       "ml_rain_3day_in": 0.63,
-      "ml_rain_7day_in": 1.342,
+      "ml_rain_7day_in": 2.374,
       "ml_gust_max_mph": 24.2,
       "ml_sst_f": 73.0,
       "ml_sin_doy": -0.6515,
@@ -4025,6 +4033,7 @@
           "height_ft": 1.35
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -4045,10 +4054,10 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-12T14:55:31+00:00",
+    "generated_at": "2026-11-12T15:08:59+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -4098,7 +4107,7 @@
     "is_projected": true,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "The model expects 10-14 ft of visibility, resulting in a C grade. Conditions are moderately favorable overall, but the algorithm is seeing enough swell energy, surface movement and wind-driven mixing to prevent a clearer B-grade forecast.\n\nThe tide contribution is more neutral because a reliable direction is not available. The next tide change could still change nearshore water movement, so local clarity may vary.\n\nOverall, the forecast remains diveable, but clarity may vary by location and could be worse around shallow reefs, sandy bottoms and areas exposed to surge.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-21, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-21",
       "coherent_swell_source": "hourly_max_height_event",
@@ -4132,10 +4141,10 @@
       "ml_wave_7d_avg_ft": 5.39,
       "rain_target_day_forecast_in": 0.035,
       "rain_prior_3day_in": 0.425,
-      "rain_prior_7day_in": 1.314,
+      "rain_prior_7day_in": 1.327,
       "rain_24h_in": 0.035,
       "ml_rain_3day_in": 0.425,
-      "ml_rain_7day_in": 1.314,
+      "ml_rain_7day_in": 1.327,
       "ml_gust_max_mph": 11.2,
       "ml_sst_f": 72.9,
       "ml_sin_doy": -0.6384,
@@ -4438,6 +4447,7 @@
           "height_ft": 1.76
         }
       ],
+      "tide_phase_reference_time_local": null,
       "tide_phase": "unknown",
       "tide_next_event": null,
       "tide_slack_windows": [],
@@ -4458,6 +4468,6 @@
     "exposure": "Open sandy shore",
     "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
-    "report_text_version": "v2-explanatory-three-paragraph"
+    "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   }
 ]
