@@ -3022,7 +3022,7 @@ function renderSwellChart(data) {
     panel.innerHTML = `<div class="section-heading"><h2>Offshore Wave Height</h2><strong id="waveHeightRange" style="white-space:nowrap"></strong></div>
       <p id="waveHeightDate" style="font-size:12px;color:var(--muted);margin:0 0 8px"></p>
       <div class="chart" id="swellChart"></div>
-      <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5">Wind and swell combined, in feet. Offshore forecast, not breaking surf at the beach. <a href="https://open-meteo.com/en/docs/marine-weather-api" target="_blank" rel="noopener">Open-Meteo</a></p>`;
+      <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5">Wind and swell combined, in feet. Offshore forecast, not breaking surf at the beach. </p><p style="font-size:10px;color:var(--muted);margin:4px 0 0">Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:inherit">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> · Converted to feet, range rounded.</p>`;
     card.append(panel);
     chart = panel.querySelector("#swellChart");
   }
@@ -3030,7 +3030,7 @@ function renderSwellChart(data) {
   const points = data.features?.wave_chart || [];
   const values = points.map(p => p.height_ft).filter(v => v != null && Number.isFinite(v));
   setText("waveHeightDate", `${date} · Pacific time`);
-  setText("waveHeightRange", values.length ? `${Math.min(...values).toFixed(1)}–${Math.max(...values).toFixed(1)} ft` : "");
+  setText("waveHeightRange", values.length ? `${Math.floor(Math.min(...values))}-${Math.ceil(Math.max(...values))} ft` : "");
   if (!values.length) { chart.textContent = "Wave-height forecast unavailable for this day."; return; }
   const ticks = chartTicks(0, Math.max(...values), 4);
   const max = ticks[ticks.length - 1];
@@ -3051,7 +3051,7 @@ function renderSwellChart(data) {
   chart.innerHTML = `<svg viewBox="0 0 ${viewWidth} ${viewHeight}" style="aspect-ratio:${viewWidth}/${viewHeight}" role="img" aria-label="Hourly offshore wave height in feet for ${date}, Pacific time">
     ${ticks.map(t => {const y=yFromValue(t,0,max,top,height);return `<line x1="${left}" x2="${left+width}" y1="${y}" y2="${y}" class="chart-gridline"/><text x="${left - 8}" y="${chartYLabelY(t,0,max,top,height)}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(t,"ft")}</text>`;}).join("")}
     <path d="${path}" class="tide-line" fill="none"/>
-    ${points.map((p,i)=>p.height_ft == null ? "" : `<circle cx="${xFromIndex(i,points.length,left,width)}" cy="${yFromValue(p.height_ft,0,max,top,height)}" r="2" fill="var(--text)"><title>${hourLabel(p.time)}: ${p.height_ft.toFixed(1)} ft</title></circle>`).join("")}
+    ${points.map((p,i)=>p.height_ft == null ? "" : `<circle cx="${xFromIndex(i,points.length,left,width)}" cy="${yFromValue(p.height_ft,0,max,top,height)}" r="2" fill="var(--text)"><title>${hourLabel(p.time)}: ${Math.round(p.height_ft)} ft</title></circle>`).join("")}
     ${xTicks.map(({point,index})=>`<text x="${xFromIndex(index,points.length,left,width)}" y="${xLabelY}" class="chart-x-label" text-anchor="${chartXLabelAnchor(index,points.length)}">${hourLabel(point.time)}</text>`).join("")}
     </svg>`;
 }
