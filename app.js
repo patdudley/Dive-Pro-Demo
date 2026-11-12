@@ -3020,9 +3020,14 @@ function renderSwellChart(data) {
     const panel = document.createElement("div");
     panel.style.cssText = "margin-top:18px;border-top:1px solid rgba(15,46,62,.12);padding-top:14px";
     panel.innerHTML = `<div class="section-heading"><h2>Offshore Wave Height</h2><strong id="waveHeightRange" style="white-space:nowrap"></strong></div>
-      <p id="waveHeightDate" style="font-size:12px;color:var(--muted);margin:0 0 8px"></p>
-      <div class="chart" id="swellChart"></div>
-      <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5">Wind and swell combined, in feet. Offshore forecast, not breaking surf at the beach. </p><p style="font-size:10px;color:var(--muted);margin:4px 0 0">Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:inherit">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> · Converted to feet, range rounded.</p>`;
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <p id="waveHeightDate" style="font-size:12px;color:var(--muted);margin:0"></p>
+        <div style="display:flex;align-items:baseline;gap:6px;font-size:10px;color:var(--muted)">
+          <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:inherit">Open-Meteo</a>
+          <details style="position:relative"><summary aria-label="Wave data license and changes" style="cursor:pointer">Info</summary><div style="position:absolute;right:0;top:100%;z-index:2;width:190px;padding:10px;border:1px solid #ccd4d8;border-radius:6px;background:var(--card,#fff);font-size:12px;line-height:1.5;color:var(--text,#142e3c)"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Converted to feet; displayed range rounded.</div></details>
+        </div>
+      </div>
+      <div class="chart" id="swellChart"></div>`;
     card.append(panel);
     chart = panel.querySelector("#swellChart");
   }
