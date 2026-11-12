@@ -2562,7 +2562,7 @@ function formatUserTime(value) {
   return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${hour < 12 ? "AM" : "PM"}`;
 }
 
-const REPORT_TEXT_VERSION = "v2-explanatory-three-paragraph";
+const REPORT_TEXT_VERSION = "v3-issuance-scoped-no-safety-verdict";
 
 function narrativeNumber(features, ...keys) {
   for (const key of keys) {
