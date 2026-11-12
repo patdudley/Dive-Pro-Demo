@@ -364,18 +364,20 @@ async function fetchOpenMeteoMarine(spot) {
   const lon = Number(spot.marineLon ?? spot.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=1&timezone=America/Los_Angeles`;
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period,wind_wave_height,wind_wave_period,wind_wave_direction,sea_surface_temperature&forecast_days=7&timezone=America/Los_Angeles`;
   const marine = await fetchJson(marineUrl);
   const hourly = marine.hourly || {};
   const timeIndex = nearestMarineHourIndex(hourly.time || []);
   const { primary, secondary } = pickMarineTrains(hourly, timeIndex);
-  const waveHeights = (hourly.wave_height || []).map(metersToFeet);
+  const waveByDate = marineWaveCharts(marine);
+  const waveHeights = (waveByDate[localTodayInLaJolla()] || []).map(point => point.height_ft);
   const windWave = readMarineTrain(hourly, timeIndex, "wind_wave");
-  const windWaveHeights = (hourly.wind_wave_height || []).map(metersToFeet);
+  const windWaveHeights = hourlyNumbersOnDate(hourly, "wind_wave_height", localTodayInLaJolla()).map(metersToFeet);
   const waterTemps = (hourly.sea_surface_temperature || []).map(celsiusToFahrenheit);
   const combinedHeight = metersToFeet(hourly.wave_height?.[timeIndex]) ?? maxFinite(waveHeights);
 
   return {
+    wave_chart_by_date: waveByDate,
     surf_height_max_ft: maxFinite(waveHeights),
     wave_height_max_ft: maxFinite(waveHeights),
     ...trainFeatureFields(primary, "primary"),
@@ -428,7 +430,7 @@ function mergeDefinedFeatures(base, extra) {
   Object.entries(extra || {}).forEach(([key, value]) => {
     if (value == null || value === "") return;
     if (Array.isArray(value) && !value.length) return;
-    if (key === "weather_by_date" || key === "wind_chart_by_date" || key === "tide_chart_by_date") return;
+    if (key === "wave_chart_by_date" || key === "weather_by_date" || key === "wind_chart_by_date" || key === "tide_chart_by_date") return;
     merged[key] = value;
   });
   return merged;
@@ -514,7 +516,8 @@ function attachLiveCharts(forecast, live) {
   const wind = windFeaturesForDate(live?.wind_chart_by_date, dateKey);
   const tideChart = live?.tide_chart_by_date?.[dateKey]
     || (dateKey === localTodayInLaJolla() && Array.isArray(live?.tide_chart) ? live.tide_chart : null);
-  const extras = { ...wind };
+  const extras = { ...wind, wave_chart: live?.wave_chart_by_date?.[dateKey] || [] };
+  // Explicit empty array clears any previous day instead of reusing today's curve.
   if (Array.isArray(tideChart) && tideChart.length) {
     extras.tide_chart = tideChart;
     if (live?.tide_source) extras.tide_source = live.tide_source;
@@ -522,7 +525,7 @@ function attachLiveCharts(forecast, live) {
   if (!Object.keys(extras).length) return forecast;
   return {
     ...forecast,
-    features: mergeDefinedFeatures(forecast.features, extras),
+    features: { ...mergeDefinedFeatures(forecast.features, extras), wave_chart: extras.wave_chart },
   };
 }
 
@@ -2993,52 +2996,64 @@ function renderWaveSwell(data) {
   renderSwellChart(data);
 }
 
+// Significant combined wind-and-swell height from the existing marine forecast.
+// Keep Pacific dates and nulls: missing hours are gaps, never zero-height waves.
+function marineWaveCharts(marine) {
+  if (marine?.hourly_units?.wave_height !== "m") return {};
+  const byDate = {};
+  const hourly = marine.hourly || {};
+  (hourly.time || []).forEach((stamp, index) => {
+    const date = isoDateKey(stamp);
+    const time = hourKey(stamp);
+    const meters = finiteNumber(hourly.wave_height?.[index]);
+    if (!date || !time) return;
+    (byDate[date] ||= []).push({ time, height_ft: meters != null && meters >= 0 ? metersToFeet(meters) : null });
+  });
+  return byDate;
+}
+
 function renderSwellChart(data) {
-  const chart = document.getElementById("swellChart");
-  if (!chart) return;
-  const features = data.features || {};
-  const base = Number(features.surf_height_max_ft ?? features.wave_height_max_ft ?? features.total_swell_height_mean_ft ?? 2.5);
-  const points = Array.from({ length: 9 }, (_, index) => ({
-    time: ["12am", "3am", "6am", "9am", "12pm", "3pm", "6pm", "9pm", "11pm"][index],
-    value: Math.max(0.4, base + (index - 3) * 0.12 + Math.sin(index / 2) * 0.18),
-  }));
-  const max = Math.max(5, Math.ceil(Math.max(...points.map((point) => point.value))));
-  const left = 72;
-  const top = 24;
-  const width = 856;
-  const height = 150;
-  const coords = points.map((point, index) => {
-    const x = xFromIndex(index, points.length, left, width);
-    const y = yFromValue(point.value, 0, max, top, height);
-    return `${x.toFixed(2)},${y.toFixed(2)}`;
-  }).join(" ");
-  const area = `${left},${top + height} ${coords} ${left + width},${top + height}`;
-  chart.innerHTML = `
-    <svg viewBox="0 0 1000 230" role="img" aria-label="Hourly wave height and swell chart">
-      ${[0, Math.round(max / 2), max].map((tick) => {
-        const y = yFromValue(tick, 0, max, top, height);
-        return `
-          <line x1="${left}" x2="${left + width}" y1="${y}" y2="${y}" class="chart-gridline"></line>
-          <text x="${left - 10}" y="${y + 4}" class="chart-y-label" text-anchor="end">${tick} ft</text>
-        `;
-      }).join("")}
-      ${points.map((point, index) => {
-        const x = xFromIndex(index, points.length, left, width);
-        return `
-          <line x1="${x}" x2="${x}" y1="${top}" y2="${top + height}" class="chart-x-grid ${index % 2 ? "is-soft" : ""}"></line>
-          <text x="${x}" y="206" class="chart-x-label" text-anchor="middle">${point.time}</text>
-        `;
-      }).join("")}
-      <polygon points="${area}" class="swell-area"></polygon>
-      <polyline points="${coords}" class="swell-line"></polyline>
-      ${points.map((point, index) => {
-        const x = xFromIndex(index, points.length, left, width);
-        const y = yFromValue(point.value, 0, max, top, height);
-        return `<circle cx="${x}" cy="${y}" r="4" class="swell-point"></circle>`;
-      }).join("")}
-      <line x1="${left + width}" x2="${left + width}" y1="${top}" y2="${top + height}" class="swell-now"></line>
-    </svg>
-  `;
+  let chart = document.getElementById("swellChart");
+  if (!chart) {
+    const card = document.querySelector(".swell-card");
+    if (!card) return;
+    const panel = document.createElement("div");
+    panel.style.cssText = "margin-top:18px;border-top:1px solid rgba(15,46,62,.12);padding-top:14px";
+    panel.innerHTML = `<div class="section-heading"><h2>Offshore Wave Height</h2><strong id="waveHeightRange" style="white-space:nowrap"></strong></div>
+      <p id="waveHeightDate" style="font-size:12px;color:var(--muted);margin:0 0 8px"></p>
+      <div class="chart" id="swellChart"></div>
+      <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5">Wind and swell combined, in feet. Offshore forecast, not breaking surf at the beach. <a href="https://open-meteo.com/en/docs/marine-weather-api" target="_blank" rel="noopener">Open-Meteo</a></p>`;
+    card.append(panel);
+    chart = panel.querySelector("#swellChart");
+  }
+  const date = forecastDateKey(data) || localTodayInLaJolla();
+  const points = data.features?.wave_chart || [];
+  const values = points.map(p => p.height_ft).filter(v => v != null && Number.isFinite(v));
+  setText("waveHeightDate", `${date} · Pacific time`);
+  setText("waveHeightRange", values.length ? `${Math.min(...values).toFixed(1)}–${Math.max(...values).toFixed(1)} ft` : "");
+  if (!values.length) { chart.textContent = "Wave-height forecast unavailable for this day."; return; }
+  const ticks = chartTicks(0, Math.max(...values), 4);
+  const max = ticks[ticks.length - 1];
+  const compact = chart.clientWidth < 600;
+  const viewWidth = compact ? 400 : CHART_VIEW_WIDTH, viewHeight = compact ? 160 : CHART_VIEW_HEIGHT;
+  const left = compact ? 40 : CHART_PLOT_LEFT, top = CHART_PLOT_TOP;
+  const width = viewWidth - left - CHART_PLOT_RIGHT, height = compact ? 120 : CHART_PLOT_HEIGHT;
+  const xLabelY = compact ? 151 : CHART_X_LABEL_Y;
+  const xTicks = chartXTicks(points).filter(({point}) => !compact || [0,6,12,18,23].includes(chartHour(point.time)));
+  // Straight segments preserve the hourly model values without an invented curve.
+  let path = "", connected = false;
+  points.forEach((p, i) => {
+    if (p.height_ft == null || !Number.isFinite(p.height_ft)) { connected = false; return; }
+    const x = xFromIndex(i, points.length, left, width), y = yFromValue(p.height_ft, 0, max, top, height);
+    path += `${connected ? " L" : " M"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    connected = true;
+  });
+  chart.innerHTML = `<svg viewBox="0 0 ${viewWidth} ${viewHeight}" style="aspect-ratio:${viewWidth}/${viewHeight}" role="img" aria-label="Hourly offshore wave height in feet for ${date}, Pacific time">
+    ${ticks.map(t => {const y=yFromValue(t,0,max,top,height);return `<line x1="${left}" x2="${left+width}" y1="${y}" y2="${y}" class="chart-gridline"/><text x="${left - 8}" y="${chartYLabelY(t,0,max,top,height)}" class="chart-y-label" text-anchor="end" dominant-baseline="middle">${formatChartYLabel(t,"ft")}</text>`;}).join("")}
+    <path d="${path}" class="tide-line" fill="none"/>
+    ${points.map((p,i)=>p.height_ft == null ? "" : `<circle cx="${xFromIndex(i,points.length,left,width)}" cy="${yFromValue(p.height_ft,0,max,top,height)}" r="2" fill="var(--text)"><title>${hourLabel(p.time)}: ${p.height_ft.toFixed(1)} ft</title></circle>`).join("")}
+    ${xTicks.map(({point,index})=>`<text x="${xFromIndex(index,points.length,left,width)}" y="${xLabelY}" class="chart-x-label" text-anchor="${chartXLabelAnchor(index,points.length)}">${hourLabel(point.time)}</text>`).join("")}
+    </svg>`;
 }
 
 function renderWeather(data) {
