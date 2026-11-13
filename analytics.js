@@ -77,7 +77,7 @@
 
   const path = window.location.pathname;
   const conditions = /^\/(?:la-jolla|monterey(?:-(?:mcabee|lovers|lobos|monastery))?|catalina-wrigley|anacapa-ocean)\.html$/;
-  const article = /^\/blog\/[^/]+\/$/.test(path);
+  const article = /^\/blog\/[^/]+(?:\/|\.html)$/.test(path);
   if (conditions.test(path)) window.diveproTrack("conditions_view", {page_path:path});
   if (article) window.diveproTrack("article_view", {page_path:path});
   let activeSeconds=0,engaged=false;
