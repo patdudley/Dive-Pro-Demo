@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T18:54:34+00:00",
+  "generated_at": "2026-11-14T22:49:30+00:00",
   "spot_slug": "la-jolla",
   "spot_name": "La Jolla",
   "location": "La Jolla, San Diego",
@@ -8,24 +8,24 @@
   "numeric_score_0_100": 56,
   "grade": "D",
   "grade_probabilities": {
-    "F": 0.42233844419131633,
-    "D": 0.047845054785845005,
-    "C": 0.4307433581837022,
-    "B": 0.09907314283913649,
+    "F": 0.4197970149564166,
+    "D": 0.06247452664232634,
+    "C": 0.41925148999300116,
+    "B": 0.09847696840825584,
     "A": 0.0,
     "A+": 0.0
   },
   "raw_grade_probabilities": {
-    "F": 0.42233844419131633,
-    "D": 0.047845054785845005,
-    "C": 0.4307433581837022,
-    "B": 0.09907314283913649,
+    "F": 0.4197970149564166,
+    "D": 0.06247452664232634,
+    "C": 0.41925148999300116,
+    "B": 0.09847696840825584,
     "A": 0.0,
     "A+": 0.0
   },
   "most_likely_grade": {
-    "grade": "C",
-    "probability": 0.4307
+    "grade": "F",
+    "probability": 0.4198
   },
   "model_source": "soft_probabilistic",
   "display_policy_version": "v4-bimodal-aware",
@@ -35,7 +35,7 @@
     9
   ],
   "estimated_visibility_mid_ft": 7.0,
-  "raw_expected_vis_ft": 8.49,
+  "raw_expected_vis_ft": 8.44,
   "guardrail_applied": false,
   "confidence": "low",
   "best_window": "Early morning to late morning before wind builds",
@@ -51,7 +51,7 @@
   "is_projected": false,
   "projected_from": null,
   "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-14, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 10:54 AM PT issuance, the predicted tidal height was falling toward the next low tide at 7:02 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-14, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 2:49 PM PT issuance, the predicted tidal height was falling toward the next low tide at 7:02 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
   "features": {
     "date": "2026-11-14",
     "coherent_swell_source": "hourly_max_height_event",
@@ -83,10 +83,10 @@
     "ml_wave_2d_ago_ft": 3.64,
     "ml_wave_3d_ago_ft": 3.76,
     "ml_wave_7d_avg_ft": 3.89,
-    "rain_target_day_forecast_in": 0.043,
+    "rain_target_day_forecast_in": 0.059,
     "rain_prior_3day_in": 0.142,
     "rain_prior_7day_in": 0.142,
-    "rain_24h_in": 0.043,
+    "rain_24h_in": 0.059,
     "ml_rain_3day_in": 0.142,
     "ml_rain_7day_in": 0.142,
     "ml_gust_max_mph": 23.7,
@@ -99,8 +99,8 @@
     "ml_buoy_dir_deg": 273,
     "ml_buoy_exp": 0.921,
     "ml_buoy_energy_wtd": 33.378,
-    "ml_wind_dir_deg": 260,
-    "ml_upwelling_wind": 0.342,
+    "ml_wind_dir_deg": 276,
+    "ml_upwelling_wind": 0.588,
     "ml_pressure_trend": 3.5,
     "ml_sst_anomaly": 11.1,
     "ml_wave_trend": 0.97,
@@ -124,10 +124,10 @@
     "wind_wave_churn_proxy": 224.173,
     "wave_energy_wind_interaction": 7208.763,
     "water_temp_estimate_f": 74.1,
-    "buoy_water_temp_f": 74.8,
+    "buoy_water_temp_f": 75.2,
     "buoy_water_temp_source": "ndbc_46254",
-    "air_temp_max_f": 69.9,
-    "air_temp_min_f": 61.2,
+    "air_temp_max_f": 70.4,
+    "air_temp_min_f": 60.8,
     "tide_range_ft": 4.34,
     "wind_chart": [
       {
@@ -172,59 +172,59 @@
       },
       {
         "time": "10:00",
-        "speed_mph": 7.0
+        "speed_mph": 10.0
       },
       {
         "time": "11:00",
-        "speed_mph": 9.5
+        "speed_mph": 3.5
       },
       {
         "time": "12:00",
-        "speed_mph": 5.3
+        "speed_mph": 4.2
       },
       {
         "time": "13:00",
-        "speed_mph": 4.5
+        "speed_mph": 2.2
       },
       {
         "time": "14:00",
-        "speed_mph": 7.2
+        "speed_mph": 1.7
       },
       {
         "time": "15:00",
-        "speed_mph": 8.2
+        "speed_mph": 3.4
       },
       {
         "time": "16:00",
-        "speed_mph": 5.1
+        "speed_mph": 3.8
       },
       {
         "time": "17:00",
-        "speed_mph": 3.3
+        "speed_mph": 5.8
       },
       {
         "time": "18:00",
-        "speed_mph": 2.5
+        "speed_mph": 4.1
       },
       {
         "time": "19:00",
-        "speed_mph": 5.0
+        "speed_mph": 4.9
       },
       {
         "time": "20:00",
-        "speed_mph": 4.7
+        "speed_mph": 5.5
       },
       {
         "time": "21:00",
-        "speed_mph": 4.8
+        "speed_mph": 3.5
       },
       {
         "time": "22:00",
-        "speed_mph": 5.1
+        "speed_mph": 4.7
       },
       {
         "time": "23:00",
-        "speed_mph": 4.2
+        "speed_mph": 4.9
       }
     ],
     "wave_chart": [
@@ -423,7 +423,7 @@
         "height_ft": 2.1
       }
     ],
-    "tide_phase_reference_time_local": "2026-11-14T10:54:33.827901-08:00",
+    "tide_phase_reference_time_local": "2026-11-14T14:49:29.977721-08:00",
     "tide_phase": "falling",
     "tide_next_event": {
       "time": "19:02",
