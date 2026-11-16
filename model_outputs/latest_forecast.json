@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T16:51:11+00:00",
+  "generated_at": "2026-11-16T16:56:01+00:00",
   "spot_slug": "la-jolla",
   "spot_name": "La Jolla",
   "location": "La Jolla, San Diego",
@@ -52,7 +52,7 @@
   "is_projected": false,
   "projected_from": null,
   "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-16, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 8:51 AM PT issuance, the predicted tidal height was rising toward the next high tide at 12:52 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-16, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 8:56 AM PT issuance, the predicted tidal height was rising toward the next high tide at 12:52 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
   "features": {
     "date": "2026-11-16",
     "coherent_swell_source": "hourly_max_height_event",
@@ -424,7 +424,7 @@
         "height_ft": 1.32
       }
     ],
-    "tide_phase_reference_time_local": "2026-11-16T08:51:11.114685-08:00",
+    "tide_phase_reference_time_local": "2026-11-16T08:56:01.418814-08:00",
     "tide_phase": "rising",
     "tide_next_event": {
       "time": "12:52",
