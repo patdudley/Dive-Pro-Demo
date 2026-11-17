@@ -1,6 +1,6 @@
 [
   {
-    "generated_at": "2026-11-17T16:34:48+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -52,7 +52,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-17, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 8:34 AM PT issuance, the predicted tidal height was falling toward the next low tide at 9:32 AM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+    "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-17, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 8:49 AM PT issuance, the predicted tidal height was falling toward the next low tide at 9:32 AM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-17",
       "coherent_swell_source": "hourly_max_height_event",
@@ -424,7 +424,7 @@
           "height_ft": 1.1
         }
       ],
-      "tide_phase_reference_time_local": "2026-11-17T08:34:48.482850-08:00",
+      "tide_phase_reference_time_local": "2026-11-17T08:49:47.898523-08:00",
       "tide_phase": "falling",
       "tide_next_event": {
         "time": "09:32",
@@ -477,7 +477,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:48+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -923,7 +923,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:48+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -1371,7 +1371,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -1818,7 +1818,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -2265,7 +2265,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -2712,7 +2712,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -3160,7 +3160,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -3607,7 +3607,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
@@ -4054,7 +4054,7 @@
     "report_text_version": "v3-issuance-scoped-no-safety-verdict"
   },
   {
-    "generated_at": "2026-11-17T16:34:49+00:00",
+    "generated_at": "2026-11-17T16:49:48+00:00",
     "spot_slug": "la-jolla",
     "spot_name": "La Jolla",
     "location": "La Jolla, San Diego",
