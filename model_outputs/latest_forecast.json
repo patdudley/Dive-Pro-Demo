@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T16:29:31+00:00",
+  "generated_at": "2026-11-19T21:55:48+00:00",
   "spot_slug": "la-jolla",
   "spot_name": "La Jolla",
   "location": "La Jolla, San Diego",
@@ -8,24 +8,24 @@
   "numeric_score_0_100": 58,
   "grade": "D",
   "grade_probabilities": {
-    "F": 0.22401831203765254,
-    "D": 0.19762261255696503,
-    "C": 0.4495244156894833,
-    "B": 0.12883465971589914,
+    "F": 0.23333783884051043,
+    "D": 0.189235331790025,
+    "C": 0.44879983580062954,
+    "B": 0.12862699356883506,
     "A": 0.0,
     "A+": 0.0
   },
   "raw_grade_probabilities": {
-    "F": 0.22401831203765254,
-    "D": 0.19762261255696503,
-    "C": 0.4495244156894833,
-    "B": 0.12883465971589914,
+    "F": 0.23333783884051043,
+    "D": 0.189235331790025,
+    "C": 0.44879983580062954,
+    "B": 0.12862699356883506,
     "A": 0.0,
     "A+": 0.0
   },
   "most_likely_grade": {
     "grade": "C",
-    "probability": 0.4495
+    "probability": 0.4488
   },
   "model_source": "soft_probabilistic",
   "display_policy_version": "v4-bimodal-aware",
@@ -35,7 +35,7 @@
     9
   ],
   "estimated_visibility_mid_ft": 7.0,
-  "raw_expected_vis_ft": 9.85,
+  "raw_expected_vis_ft": 9.8,
   "guardrail_applied": false,
   "confidence": "low",
   "best_window": "Early morning to late morning before wind builds",
@@ -51,7 +51,7 @@
   "is_projected": false,
   "projected_from": null,
   "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-19, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 8:29 AM PT issuance, the predicted tidal height was falling toward the next low tide at 11:33 AM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+  "report_text": "Dive Pro's beta model estimates 5-9 ft of visibility for 2026-11-19, a D grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and short-period wind-wave churn as constraints on clarity.\n\nAt the 1:55 PM PT issuance, the predicted tidal height was rising toward the next high tide at 5:06 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
   "features": {
     "date": "2026-11-19",
     "coherent_swell_source": "hourly_max_height_event",
@@ -83,13 +83,13 @@
     "ml_wave_2d_ago_ft": 7.29,
     "ml_wave_3d_ago_ft": 5.6,
     "ml_wave_7d_avg_ft": 5.44,
-    "rain_target_day_forecast_in": 0.028,
+    "rain_target_day_forecast_in": 0.043,
     "rain_prior_3day_in": 0.453,
     "rain_prior_7day_in": 0.638,
-    "rain_24h_in": 0.028,
+    "rain_24h_in": 0.043,
     "ml_rain_3day_in": 0.453,
     "ml_rain_7day_in": 0.638,
-    "ml_gust_max_mph": 24.8,
+    "ml_gust_max_mph": 31.5,
     "ml_sst_f": 73.2,
     "ml_sin_doy": -0.6645,
     "ml_cos_doy": 0.7473,
@@ -99,9 +99,9 @@
     "ml_buoy_dir_deg": 263,
     "ml_buoy_exp": 0.974,
     "ml_buoy_energy_wtd": 9.353,
-    "ml_wind_dir_deg": 236,
+    "ml_wind_dir_deg": 239,
     "ml_upwelling_wind": 0.0,
-    "ml_pressure_trend": -2.4,
+    "ml_pressure_trend": -3.1,
     "ml_sst_anomaly": 10.2,
     "ml_wave_trend": -1.41,
     "ml_wave_accel": -3.26,
@@ -109,9 +109,9 @@
     "ml_tide_range_ft": 3.47,
     "ml_tide_morning_avg": 3.36,
     "wave_height_max_ft": 5.77,
-    "wind_speed_mean_mph": 11.78,
-    "wind_speed_max_mph": 18.4,
-    "wind_gust_max_mph": 24.8,
+    "wind_speed_mean_mph": 14.34,
+    "wind_speed_max_mph": 22.4,
+    "wind_gust_max_mph": 31.5,
     "wave_energy_mean_kj": 139.237,
     "wave_energy_max_kj": 139.237,
     "total_swell_height_mean_ft": 4.84,
@@ -121,12 +121,12 @@
     "short_period_swell_energy": 23.767,
     "long_period_swell_energy": 115.471,
     "mixed_swell_score": 3,
-    "wind_wave_churn_proxy": 166.614,
-    "wave_energy_wind_interaction": 2561.968,
+    "wind_wave_churn_proxy": 202.835,
+    "wave_energy_wind_interaction": 3118.918,
     "water_temp_estimate_f": 73.2,
     "buoy_water_temp_f": 74.3,
     "buoy_water_temp_source": "ndbc_46254",
-    "air_temp_max_f": 67.6,
+    "air_temp_max_f": 70.2,
     "air_temp_min_f": 55.6,
     "tide_range_ft": 3.47,
     "wind_chart": [
@@ -160,43 +160,43 @@
       },
       {
         "time": "07:00",
-        "speed_mph": 6.0
+        "speed_mph": 5.7
       },
       {
         "time": "08:00",
-        "speed_mph": 6.7
+        "speed_mph": 7.1
       },
       {
         "time": "09:00",
-        "speed_mph": 7.8
+        "speed_mph": 7.6
       },
       {
         "time": "10:00",
-        "speed_mph": 9.6
+        "speed_mph": 12.0
       },
       {
         "time": "11:00",
-        "speed_mph": 12.7
+        "speed_mph": 11.3
       },
       {
         "time": "12:00",
-        "speed_mph": 13.5
+        "speed_mph": 12.8
       },
       {
         "time": "13:00",
-        "speed_mph": 15.3
+        "speed_mph": 13.0
       },
       {
         "time": "14:00",
-        "speed_mph": 16.7
+        "speed_mph": 13.3
       },
       {
         "time": "15:00",
-        "speed_mph": 16.1
+        "speed_mph": 22.4
       },
       {
         "time": "16:00",
-        "speed_mph": 16.5
+        "speed_mph": 19.4
       },
       {
         "time": "17:00",
@@ -204,27 +204,27 @@
       },
       {
         "time": "18:00",
-        "speed_mph": 12.9
+        "speed_mph": 17.9
       },
       {
         "time": "19:00",
-        "speed_mph": 17.0
+        "speed_mph": 18.8
       },
       {
         "time": "20:00",
-        "speed_mph": 15.3
+        "speed_mph": 15.9
       },
       {
         "time": "21:00",
-        "speed_mph": 15.8
+        "speed_mph": 17.8
       },
       {
         "time": "22:00",
-        "speed_mph": 16.2
+        "speed_mph": 15.5
       },
       {
         "time": "23:00",
-        "speed_mph": 13.0
+        "speed_mph": 15.2
       }
     ],
     "wave_chart": [
@@ -423,12 +423,12 @@
         "height_ft": 1.11
       }
     ],
-    "tide_phase_reference_time_local": "2026-11-19T08:29:31.155178-08:00",
-    "tide_phase": "falling",
+    "tide_phase_reference_time_local": "2026-11-19T13:55:48.129602-08:00",
+    "tide_phase": "rising",
     "tide_next_event": {
-      "time": "11:33",
-      "height_ft": 1.73,
-      "type": "L"
+      "time": "17:06",
+      "height_ft": 3.71,
+      "type": "H"
     },
     "tide_slack_windows": [
       {
