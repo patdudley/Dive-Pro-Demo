@@ -95,6 +95,8 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
   }
 
   function cameraStill(spot) {
+    // Wait for the checked Scripps pointer instead of downloading the obsolete multi-megabyte fallback.
+    if (spot.slug === "la-jolla" && !scrippsPreview) return "";
     if (spot.slug === "la-jolla") return scrippsPreview || spot.image || "";
     return spot.image || "";
   }
@@ -552,7 +554,7 @@ import { selectForecastForToday } from "./forecast-day.js?v=restore-20261031-fin
           </div>`
       : "";
     const img = photo
-      ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(spot.imageAlt || copy.name)}">`
+      ? `<img loading="lazy" decoding="async" src="${escapeHtml(photo)}" alt="${escapeHtml(spot.imageAlt || copy.name)}">`
       : `<div class="spot-feature-fallback">${escapeHtml(copy.name)}</div>`;
     card.innerHTML = `
       <a class="spot-feature-link" href="${escapeHtml(spot.href)}" aria-label="Open ${escapeHtml(copy.name)}">
