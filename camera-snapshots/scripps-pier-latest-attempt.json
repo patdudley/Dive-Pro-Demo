@@ -1,7 +1,7 @@
 {
   "capture_ok": false,
-  "captured_at_local": "2026-11-21T12:06:25-08:00",
-  "captured_at_utc": "2026-11-21T20:06:25Z",
+  "captured_at_local": "2026-11-21T12:40:10-08:00",
+  "captured_at_utc": "2026-11-21T20:40:10Z",
   "confidence": null,
   "display_policy_version": "camera-coupling-v1",
   "failure_code": "SourceOfflineError",
