@@ -1,10 +1,10 @@
 {
   "capture_ok": false,
-  "captured_at_local": "2026-11-21T10:19:02-08:00",
-  "captured_at_utc": "2026-11-21T18:19:02Z",
+  "captured_at_local": "2026-11-21T10:33:09-08:00",
+  "captured_at_utc": "2026-11-21T18:33:09Z",
   "confidence": null,
   "display_policy_version": "camera-coupling-v1",
-  "failure_code": "SourceOfflineError",
+  "failure_code": "RuntimeError",
   "frame_motion_score": null,
   "grade": null,
   "grader_model": "gpt-4.1-2025-04-14",
@@ -21,7 +21,7 @@
   "slots_completed": {
     "08:00": true
   },
-  "source_availability": "offline",
+  "source_availability": "unverified",
   "source_freshness_verified": false,
   "source_timestamp_age_seconds": null,
   "source_timestamp_verified": false,
