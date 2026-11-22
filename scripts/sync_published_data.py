@@ -160,6 +160,35 @@ def load_display_overrides(destination_root: pathlib.Path, today: dt.date | None
     return clean
 
 
+_REPORT_LEAD_RE = re.compile(
+    r"Dive Pro's beta model estimates (?P<lo>\d+(?:\.\d+)?)-(?P<hi>\d+(?:\.\d+)?) ft of visibility for (?P<date>\d{4}-\d{2}-\d{2}), an? [A-F]\+? grade\."
+)
+_FORECAST_NOTE = "This is a forecast, not a measured visibility report."
+
+
+def rewrite_report_text(text: str, entry: dict[str, Any], model_grade: Any, model_range: Any) -> str:
+    match = _REPORT_LEAD_RE.search(text)
+    if not match:
+        return text
+    low, high = entry["visibility_range_ft"]
+    shown = f"{low:g}-{high:g} ft"
+    model = f"{model_range[0]:g}-{model_range[1]:g} ft" if isinstance(model_range, list) and len(model_range) == 2 else "a different range"
+    grade = entry["grade"]
+    date = match.group("date")
+    if entry.get("basis") == "owner_observed":
+        lead = (
+            f"A diver observation reported {shown} of visibility on {date}, an {grade} grade. "
+            f"The Dive Pro beta model had estimated {model} ({model_grade} grade)."
+        )
+        text = text.replace(_FORECAST_NOTE, "The observed range is a diver report, not a Dive Pro measurement.", 1)
+    else:
+        lead = (
+            f"Dive Pro's displayed forecast for {date} is {shown} of visibility, an {grade} grade "
+            f"(manual override; the beta model estimated {model}, {model_grade} grade)."
+        )
+    return text[: match.start()] + lead + text[match.end():]
+
+
 def apply_display_overrides_to_row(row: Any, overrides: list[dict[str, Any]]) -> None:
     if not isinstance(row, dict):
         return
@@ -186,7 +215,9 @@ def apply_display_overrides_to_row(row: Any, overrides: list[dict[str, Any]]) ->
             record["basis"] = str(entry.get("basis") or "owner_directed")
         row["display_override"] = record
         text = row.get("report_text")
-        if isinstance(text, str) and f"a {model_grade} grade" in text:
+        if range_changes and isinstance(text, str):
+            row["report_text"] = rewrite_report_text(text, entry, model_grade, model_range)
+        elif isinstance(text, str) and f"a {model_grade} grade" in text:
             row["report_text"] = text.replace(
                 f"a {model_grade} grade",
                 f"an {entry['grade']} display grade (manual override; the model computed {model_grade})",
