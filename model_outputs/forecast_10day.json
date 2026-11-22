@@ -34,11 +34,20 @@
       "source": "manual_display_override",
       "grade": "A",
       "model_grade": "C",
-      "reason": "Owner-approved one-day display override for Nov 22, 2026 (applies only to that date)"
+      "reason": "Owner-reported observed visibility 20-30 ft on Nov 22, 2026 (applies only to that date)",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "model_visibility_range_ft": [
+        10,
+        14
+      ],
+      "basis": "owner_observed"
     },
     "estimated_visibility_range_ft": [
-      10,
-      14
+      20,
+      30
     ],
     "estimated_visibility_mid_ft": 12.0,
     "raw_expected_vis_ft": 13.22,
@@ -488,7 +497,7 @@
     "region": "California",
     "date": "2026-11-23",
     "numeric_score_0_100": 63,
-    "grade": "C",
+    "grade": "A",
     "grade_probabilities": {
       "F": 0.04385272058562622,
       "D": 0.08438093904898271,
@@ -511,10 +520,24 @@
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
-    "display_override": null,
+    "display_override": {
+      "source": "manual_display_override",
+      "grade": "A",
+      "model_grade": "C",
+      "reason": "Owner-directed forecast of the same conditions (20-30 ft) for Nov 23, 2026 (applies only to that date)",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "model_visibility_range_ft": [
+        10,
+        14
+      ],
+      "basis": "owner_directed_forecast"
+    },
     "estimated_visibility_range_ft": [
-      10,
-      14
+      20,
+      30
     ],
     "estimated_visibility_mid_ft": 12.0,
     "raw_expected_vis_ft": 13.32,
@@ -533,7 +556,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-23, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-23, an A display grade (manual override; the model computed C). This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-23",
       "coherent_swell_source": "hourly_max_height_event",
@@ -936,7 +959,7 @@
     "region": "California",
     "date": "2026-11-24",
     "numeric_score_0_100": 66,
-    "grade": "B",
+    "grade": "A",
     "grade_probabilities": {
       "F": 0.0,
       "D": 0.041374471452357654,
@@ -959,10 +982,24 @@
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
-    "display_override": null,
+    "display_override": {
+      "source": "manual_display_override",
+      "grade": "A",
+      "model_grade": "B",
+      "reason": "Owner-directed forecast of the same conditions (20-30 ft) for Nov 24, 2026 (applies only to that date)",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "model_visibility_range_ft": [
+        15,
+        24
+      ],
+      "basis": "owner_directed_forecast"
+    },
     "estimated_visibility_range_ft": [
-      15,
-      24
+      20,
+      30
     ],
     "estimated_visibility_mid_ft": 19.5,
     "raw_expected_vis_ft": 15.0,
@@ -980,7 +1017,7 @@
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "Dive Pro's beta model estimates 15-24 ft of visibility for 2026-11-24, a B grade. This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+    "report_text": "Dive Pro's beta model estimates 15-24 ft of visibility for 2026-11-24, an A display grade (manual override; the model computed B). This is a forecast, not a measured visibility report. The model flags swell energy, surface movement and wind-driven mixing as constraints on clarity.\n\nUse the dated tide chart for tidal height and timing; a current tide phase is not established in this report. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-24",
       "coherent_swell_source": "hourly_max_height_event",

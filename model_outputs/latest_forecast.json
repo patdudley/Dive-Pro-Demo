@@ -33,11 +33,20 @@
     "source": "manual_display_override",
     "grade": "A",
     "model_grade": "C",
-    "reason": "Owner-approved one-day display override for Nov 22, 2026 (applies only to that date)"
+    "reason": "Owner-reported observed visibility 20-30 ft on Nov 22, 2026 (applies only to that date)",
+    "visibility_range_ft": [
+      20,
+      30
+    ],
+    "model_visibility_range_ft": [
+      10,
+      14
+    ],
+    "basis": "owner_observed"
   },
   "estimated_visibility_range_ft": [
-    10,
-    14
+    20,
+    30
   ],
   "estimated_visibility_mid_ft": 12.0,
   "raw_expected_vis_ft": 13.22,
