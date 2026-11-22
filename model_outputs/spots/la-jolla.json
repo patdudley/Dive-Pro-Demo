@@ -9,10 +9,10 @@
     "lon": -117.257,
     "timezone": "America/Los_Angeles",
     "tide_label": "NOAA La Jolla 9410230",
-    "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+    "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
     "habitat": "Kelp forest and sand channels",
     "exposure": "Open sandy shore",
-    "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md."
+    "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md."
   },
   "latest": {
     "generated_at": "2026-11-22T20:31:23+00:00",
@@ -22,7 +22,7 @@
     "region": "California",
     "date": "2026-11-22",
     "numeric_score_0_100": 63,
-    "grade": "C",
+    "grade": "A",
     "grade_probabilities": {
       "F": 0.10569787937148667,
       "D": 0.040143797481034506,
@@ -45,7 +45,12 @@
     },
     "model_source": "soft_probabilistic",
     "display_policy_version": "v4-bimodal-aware",
-    "display_override": null,
+    "display_override": {
+      "source": "manual_display_override",
+      "grade": "A",
+      "model_grade": "C",
+      "reason": "Owner-approved one-day display override for Nov 22, 2026 (applies only to that date)"
+    },
     "estimated_visibility_range_ft": [
       10,
       14
@@ -62,11 +67,11 @@
       "Overall swell load is modest.",
       "Wind looks manageable for the morning window."
     ],
-    "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+    "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "is_projected": false,
     "projected_from": null,
     "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-22, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy as constraints on clarity.\n\nAt the 12:31 PM PT issuance, the predicted tidal height was falling toward the next low tide at 1:38 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+    "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-22, an A display grade (manual override; the model computed C). This is a forecast, not a measured visibility report. The model flags swell energy as constraints on clarity.\n\nAt the 12:31 PM PT issuance, the predicted tidal height was falling toward the next low tide at 1:38 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
     "features": {
       "date": "2026-11-22",
       "coherent_swell_source": "hourly_max_height_event",
@@ -483,10 +488,10 @@
     ],
     "tide_source": "NOAA La Jolla 9410230 - 2026-11-22",
     "wind_source": "Open-Meteo hourly wind - 2026-11-22",
-    "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+    "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
     "habitat": "Kelp forest and sand channels",
     "exposure": "Open sandy shore",
-    "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+    "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
     "camera_note": "Updated a few times daily from the Scripps Pier cam.",
     "report_text_version": "v3-issuance-scoped-no-safety-verdict",
     "community_report": {
@@ -506,7 +511,7 @@
       "region": "California",
       "date": "2026-11-22",
       "numeric_score_0_100": 63,
-      "grade": "C",
+      "grade": "A",
       "grade_probabilities": {
         "F": 0.10569787937148667,
         "D": 0.040143797481034506,
@@ -529,7 +534,12 @@
       },
       "model_source": "soft_probabilistic",
       "display_policy_version": "v4-bimodal-aware",
-      "display_override": null,
+      "display_override": {
+        "source": "manual_display_override",
+        "grade": "A",
+        "model_grade": "C",
+        "reason": "Owner-approved one-day display override for Nov 22, 2026 (applies only to that date)"
+      },
       "estimated_visibility_range_ft": [
         10,
         14
@@ -546,11 +556,11 @@
         "Overall swell load is modest.",
         "Wind looks manageable for the morning window."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
-      "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-22, a C grade. This is a forecast, not a measured visibility report. The model flags swell energy as constraints on clarity.\n\nAt the 12:31 PM PT issuance, the predicted tidal height was falling toward the next low tide at 1:38 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
+      "report_text": "Dive Pro's beta model estimates 10-14 ft of visibility for 2026-11-22, an A display grade (manual override; the model computed C). This is a forecast, not a measured visibility report. The model flags swell energy as constraints on clarity.\n\nAt the 12:31 PM PT issuance, the predicted tidal height was falling toward the next low tide at 1:38 PM PT. This is time-stamped tide context, not a promise of improving or declining clarity. Tidal height alone does not establish underwater current, slack water or visibility.\n\nA visibility grade does not assess entry safety or rip currents. Check the latest local surf forecast, actual entry and exit, water-quality advisories and your own limits. Conditions can differ between sheltered and exposed sites; clearer-looking water is not proof that an entry is suitable.",
       "features": {
         "date": "2026-11-22",
         "coherent_swell_source": "hourly_max_height_event",
@@ -967,10 +977,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-22",
       "wind_source": "Open-Meteo hourly wind - 2026-11-22",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -1023,7 +1033,7 @@
       "positive_factors": [
         "Overall swell load is modest."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -1415,10 +1425,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-23",
       "wind_source": "Open-Meteo hourly wind - 2026-11-23",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -1470,7 +1480,7 @@
       "positive_factors": [
         "Overall swell load is modest."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -1862,10 +1872,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-24",
       "wind_source": "Open-Meteo hourly wind - 2026-11-24",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -1917,7 +1927,7 @@
       "positive_factors": [
         "Longer-period swell is easier to time around than short chop."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -2309,10 +2319,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-25",
       "wind_source": "Open-Meteo hourly wind - 2026-11-25",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -2363,7 +2373,7 @@
       "positive_factors": [
         "Wind looks manageable for the morning window."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -2755,10 +2765,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-26",
       "wind_source": "Open-Meteo hourly wind - 2026-11-26",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -2809,7 +2819,7 @@
       "positive_factors": [
         "Wind looks manageable for the morning window."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -3201,10 +3211,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-27",
       "wind_source": "Open-Meteo hourly wind - 2026-11-27",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -3255,7 +3265,7 @@
       "positive_factors": [
         "Overall swell load is modest."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -3647,10 +3657,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-28",
       "wind_source": "Open-Meteo hourly wind - 2026-11-28",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -3702,7 +3712,7 @@
       "positive_factors": [
         "Longer-period swell is easier to time around than short chop."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -4094,10 +4104,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-29",
       "wind_source": "Open-Meteo hourly wind - 2026-11-29",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -4149,7 +4159,7 @@
       "positive_factors": [
         "Longer-period swell is easier to time around than short chop."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": false,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -4541,10 +4551,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-11-30",
       "wind_source": "Open-Meteo hourly wind - 2026-11-30",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     },
@@ -4596,7 +4606,7 @@
       "positive_factors": [
         "Longer-period swell is easier to time around than short chop."
       ],
-      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "explanation": "Conditions score blends swell, wave energy, and wind with the open sandy shore calibration. La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "is_projected": true,
       "projected_from": null,
       "forecast_basis": "Open-Meteo marine components (coherent hourly swell)",
@@ -4956,10 +4966,10 @@
       ],
       "tide_source": "NOAA La Jolla 9410230 - 2026-12-01",
       "wind_source": "Open-Meteo hourly wind - 2026-12-01",
-      "description": "La Jolla dive visibility forecast \u2014 La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
+      "description": "La Jolla dive visibility forecast — La Jolla Cove, Shores, Canyon, and adjacent kelp forest.  Model trained on La Jolla DivePro reports.  Development model: not validated for public accuracy claims.",
       "habitat": "Kelp forest and sand channels",
       "exposure": "Open sandy shore",
-      "calibration_note": "La Jolla soft probabilistic model \u2014 development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
+      "calibration_note": "La Jolla soft probabilistic model — development data only.  Prospective validation required before public accuracy claims.  See PROSPECTIVE_VALIDATION_PLAN.md.",
       "camera_note": "Updated a few times daily from the Scripps Pier cam.",
       "report_text_version": "v3-issuance-scoped-no-safety-verdict"
     }
