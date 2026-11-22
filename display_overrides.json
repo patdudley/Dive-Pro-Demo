@@ -1,1 +1,34 @@
-{"overrides":[{"date":"2026-11-22","grade":"A","reason":"Owner-approved one-day display override for Nov 22, 2026 (applies only to that date)"}]}
+{
+  "overrides": [
+    {
+      "date": "2026-11-22",
+      "grade": "A",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "basis": "owner_observed",
+      "reason": "Owner-reported observed visibility 20-30 ft on Nov 22, 2026 (applies only to that date)"
+    },
+    {
+      "date": "2026-11-23",
+      "grade": "A",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "basis": "owner_directed_forecast",
+      "reason": "Owner-directed forecast of the same conditions (20-30 ft) for Nov 23, 2026 (applies only to that date)"
+    },
+    {
+      "date": "2026-11-24",
+      "grade": "A",
+      "visibility_range_ft": [
+        20,
+        30
+      ],
+      "basis": "owner_directed_forecast",
+      "reason": "Owner-directed forecast of the same conditions (20-30 ft) for Nov 24, 2026 (applies only to that date)"
+    }
+  ]
+}
