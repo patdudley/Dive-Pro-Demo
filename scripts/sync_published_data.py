@@ -136,6 +136,67 @@ def validate_forecast_set(bundle: dict[pathlib.Path, Any]) -> dt.datetime:
         raise ArtifactValidationError("Forecast files were not generated as one set")
     return max(generated)
 
+OVERRIDES_FILE = pathlib.Path("display_overrides.json")
+
+
+def load_display_overrides(destination_root: pathlib.Path, today: dt.date | None = None) -> list[dict[str, Any]]:
+    """Dated, owner-approved display-grade overrides. An entry only ever applies to its own date."""
+    path = destination_root / OVERRIDES_FILE
+    if not path.exists():
+        return []
+    data = load_json(path)
+    entries = data.get("overrides") if isinstance(data, dict) else None
+    if not isinstance(entries, list):
+        raise ArtifactValidationError("display_overrides.json must contain an overrides list")
+    clean: list[dict[str, Any]] = []
+    for index, entry in enumerate(entries):
+        try:
+            dt.date.fromisoformat(str(entry["date"]))
+        except (KeyError, TypeError, ValueError) as error:
+            raise ArtifactValidationError(f"display_overrides.json[{index}] has an invalid date") from error
+        if not isinstance(entry, dict) or entry.get("grade") not in VALID_GRADES:
+            raise ArtifactValidationError(f"display_overrides.json[{index}] has an invalid grade")
+        clean.append(entry)
+    return clean
+
+
+def apply_display_overrides_to_row(row: Any, overrides: list[dict[str, Any]]) -> None:
+    if not isinstance(row, dict):
+        return
+    for entry in overrides:
+        if str(row.get("date")) != str(entry["date"]):
+            continue
+        model_grade = row.get("grade")
+        if model_grade == entry["grade"]:
+            continue
+        row["grade"] = entry["grade"]
+        row["display_override"] = {
+            "source": "manual_display_override",
+            "grade": entry["grade"],
+            "model_grade": model_grade,
+            "reason": str(entry.get("reason") or "Owner display override"),
+        }
+        text = row.get("report_text")
+        if isinstance(text, str) and f"a {model_grade} grade" in text:
+            row["report_text"] = text.replace(
+                f"a {model_grade} grade",
+                f"an {entry['grade']} display grade (manual override; the model computed {model_grade})",
+                1,
+            )
+
+
+def apply_display_overrides(bundle: dict[pathlib.Path, Any], overrides: list[dict[str, Any]]) -> None:
+    if not overrides:
+        return
+    latest, ten_day, spot = (bundle[relative] for relative in FORECAST_FILES)
+    apply_display_overrides_to_row(latest, overrides)
+    for row in ten_day if isinstance(ten_day, list) else []:
+        apply_display_overrides_to_row(row, overrides)
+    if isinstance(spot, dict):
+        apply_display_overrides_to_row(spot.get("latest"), overrides)
+        for row in spot.get("tenDay") or []:
+            apply_display_overrides_to_row(row, overrides)
+
 
 def mirror_forecast_set(source_root: pathlib.Path, destination_root: pathlib.Path) -> list[pathlib.Path]:
     source_bundle = {relative: load_json(source_root / relative) for relative in FORECAST_FILES}
@@ -153,7 +214,8 @@ def mirror_forecast_set(source_root: pathlib.Path, destination_root: pathlib.Pat
         if destination_generated is not None and source_generated < destination_generated:
             print(f"Skipping older forecast set: {source_generated.isoformat()} < {destination_generated.isoformat()}")
             return []
-    if all(
+    overrides = load_display_overrides(destination_root)
+    if not overrides and all(
         (destination_root / relative).exists()
         and (source_root / relative).read_bytes() == (destination_root / relative).read_bytes()
         for relative in FORECAST_FILES
@@ -166,6 +228,12 @@ def mirror_forecast_set(source_root: pathlib.Path, destination_root: pathlib.Pat
             staged = stage / relative
             staged.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_root / relative, staged)
+        if overrides:
+            staged_bundle = {relative: load_json(stage / relative) for relative in FORECAST_FILES}
+            before = json.dumps([staged_bundle[r] for r in FORECAST_FILES], sort_keys=True)
+            apply_display_overrides(staged_bundle, overrides)
+            for relative in FORECAST_FILES if json.dumps([staged_bundle[r] for r in FORECAST_FILES], sort_keys=True) != before else ():
+                (stage / relative).write_text(json.dumps(staged_bundle[relative], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         validate_forecast_set({relative: load_json(stage / relative) for relative in FORECAST_FILES})
         for relative in FORECAST_FILES:
             destination = destination_root / relative
