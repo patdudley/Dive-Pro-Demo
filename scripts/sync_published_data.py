@@ -167,15 +167,24 @@ def apply_display_overrides_to_row(row: Any, overrides: list[dict[str, Any]]) ->
         if str(row.get("date")) != str(entry["date"]):
             continue
         model_grade = row.get("grade")
-        if model_grade == entry["grade"]:
+        model_range = row.get("estimated_visibility_range_ft")
+        entry_range = entry.get("visibility_range_ft")
+        range_changes = isinstance(entry_range, list) and len(entry_range) == 2 and entry_range != model_range
+        if model_grade == entry["grade"] and not range_changes:
             continue
         row["grade"] = entry["grade"]
-        row["display_override"] = {
+        record = {
             "source": "manual_display_override",
             "grade": entry["grade"],
             "model_grade": model_grade,
             "reason": str(entry.get("reason") or "Owner display override"),
         }
+        if range_changes:
+            row["estimated_visibility_range_ft"] = list(entry_range)
+            record["visibility_range_ft"] = list(entry_range)
+            record["model_visibility_range_ft"] = model_range
+            record["basis"] = str(entry.get("basis") or "owner_directed")
+        row["display_override"] = record
         text = row.get("report_text")
         if isinstance(text, str) and f"a {model_grade} grade" in text:
             row["report_text"] = text.replace(
