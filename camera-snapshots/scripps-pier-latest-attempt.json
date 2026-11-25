@@ -1,7 +1,7 @@
 {
   "capture_ok": false,
-  "captured_at_local": "2026-11-25T08:02:48-08:00",
-  "captured_at_utc": "2026-11-25T16:02:48Z",
+  "captured_at_local": "2026-11-25T14:32:31-08:00",
+  "captured_at_utc": "2026-11-25T22:32:31Z",
   "confidence": null,
   "display_policy_version": "camera-coupling-v1",
   "failure_code": "SourceOfflineError",
@@ -17,7 +17,7 @@
   "prompt_version": "openai-scripps-pylon-reference-v3",
   "rubric_version": "scripps-pylon-distances-v3",
   "schema_version": "1",
-  "slot": "08:00",
+  "slot": "14:00",
   "slots_completed": {},
   "source_availability": "offline",
   "source_freshness_verified": false,
